@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Rabbiter</string>
+    <string name="action_settings">Settings</string>
+    <array name="DecideOnPhType">
+        <item>Choose from gallery</item>
+        <item>Take a photo</item>
+    </array>
+</resources>
