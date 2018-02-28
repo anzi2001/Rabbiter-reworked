@@ -23,25 +23,35 @@ public class processEvents extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         UUID processEventUUID = (UUID) intent.getSerializableExtra("processEventUUID");
+        boolean happened = intent.getBooleanExtra("happened",false);
         SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.GERMANY);
         SQLite.select()
                 .from(Events.class)
                 .where(Events_Table.eventUUID.eq(processEventUUID))
                 .async()
                 .querySingleResultCallback((transaction, events) -> {
-                    events.yesClicked = true;
-                    if (events.typeOfEvent == 0) {
-                        events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " gave birth";
+                    if(happened) {
+                        events.yesClicked = true;
+                        if (events.typeOfEvent == 0) {
+                            events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " gave birth";
+                        } else if (events.typeOfEvent == 2) {
+                            events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " was moved into another cage";
+                        } else if (events.typeOfEvent == 3) {
+                            events.eventString = dateFormatter.format(events.dateOfEvent) + ": The group " + events.name + "was slaughtered";
+                        }
                     }
-                    else if (events.typeOfEvent == 2) {
-                        events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " was moved into another cage";
+                    else{
+                        //since we process a no event we can set the yesClicked to true, so it counts
+                        //as notified so it doesn't annoy the user
+                        events.yesClicked = true;
+                        if (events.typeOfEvent == 0) {
+                            events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " did not give birth";
+                        } else if (events.typeOfEvent == 2) {
+                            events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " wasn't moved into another cage";
+                        } else if (events.typeOfEvent == 3) {
+                            events.eventString = dateFormatter.format(events.dateOfEvent) + ": The group " + events.name + "wasn't slaughtered";
+                        }
                     }
-                    else if (events.typeOfEvent == 3) {
-                        events.eventString = dateFormatter.format(events.dateOfEvent) + ": The group " + events.name + "was slaughtered";
-                    }
-
-
-
 
                     events.update();
                 }).execute();

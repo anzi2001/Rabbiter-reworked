@@ -28,14 +28,23 @@ public class askNotifAgain extends IntentService {
                 .where(Events_Table.eventUUID.eq((UUID)intent.getSerializableExtra("eventUUID")))
                 .async()
                 .querySingleResultCallback((transaction, events) -> {
-                    events.timesNotified++;
-                    events.update();
+                    if(events.timesNotified >3){
+                        Intent processNoEvent = new Intent(this,processEvents.class);
+                        processNoEvent.putExtra("processEventUUID",events.eventUUID);
+                        processNoEvent.putExtra("happened",false);
+                        startService(processNoEvent);
+                    }
+                    else {
 
-                    Intent alertIntent = new Intent(this,AlertEventService.class);
-                    PendingIntent alertPending = PendingIntent.getBroadcast(this,2,alertIntent,0);
+                        events.timesNotified++;
+                        events.update();
 
-                    AlarmManager manager =(AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                    manager.set(AlarmManager.RTC_WAKEUP,events.dateOfEvent.getTime()+(1000L*60*60),alertPending);
+                        Intent alertIntent = new Intent(this, AlertEventService.class);
+                        PendingIntent alertPending = PendingIntent.getBroadcast(this, 2, alertIntent, 0);
+
+                        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                        manager.set(AlarmManager.RTC_WAKEUP, events.dateOfEvent.getTime() + (1000L * 60 * 60), alertPending);
+                    }
                 }).execute();
     }
 }
