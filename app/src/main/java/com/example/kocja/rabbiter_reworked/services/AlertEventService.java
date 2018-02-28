@@ -24,14 +24,13 @@ import java.util.UUID;
 public class AlertEventService extends IntentService {
     private static final int START_YES_ACTION =4;
     private static final int START_NO_ACTION = 5;
-    public static final int ADD_FROM_SERVICE =3;
+    public static final int ADD_BIRTH_FROM_SERVICE =3;
     public AlertEventService(){
         super("This is a AlertEventService");
     }
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         UUID eventUUID =(UUID) intent.getSerializableExtra("eventUUID");
-        String bothParents = intent.getStringExtra("bothParents");
 
         Intent noIntent = new Intent(this,askNotifAgain.class);
         noIntent.putExtra("eventUUID",eventUUID);
@@ -45,11 +44,12 @@ public class AlertEventService extends IntentService {
                 .and(Events_Table.yesClicked.eq(false))
                 .async()
                 .querySingleResultCallback((transaction, events) -> {
-                    if(events != null && bothParents != null){
+                    if(events != null && events.secondParent != null){
+
                         Intent yesIntent = new Intent(this,addEntryActivity.class);
                         yesIntent.putExtra("eventUUID",eventUUID);
-                        yesIntent.putExtra("getMode",ADD_FROM_SERVICE);
-                        yesIntent.putExtra("bothParents",bothParents);
+                        yesIntent.putExtra("getMode", ADD_BIRTH_FROM_SERVICE);
+                        yesIntent.putExtra("happened",true);
                         PendingIntent yesAction = PendingIntent.getBroadcast(this,START_YES_ACTION,yesIntent,0);
 
                         NotificationCompat.Builder alertEvent = new NotificationCompat.Builder(this,"id")
@@ -58,23 +58,39 @@ public class AlertEventService extends IntentService {
                                 .setOngoing(true)
                                 .addAction(0,"Yes",yesAction)
                                 .addAction(0,"No",noAction);
+                        events.id = new Random().nextInt();
+                        notificationManager.notify(events.id,alertEvent.build());
+                    }
+                    else if(events != null && events.typeOfEvent == 1){
 
-                        notificationManager.notify(START_NO_ACTION,alertEvent.build());
+                        NotificationCompat.Builder alertEvent = new NotificationCompat.Builder(this,"id")
+                                .setContentTitle("Event!")
+                                .setContentText(events.eventString);
+                        events.id = new Random().nextInt();
+
+                        Intent processEvents = new Intent(this, com.example.kocja.rabbiter_reworked.services.processEvents.class);
+                        processEvents.putExtra("processEventUUID",eventUUID);
+                        startService(processEvents);
+
+                        notificationManager.notify(events.id,alertEvent.build());
                     }
                     else if(events != null){
+
                         Intent yesProcessEvent = new Intent(this,processEvents.class);
                         yesProcessEvent.putExtra("processEventUUID",events.eventUUID);
+                        yesProcessEvent.putExtra("happened",true);
                         PendingIntent yesProcessPending = PendingIntent.getBroadcast(this,START_YES_ACTION,yesProcessEvent,0);
 
                         NotificationCompat.Builder alertEvent = new NotificationCompat.Builder(this,"id")
                                 .setContentTitle("Event!")
                                 .setContentText(events.eventString)
+                                .setOngoing(true)
                                 .addAction(0,"Yes",yesProcessPending)
                                 .addAction(0,"No",noAction);
                         events.id = new Random().nextInt();
                         notificationManager.notify(events.id,alertEvent.build());
-                        events.update();
                     }
+                    events.update();
                 }).execute();
 
 

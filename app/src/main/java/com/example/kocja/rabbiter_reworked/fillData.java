@@ -8,7 +8,6 @@ import com.example.kocja.rabbiter_reworked.adapters.EntriesAdapter;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
 import com.example.kocja.rabbiter_reworked.databases.Entry_Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +17,7 @@ import java.util.List;
  */
 
 class fillData {
-    static List<Entry> getResources(Context context, GridView view){
+    static List<Entry> getEntries(Context context, GridView view){
         final List<Entry> temporaryList = new ArrayList<>(0);
         SQLite.select()
                 .from(Entry.class)

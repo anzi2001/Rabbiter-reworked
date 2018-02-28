@@ -16,13 +16,17 @@ public class Events extends BaseModel {
     @PrimaryKey
     public UUID eventUUID;
     @Column
-    public String parents;
+    public String name;
+    @Column
+    public String secondParent;
     @Column
     public String eventString;
     @Column
     public Date dateOfEvent;
     @Column
     public int id;
+    @Column
+    public int typeOfEvent;
     @Column(defaultValue = "1")
     public int timesNotified;
     @Column(defaultValue = "false")

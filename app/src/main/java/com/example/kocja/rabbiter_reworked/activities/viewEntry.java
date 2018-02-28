@@ -65,7 +65,7 @@ public class viewEntry extends AppCompatActivity {
         editEntry.setOnClickListener(view -> {
             Intent startEditProc = new Intent(viewEntry.this,addEntryActivity.class);
             startEditProc.putExtra("getMode",addEntryActivity.EDIT_EXISTING_ENTRY);
-            startEditProc.putExtra("EntryTest",mainEntry.entryID);
+            startEditProc.putExtra("entryEdit",mainEntry.entryID);
             startActivityForResult(startEditProc,addEntryActivity.EDIT_EXISTING_ENTRY);
         });
     }

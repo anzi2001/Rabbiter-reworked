@@ -12,6 +12,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -28,6 +30,7 @@ import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.example.kocja.rabbiter_reworked.databases.appDatabase;
 import com.example.kocja.rabbiter_reworked.services.AlertEventService;
+import com.example.kocja.rabbiter_reworked.services.processEvents;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
@@ -50,7 +53,6 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private static final int REQUEST_TAKE_PHOTO = 0;
     private static final int SELECT_PHOTO = 1;
     public static final int EDIT_EXISTING_ENTRY = 2;
-    private static final int ADD_FROM_SERVICE = 3;
     private static boolean takeBirthDateCal = false;
     private SimpleDateFormat defaultFormatter;
     private EditText addBirthDate;
@@ -114,17 +116,24 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
         ArrayAdapter<String> genderAdapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{"Male","Female","Group"});
         genderSpinner.setAdapter(genderAdapter);
-        genderSpinner.setOnItemClickListener((adapterView, view, i, l) -> {
-            if(genderSpinner.getSelectedItem().toString().equals("Group")){
-                matedWith.setText("Parents: ");
+        genderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if(genderSpinner.getSelectedItem().toString().equals("Group")){
+                    matedWith.setText("Parents: ");
+                }
+                else{
+                    matedWith.setText("Mated with: ");
+                }
             }
-            else{
-                matedWith.setText("Mated with: ");
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
             }
         });
 
         if(getMode == EDIT_EXISTING_ENTRY){
-            UUID entryUUID = (UUID) getIntent().getSerializableExtra("EntryTest");
+            UUID entryUUID = (UUID) getIntent().getSerializableExtra("entryEdit");
             SQLite.select()
                     .from(Entry.class)
                     .where(Entry_Table.entryID.eq(entryUUID))
@@ -140,16 +149,19 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                         Glide.with(addEntryActivity.this).load(editable.mergedEntryPhLoc).into(baseImage);
                     }).execute();
         }
-        else if(getMode == AlertEventService.ADD_FROM_SERVICE){
+        else if(getMode == AlertEventService.ADD_BIRTH_FROM_SERVICE){
             Intent intent = getIntent();
             SQLite.select()
                     .from(Events.class)
                     .where(Events_Table.eventUUID.eq((UUID)intent.getSerializableExtra("eventUUID")))
                     .async()
                     .querySingleResultCallback((transaction, events) -> {
-                        events.yesClicked = true;
-                        events.update();
-                        addMatedWith.setText(intent.getStringExtra("firstParent")+", "+ intent.getStringExtra("secondParent"));
+                        addMatedWith.setText(events.name + ", " + events.secondParent);
+
+                        Intent processEventsIntent = new Intent(this,processEvents.class);
+                        processEventsIntent.putExtra("processEventUUID",events.eventUUID);
+                        processEventsIntent.putExtra("happened",intent.getBooleanExtra("happened",false));
+                        startService(processEventsIntent);
                     }).execute();
         }
 
@@ -177,57 +189,66 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
 
                 if(getMode != EDIT_EXISTING_ENTRY) {
-
                     if (spinnerSelectedItem.equals("Female")) {
+                        if(rabbitEntry.matedDate != null) {
+                            Events giveBirth = new Events();
+                            Date UpcomingBirth = new Date(rabbitEntry.matedDate.getTime() + (1000L * 60 * 60 * 24 * 31));
+                            giveBirth.eventUUID = UUID.randomUUID();
+                            giveBirth.name = rabbitEntry.entryName;
+                            giveBirth.secondParent = rabbitEntry.matedWithOrParents;
+                            giveBirth.eventString = defaultFormatter.format(UpcomingBirth) + ": " + "Did " + rabbitEntry.entryName + " give birth?";
+                            giveBirth.dateOfEvent = UpcomingBirth;
+                            giveBirth.typeOfEvent = 0;
+                            giveBirth.save();
+                            rabbitEntry.firstEvent = giveBirth.eventUUID;
+
+                            alertEventService.putExtra("eventUUID", giveBirth.eventUUID);
+                            manager.set(AlarmManager.RTC_WAKEUP, UpcomingBirth.getTime(), readyMatingAlarm);
 
 
-                        Events giveBirth = new Events();
-                        Date UpcomingBirth = new Date(rabbitEntry.matedDate.getTime() * (1000L * 60 * 60 * 24 * 31));
-                        giveBirth.eventUUID = UUID.randomUUID();
-                        giveBirth.eventString = defaultFormatter.format(UpcomingBirth) + ": " + "Did " + rabbitEntry.entryName +" give birth?" ;
-                        giveBirth.dateOfEvent = UpcomingBirth;
-                        giveBirth.save();
-                        rabbitEntry.firstEvent = giveBirth.eventUUID;
+                            Events readyMating = new Events();
+                            Date readyMateDate = new Date(UpcomingBirth.getTime() + (1000L * 60 * 60 * 24 * 66));
+                            readyMating.eventUUID = UUID.randomUUID();
+                            readyMating.name = rabbitEntry.entryName;
+                            readyMating.eventString = defaultFormatter.format(readyMateDate) + ": " + rabbitEntry.entryName + " is ready for mating";
+                            readyMating.dateOfEvent = readyMateDate;
+                            readyMating.typeOfEvent = 1;
+                            readyMating.save();
+                            rabbitEntry.secondEvent = readyMating.eventUUID;
 
-                        alertEventService.putExtra("eventUUID",giveBirth.eventUUID);
-                        alertEventService.putExtra("bothParents",rabbitEntry.entryName +", " + rabbitEntry.matedWithOrParents);
-                        manager.set(AlarmManager.RTC_WAKEUP,UpcomingBirth.getTime(),readyMatingAlarm);
-
-
-                        Events readyMating = new Events();
-                        Date readyMateDate = new Date(UpcomingBirth.getTime() * (1000L * 60 * 60 * 24 * 66));
-                        readyMating.eventUUID = UUID.randomUUID();
-                        readyMating.eventString = defaultFormatter.format(readyMateDate) + ": " + rabbitEntry.entryName + " is ready for mating";
-                        readyMating.dateOfEvent = readyMateDate;
-                        readyMating.save();
-                        rabbitEntry.secondEvent = readyMating.eventUUID;
-
-                        alertEventService.putExtra("eventUUID",readyMating.eventUUID);
-                        manager.set(AlarmManager.RTC_WAKEUP,readyMateDate.getTime(),readyMatingAlarm);
+                            alertEventService.putExtra("eventUUID", readyMating.eventUUID);
+                            manager.set(AlarmManager.RTC_WAKEUP, readyMateDate.getTime(), readyMatingAlarm);
+                        }
 
                     } else if (spinnerSelectedItem.equals("Group")) {
-                        Events moveEvent = new Events();
-                        Date moveDate = new Date(rabbitEntry.birthDate.getTime() + (1000L * 60 * 60 * 24 * 62));
-                        moveEvent.eventUUID = UUID.randomUUID();
-                        moveEvent.eventString = defaultFormatter.format(moveDate) + ": Was the group " + rabbitEntry.entryName + " moved into another cage?";
-                        moveEvent.dateOfEvent = moveDate;
-                        moveEvent.save();
-                        rabbitEntry.firstEvent = moveEvent.eventUUID;
+                        if(rabbitEntry.birthDate != null) {
+                            Events moveEvent = new Events();
+                            Date moveDate = new Date(rabbitEntry.birthDate.getTime() + (1000L * 60 * 60 * 24 * 62));
+                            moveEvent.eventUUID = UUID.randomUUID();
+                            moveEvent.name = rabbitEntry.entryName;
+                            moveEvent.eventString = defaultFormatter.format(moveDate) + ": Was the group " + rabbitEntry.entryName + " moved into another cage?";
+                            moveEvent.dateOfEvent = moveDate;
+                            moveEvent.typeOfEvent = 2;
+                            moveEvent.save();
+                            rabbitEntry.firstEvent = moveEvent.eventUUID;
 
-                        alertEventService.putExtra("eventUUID",moveEvent.eventUUID);
-                        manager.set(AlarmManager.RTC_WAKEUP,moveDate.getTime(),readyMatingAlarm);
+                            alertEventService.putExtra("eventUUID", moveEvent.eventUUID);
+                            manager.set(AlarmManager.RTC_WAKEUP, moveDate.getTime(), readyMatingAlarm);
 
 
-                        Events slaughterEvent = new Events();
-                        Date slaughterDate = new Date(rabbitEntry.birthDate.getTime() + (1000L * 60 * 60 * 24 * 124));
-                        slaughterEvent.eventUUID = UUID.randomUUID();
-                        slaughterEvent.eventString = defaultFormatter.format(slaughterDate) + ": Was the group " + rabbitEntry.entryName + " slaughtered?";
-                        slaughterEvent.dateOfEvent = slaughterDate;
-                        slaughterEvent.save();
-                        rabbitEntry.secondEvent = slaughterEvent.eventUUID;
+                            Events slaughterEvent = new Events();
+                            Date slaughterDate = new Date(rabbitEntry.birthDate.getTime() + (1000L * 60 * 60 * 24 * 124));
+                            slaughterEvent.eventUUID = UUID.randomUUID();
+                            slaughterEvent.name = rabbitEntry.entryName;
+                            slaughterEvent.eventString = defaultFormatter.format(slaughterDate) + ": Was the group " + rabbitEntry.entryName + " slaughtered?";
+                            slaughterEvent.dateOfEvent = slaughterDate;
+                            slaughterEvent.typeOfEvent = 3;
+                            slaughterEvent.save();
+                            rabbitEntry.secondEvent = slaughterEvent.eventUUID;
 
-                        alertEventService.putExtra("eventUUID",slaughterEvent.eventUUID);
-                        manager.set(AlarmManager.RTC_WAKEUP,slaughterDate.getTime(),readyMatingAlarm);
+                            alertEventService.putExtra("eventUUID", slaughterEvent.eventUUID);
+                            manager.set(AlarmManager.RTC_WAKEUP, slaughterDate.getTime(), readyMatingAlarm);
+                        }
                     }
                 }
 
@@ -238,7 +259,6 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             setResult(RESULT_OK);
             finish();
         });
-
 
     }
 

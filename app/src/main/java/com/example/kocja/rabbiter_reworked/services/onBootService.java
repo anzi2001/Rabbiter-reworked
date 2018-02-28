@@ -29,14 +29,13 @@ public class onBootService extends IntentService {
                 .and(Events_Table.yesClicked.eq(false))
                 .async()
                 .queryListResultCallback((transaction, tResult) -> {
-                    AlarmManager notifyManager =(AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                    AlarmManager alarmManager =(AlarmManager) getSystemService(Context.ALARM_SERVICE);
                     if(tResult != null){
                         for(Events event : tResult){
                             Intent setNotifcation = new Intent(this,AlertEventService.class);
                             setNotifcation.putExtra("eventUUID",event.eventUUID);
-                            setNotifcation.putExtra("firstParent",event.eventUUID);
                             PendingIntent setNotifIntent = PendingIntent.getBroadcast(this, new Random().nextInt(),setNotifcation,0);
-                            notifyManager.set(AlarmManager.RTC_WAKEUP,event.dateOfEvent.getTime(),setNotifIntent);
+                            alarmManager.set(AlarmManager.RTC_WAKEUP,event.dateOfEvent.getTime(),setNotifIntent);
 
                         }
                     }

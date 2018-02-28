@@ -45,7 +45,7 @@ public class rabbitActivity extends AppCompatActivity {
             startActivityForResult(addEntryIntent, ADD_ENTRY_START);
         });
         mainGrid = findViewById(R.id.mainGrid);
-        entriesList = fillData.getResources(this,mainGrid);
+        entriesList = fillData.getEntries(this,mainGrid);
         mainGrid.setOnItemClickListener((adapterView, view, i, l) -> {
             Intent startViewEntry = new Intent(rabbitActivity.this,viewEntry.class);
             startViewEntry.putExtra("entryID",(UUID)view.getTag());
@@ -115,7 +115,7 @@ public class rabbitActivity extends AppCompatActivity {
             firstMergeEntry = null;
             secondMergeEntry = null;
 
-            entriesList = fillData.getResources(rabbitActivity.this,mainGrid);
+            entriesList = fillData.getEntries(rabbitActivity.this,mainGrid);
         });
         splitFab.setOnClickListener(view -> {
             firstMergeEntry.isMerged = false;
@@ -131,7 +131,7 @@ public class rabbitActivity extends AppCompatActivity {
             firstMergeEntry = null;
             secondMergeEntry = null;
 
-            entriesList = fillData.getResources(rabbitActivity.this,mainGrid);
+            entriesList = fillData.getEntries(rabbitActivity.this,mainGrid);
         });
     }
 
@@ -167,7 +167,7 @@ public class rabbitActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode,int resultcode, Intent data){
         if(requestCode == ADD_ENTRY_START && resultcode == RESULT_OK){
-            entriesList = fillData.getResources(this,mainGrid);
+            entriesList = fillData.getEntries(this,mainGrid);
         }
     }
 }
