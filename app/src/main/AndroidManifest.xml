@@ -46,6 +46,7 @@
         <service android:name=".services.askNotifAgain"/>
         <service android:name=".services.onBootService"/>
         <service android:name=".services.processEvents"/>
+        <service android:name=".services.alertIfNotAlertedService"/>
 
         <receiver android:name=".BroadcastRecievers$onBootReciever">
             <intent-filter>

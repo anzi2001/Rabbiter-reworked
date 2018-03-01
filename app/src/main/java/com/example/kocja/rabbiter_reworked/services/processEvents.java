@@ -1,6 +1,8 @@
 package com.example.kocja.rabbiter_reworked.services;
 
 import android.app.IntentService;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 
@@ -30,6 +32,8 @@ public class processEvents extends IntentService {
                 .where(Events_Table.eventUUID.eq(processEventUUID))
                 .async()
                 .querySingleResultCallback((transaction, events) -> {
+                    NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    manager.cancel(events.id);
                     if(happened) {
                         events.yesClicked = true;
                         if (events.typeOfEvent == 0) {

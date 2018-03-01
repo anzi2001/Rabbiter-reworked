@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.example.kocja.rabbiter_reworked.activities.addEntryActivity;
 import com.example.kocja.rabbiter_reworked.activities.viewEntry;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
+import com.example.kocja.rabbiter_reworked.services.alertIfNotAlertedService;
 
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +37,9 @@ public class rabbitActivity extends AppCompatActivity {
         setContentView(R.layout.activity_rabbit);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Intent checkAlarms = new Intent(this,alertIfNotAlertedService.class);
+        startService(checkAlarms);
 
         FloatingActionButton addFab =  findViewById(R.id.addFab);
         FloatingActionButton mergeFab = findViewById(R.id.mergeFab);
