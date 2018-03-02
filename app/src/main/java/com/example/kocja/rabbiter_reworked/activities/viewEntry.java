@@ -1,13 +1,11 @@
 package com.example.kocja.rabbiter_reworked.activities;
 
-import android.app.DatePickerDialog;
-import android.content.DialogInterface;
-import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -20,10 +18,8 @@ import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.example.kocja.rabbiter_reworked.fragments.HistoryFragment;
 import com.example.kocja.rabbiter_reworked.fragments.viewEntryData;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -33,29 +29,41 @@ import java.util.UUID;
 public class viewEntry extends AppCompatActivity {
     private Entry mergedEntry;
     private Entry mainEntry;
+    private viewEntryData mainEntryFragment;
+    private viewEntryData mergedEntryFragment;
+    private UUID mainEntryUUID;
+    boolean dataChanged = false;
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_entry);
         Intent currentIntent = getIntent();
-        UUID mainEntryUUID =(UUID) currentIntent.getSerializableExtra("entryID");
+        mainEntryUUID =(UUID) currentIntent.getSerializableExtra("entryID");
         SQLite.select()
                 .from(Entry.class)
                 .where(Entry_Table.entryID.eq(mainEntryUUID))
                 .async()
                 .querySingleResultCallback((transaction, entry) -> {
+                    mainEntryFragment = (viewEntryData) getSupportFragmentManager().findFragmentById(R.id.mainEntryFragment);
+
                     HistoryFragment.setPastEvents(entry.entryName);
 
                     mainEntry = entry;
-                    viewEntryData mainEntryFragment = (viewEntryData) getSupportFragmentManager().findFragmentById(R.id.mainEntryFragment);
+
                     mainEntryFragment.setData(entry.entryName,entry.chooseGender,entry.birthDate,entry.matedDate,entry.matedWithOrParents);
 
-                    ImageView mainView = findViewById(R.id.imageView);
+                    ImageView mainView = findViewById(R.id.mainEntryView);
                     Glide.with(viewEntry.this).load(entry.entryPhLoc).into(mainView);
 
-                    viewEntryData mergedEntryFragment =(viewEntryData)getSupportFragmentManager().findFragmentById(R.id.mergedEntryFragment);
+                    mergedEntryFragment =(viewEntryData)getSupportFragmentManager().findFragmentById(R.id.mergedEntryFragment);
                     FragmentManager manager = getSupportFragmentManager();
 
                     if(entry.isMerged){
+                        View line = findViewById(R.id.line);
+                        line.setVisibility(View.VISIBLE);
+                        ImageView mergedView = findViewById(R.id.mergedView);
+                        mergedView.setVisibility(View.VISIBLE);
+                        Glide.with(this).load(entry.mergedEntryPhLoc).into(mergedView);
+
                         entry.mergedEntry.async().success((Transaction.Success) transaction1 -> {
 
                             mergedEntry = entry.mergedEntry;
@@ -77,26 +85,19 @@ public class viewEntry extends AppCompatActivity {
 
             AlertDialog.Builder assureDeletion = new AlertDialog.Builder(viewEntry.this)
                     .setTitle("Are you sure you want to delete?")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
+                    .setPositiveButton("Yes", (dialogInterface, i) ->
                             SQLite.select()
-                                    .from(Events.class)
-                                    .where(Events_Table.name.eq(mainEntry.entryName))
-                                    .async()
-                                    .queryListResultCallback(new QueryTransaction.QueryResultListCallback<Events>() {
-                                        @Override
-                                        public void onListQueryResult(QueryTransaction transaction, @NonNull List<Events> tResult) {
-                                            for(Events event: tResult){
-                                                event.delete();
-                                            }
-                                            mainEntry.delete();
-                                            setResult(RESULT_OK);
-                                            finish();
-                                        }
-                                    }).execute();
-                        }
-                    })
+                            .from(Events.class)
+                            .where(Events_Table.name.eq(mainEntry.entryName))
+                            .async()
+                            .queryListResultCallback((transaction, tResult) -> {
+                                for(Events event: tResult){
+                                    event.delete();
+                                }
+                                mainEntry.delete();
+                                setResult(RESULT_OK);
+                                finish();
+                            }).execute())
                     .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.cancel());
             assureDeletion.show();
 
@@ -108,5 +109,28 @@ public class viewEntry extends AppCompatActivity {
             startEditProc.putExtra("entryEdit",mainEntry.entryID);
             startActivityForResult(startEditProc,addEntryActivity.EDIT_EXISTING_ENTRY);
         });
+    }
+    public void onActivityResult(int requestCode,int resultCode,Intent data){
+        if(requestCode == addEntryActivity.EDIT_EXISTING_ENTRY && resultCode == RESULT_OK){
+            SQLite.select()
+                    .from(Entry.class)
+                    .where(Entry_Table.entryID.eq(mainEntryUUID))
+                    .async()
+                    .querySingleResultCallback((transaction, entry) -> {
+                                mainEntryFragment.setData(entry.entryName, entry.chooseGender, entry.birthDate, entry.matedDate, entry.matedWithOrParents);
+                            }
+                    ).execute();
+            dataChanged = true;
+
+        }
+    }
+    public void onBackPressed(){
+        if(dataChanged){
+            setResult(RESULT_OK);
+            finish();
+        }
+        else{
+            super.onBackPressed();
+        }
     }
 }

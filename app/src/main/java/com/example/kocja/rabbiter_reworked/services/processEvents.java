@@ -11,6 +11,7 @@ import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -35,13 +36,14 @@ public class processEvents extends IntentService {
                     NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     manager.cancel(events.id);
                     if(happened) {
+                        Date currentDate = new Date();
                         events.yesClicked = true;
                         if (events.typeOfEvent == 0) {
-                            events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " gave birth";
+                            events.eventString = dateFormatter.format(currentDate) + ": " + events.name + " gave birth";
                         } else if (events.typeOfEvent == 2) {
-                            events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " was moved into another cage";
+                            events.eventString = dateFormatter.format(currentDate) + ": " + events.name + " was moved into another cage";
                         } else if (events.typeOfEvent == 3) {
-                            events.eventString = dateFormatter.format(events.dateOfEvent) + ": The group " + events.name + "was slaughtered";
+                            events.eventString = dateFormatter.format(currentDate) + ": The group " + events.name + "was slaughtered";
                         }
                     }
                     else{

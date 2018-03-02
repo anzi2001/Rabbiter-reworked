@@ -2,6 +2,7 @@ package com.example.kocja.rabbiter_reworked.services;
 
 import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -28,7 +29,10 @@ public class askNotifAgain extends IntentService {
                 .where(Events_Table.eventUUID.eq((UUID)intent.getSerializableExtra("eventUUID")))
                 .async()
                 .querySingleResultCallback((transaction, events) -> {
-                    if(events.timesNotified >3){
+                    NotificationManager notifManager =(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    notifManager.cancel(events.id);
+
+                    if(events.timesNotified >2){
                         Intent processNoEvent = new Intent(this,processEvents.class);
                         processNoEvent.putExtra("processEventUUID",events.eventUUID);
                         processNoEvent.putExtra("happened",false);
