@@ -25,7 +25,7 @@ import java.util.List;
 public class UpcomingEventsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View upcomingList = inflater.inflate(R.layout.upcoming_fragment_layout,container,false);
+        View upcomingList = inflater.inflate(R.layout.upcoming_history_fragment_layout,container,false);
         ListView upcomingEvents = upcomingList.findViewById(R.id.upcomingList);
         SQLite.select()
                 .from(Events.class)

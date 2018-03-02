@@ -55,24 +55,11 @@
         app:layout_constraintVertical_bias="1.0" />
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/GenderIcon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        app:layout_constraintBottom_toTopOf="@+id/textName"
-        app:layout_constraintEnd_toEndOf="@+id/entryImage"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/entryImage"
-        app:layout_constraintTop_toTopOf="@+id/entryImage"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/MarkedOrNot"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/textName"
-        app:layout_constraintEnd_toStartOf="@+id/GenderIcon"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/entryImage"
         app:layout_constraintTop_toTopOf="@+id/entryImage"
         app:layout_constraintVertical_bias="0.0" />

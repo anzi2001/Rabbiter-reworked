@@ -1,8 +1,12 @@
 package com.example.kocja.rabbiter_reworked;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -23,6 +27,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class rabbitActivity extends AppCompatActivity {
     private static final int ADD_ENTRY_START = 0;
+    private static final int START_VIEW_ENTRY = 1;
+    private static final int START_PERMISSION_REQUEST =2;
     private int chosenEntriesCounter = 0;
     private GridView mainGrid;
     private List<Entry> entriesList;
@@ -37,6 +43,12 @@ public class rabbitActivity extends AppCompatActivity {
         setContentView(R.layout.activity_rabbit);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},START_PERMISSION_REQUEST);
+
+        }
 
         Intent checkAlarms = new Intent(this,alertIfNotAlertedService.class);
         startService(checkAlarms);
@@ -53,7 +65,7 @@ public class rabbitActivity extends AppCompatActivity {
         mainGrid.setOnItemClickListener((adapterView, view, i, l) -> {
             Intent startViewEntry = new Intent(rabbitActivity.this,viewEntry.class);
             startViewEntry.putExtra("entryID",(UUID)view.getTag());
-            startActivity(startViewEntry);
+            startActivityForResult(startViewEntry,START_VIEW_ENTRY);
         });
 
         mainGrid.setOnItemLongClickListener((adapterView, view, i, l) -> {
@@ -170,7 +182,7 @@ public class rabbitActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode,int resultcode, Intent data){
-        if(requestCode == ADD_ENTRY_START && resultcode == RESULT_OK){
+        if((requestCode == ADD_ENTRY_START ||requestCode == START_VIEW_ENTRY) && resultcode == RESULT_OK){
             entriesList = fillData.getEntries(this,mainGrid);
         }
     }

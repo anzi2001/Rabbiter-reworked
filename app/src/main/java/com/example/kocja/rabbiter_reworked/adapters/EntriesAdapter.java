@@ -1,6 +1,7 @@
 package com.example.kocja.rabbiter_reworked.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,15 +62,32 @@ public class EntriesAdapter extends BaseAdapter {
                     .load(singleEntry.entryPhLoc)
                     .into(entryImage);
 
+            entryImage.setBorderWidth(6);
+            switch (singleEntry.chooseGender) {
+                case "Female":
+                    entryImage.setBorderColor(Color.parseColor("#EC407A"));
+                    break;
+                case "Male":
+                    entryImage.setBorderColor(Color.BLUE);
+                    break;
+                default:
+                    entryImage.setBorderColor(Color.WHITE);
+                    break;
+            }
+
+
             if(singleEntry.isMerged) {
-                CircleImageView imageView = mainView.findViewById(R.id.mergedImage);
-                imageView.setVisibility(View.VISIBLE);
+                CircleImageView mergedImage = mainView.findViewById(R.id.mergedImage);
+                mergedImage.setVisibility(View.VISIBLE);
+
+                mergedImage.setBorderWidth(4);
+                mergedImage.setBorderColor(Color.WHITE);
 
                 Glide.with(mainContext)
                         .load(singleEntry.mergedEntryPhLoc)
-                        .into(imageView);
+                        .into(mergedImage);
 
-                textName.setText(singleEntry.entryName + ' ' + singleEntry.mergedEntryName);
+                textName.setText(singleEntry.entryName + ", " + singleEntry.mergedEntryName);
             }
             else{
                 textName.setText(singleEntry.entryName);
