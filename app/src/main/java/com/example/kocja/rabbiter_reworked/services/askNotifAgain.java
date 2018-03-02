@@ -12,6 +12,7 @@ import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -41,13 +42,14 @@ public class askNotifAgain extends IntentService {
                     else {
 
                         events.timesNotified++;
+                        events.dateOfEvent = new Date(events.dateOfEvent.getTime() + (1000L *60*60));
                         events.update();
 
                         Intent alertIntent = new Intent(this, AlertEventService.class);
                         PendingIntent alertPending = PendingIntent.getService(this, 2, alertIntent, 0);
 
                         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                        manager.set(AlarmManager.RTC_WAKEUP, events.dateOfEvent.getTime() + (1000L * 60 * 60), alertPending);
+                        manager.set(AlarmManager.RTC_WAKEUP, events.dateOfEvent.getTime(), alertPending);
                     }
                 }).execute();
     }

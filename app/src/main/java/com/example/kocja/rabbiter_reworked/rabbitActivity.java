@@ -93,6 +93,9 @@ public class rabbitActivity extends AppCompatActivity {
             else{
                 chosenEntriesCounter--;
                 markedOrNot.setVisibility(View.GONE);
+                if(firstMergeEntry.isMerged){
+                    animateDown(splitFab);
+                }
 
                 //If we're deselecting the entry, the second entry became the first, since
                 //we now have only 1 entry
@@ -105,7 +108,6 @@ public class rabbitActivity extends AppCompatActivity {
                 }
 
             }
-
 
             return true;
         });

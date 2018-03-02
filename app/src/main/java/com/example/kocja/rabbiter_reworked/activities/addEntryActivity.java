@@ -40,8 +40,10 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
@@ -58,12 +60,17 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private SimpleDateFormat defaultFormatter;
     private EditText addBirthDate;
     private EditText addMatingDate;
+    private EditText addName;
     private ImageView baseImage;
+    private Spinner matedWithSpinner;
+    private Spinner genderSpinner;
     private Date birthDate;
     private Date matingDate;
-    private Uri baseImageUri;
     private Date lastDate;
+    private Uri baseImageUri;
     private Entry editable;
+    ArrayAdapter<String> matedWithAdapter;
+    ArrayAdapter<String> genderAdapter;
 
     //NOTE Female events: firstEvent = birth, secondEvent = ready
     //NOTE Group events: firstEvent = move, secondEvent = slaughter
@@ -76,14 +83,15 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         addBirthDate = findViewById(R.id.addBirthDate);
         addMatingDate = findViewById(R.id.addMatingDate);
         baseImage = findViewById(R.id.mainImage);
+        genderSpinner = findViewById(R.id.addGender);
+        matedWithSpinner = findViewById(R.id.matedWithSpinner);
+        addName = findViewById(R.id.addName);
         final ImageButton addPhoto = findViewById(R.id.takePhoto);
-        final EditText addName = findViewById(R.id.addName);
-        final EditText addMatedWith = findViewById(R.id.addMatedWith);
         final TextView matedWith = findViewById(R.id.matedWith);
-        final Spinner genderSpinner = findViewById(R.id.addGender);
         final ImageButton addBirthDateCal = findViewById(R.id.addBirthDateCal);
         final ImageButton addMatingDateCal = findViewById(R.id.addMatingDateCal);
         final ImageButton addEntry = findViewById(R.id.addEntry);
+        final Spinner parentSpinner = findViewById(R.id.parentSpinner);
 
         int getMode = getIntent().getIntExtra("getMode",-1);
 
@@ -104,6 +112,19 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
         });
 
+        SQLite.select()
+                .from(Entry.class)
+                .async()
+                .queryListResultCallback((transaction, tResult) -> {
+                    List<String> allEntryNames = new ArrayList<>(tResult.size());
+                    for(Entry entry : tResult){
+                        allEntryNames.add(entry.entryName);
+                    }
+                    matedWithAdapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,allEntryNames);
+                    matedWithSpinner.setAdapter(matedWithAdapter);
+                    parentSpinner.setAdapter(matedWithAdapter);
+                    setEditableEntryProps(getMode);
+                }).execute();
 
 
         DatePickerDialog pickDate = new DatePickerDialog(this,addEntryActivity.this,2018,1,24);
@@ -117,15 +138,17 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             pickDate.show();
         });
 
-        ArrayAdapter<String> genderAdapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{"Male","Female","Group"});
+        genderAdapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{"Male","Female","Group"});
         genderSpinner.setAdapter(genderAdapter);
         genderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if(genderSpinner.getSelectedItem().toString().equals("Group")){
+                    parentSpinner.setVisibility(View.VISIBLE);
                     matedWith.setText("Parents: ");
                 }
                 else{
+                    parentSpinner.setVisibility(View.GONE);
                     matedWith.setText("Mated with: ");
                 }
             }
@@ -135,46 +158,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             }
         });
 
-        if(getMode == EDIT_EXISTING_ENTRY){
-            UUID entryUUID = (UUID) getIntent().getSerializableExtra("entryEdit");
-            SQLite.select()
-                    .from(Entry.class)
-                    .where(Entry_Table.entryID.eq(entryUUID))
-                    .async()
-                    .querySingleResultCallback((transaction, editable) -> {
-                        this.editable = editable;
-                        addName.setText(editable.entryName);
-                        addMatedWith.setText(editable.matedWithOrParents);
-                        genderSpinner.setSelection(genderAdapter.getPosition(editable.chooseGender));
-                        if (editable.birthDate != null) {
-                            birthDate = editable.birthDate;
-                            addBirthDate.setText(defaultFormatter.format(editable.birthDate));
-                        }
-                        if(editable.matedDate != null){
-                            matingDate = editable.matedDate;
-                            lastDate = editable.matedDate;
-                            addMatingDate.setText(defaultFormatter.format(editable.matedDate));
-                        }
-                        Glide.with(addEntryActivity.this).load(editable.mergedEntryPhLoc).into(baseImage);
-                    }).execute();
-        }
-        else if(getMode == AlertEventService.ADD_BIRTH_FROM_SERVICE){
-            Intent intent = getIntent();
-            SQLite.select()
-                    .from(Events.class)
-                    .where(Events_Table.eventUUID.eq((UUID)intent.getSerializableExtra("eventUUID")))
-                    .async()
-                    .querySingleResultCallback((transaction, events) -> {
-                        NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-                        manager.cancel(events.id);
-                        addMatedWith.setText(events.name + ", " + events.secondParent);
 
-                        Intent processEventsIntent = new Intent(this,processEvents.class);
-                        processEventsIntent.putExtra("processEventUUID",events.eventUUID);
-                        processEventsIntent.putExtra("happened",intent.getBooleanExtra("happened",false));
-                        startService(processEventsIntent);
-                    }).execute();
-        }
 
         addEntry.setOnClickListener(view ->{
 
@@ -188,7 +172,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                         editable.entryPhLoc = baseImageUri.toString();
                     }
                     editable.chooseGender = genderSpinner.getSelectedItem().toString();
-                    editable.matedWithOrParents = addMatedWith.getText().toString();
+                    editable.matedWithOrParents = matedWithSpinner.getSelectedItem().toString();
                     editable.birthDate = birthDate;
                     if(lastDate != matingDate){
                         editable.matedDate = matingDate;
@@ -205,10 +189,11 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                         rabbitEntry.entryPhLoc = baseImageUri.toString();
                     }
                     rabbitEntry.chooseGender = genderSpinner.getSelectedItem().toString();
-                    rabbitEntry.matedWithOrParents = addMatedWith.getText().toString();
+                    rabbitEntry.matedWithOrParents = matedWithSpinner.getSelectedItem().toString();
                     rabbitEntry.birthDate = birthDate;
                     rabbitEntry.matedDate = matingDate;
                     createEvents(rabbitEntry);
+
                     rabbitEntry.save(databaseWrapper);
                 }
 
@@ -357,6 +342,48 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                 PendingIntent slaughterEventAlarm = PendingIntent.getService(this, new Random().nextInt(),alertEventService,0);
                 manager.set(AlarmManager.RTC_WAKEUP, slaughterDate.getTime(), slaughterEventAlarm);
             }
+        }
+    }
+    private void setEditableEntryProps(int getMode){
+        if(getMode == EDIT_EXISTING_ENTRY){
+            UUID entryUUID = (UUID) getIntent().getSerializableExtra("entryEdit");
+            SQLite.select()
+                    .from(Entry.class)
+                    .where(Entry_Table.entryID.eq(entryUUID))
+                    .async()
+                    .querySingleResultCallback((transaction, editable) -> {
+                        this.editable = editable;
+                        addName.setText(editable.entryName);
+                        matedWithSpinner.setSelection(matedWithAdapter.getPosition(editable.matedWithOrParents));
+                        genderSpinner.setSelection(genderAdapter.getPosition(editable.chooseGender));
+                        if (editable.birthDate != null) {
+                            birthDate = editable.birthDate;
+                            addBirthDate.setText(defaultFormatter.format(editable.birthDate));
+                        }
+                        if(editable.matedDate != null){
+                            matingDate = editable.matedDate;
+                            lastDate = editable.matedDate;
+                            addMatingDate.setText(defaultFormatter.format(editable.matedDate));
+                        }
+                        Glide.with(addEntryActivity.this).load(editable.mergedEntryPhLoc).into(baseImage);
+                    }).execute();
+        }
+        else if(getMode == AlertEventService.ADD_BIRTH_FROM_SERVICE){
+            Intent intent = getIntent();
+            SQLite.select()
+                    .from(Events.class)
+                    .where(Events_Table.eventUUID.eq((UUID)intent.getSerializableExtra("eventUUID")))
+                    .async()
+                    .querySingleResultCallback((transaction, events) -> {
+                        NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+                        manager.cancel(events.id);
+                        matedWithSpinner.setSelection(matedWithAdapter.getPosition(events.name));//events.secondParent;
+
+                        Intent processEventsIntent = new Intent(this,processEvents.class);
+                        processEventsIntent.putExtra("processEventUUID",events.eventUUID);
+                        processEventsIntent.putExtra("happened",intent.getBooleanExtra("happened",false));
+                        startService(processEventsIntent);
+                    }).execute();
         }
     }
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -172,17 +173,6 @@
         app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/ic_event_note_black_24dp" />
 
-    <EditText
-        android:id="@+id/addMatedWith"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:hint="Mated With"
-        app:layout_constraintBaseline_toBaselineOf="@+id/matedWith"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/matedWith" />
-
     <ImageButton
         android:id="@+id/takePhoto"
         android:layout_width="wrap_content"
@@ -204,13 +194,45 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.972"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addMatedWith"
-        app:layout_constraintVertical_bias="0.428"
         app:srcCompat="@drawable/ic_check_black_24dp" />
+
+    <Spinner
+        android:id="@+id/matedWithSpinner"
+        android:layout_width="0dp"
+        android:layout_height="35dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/matedWith"
+        app:layout_constraintEnd_toStartOf="@+id/guideline4"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/matedWith"
+        app:layout_constraintTop_toTopOf="@+id/matedWith"
+        app:layout_constraintVertical_bias="0.703" />
+
+    <Spinner
+        android:id="@+id/parentSpinner"
+        android:layout_width="0dp"
+        android:layout_height="35dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="4dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/matedWithSpinner"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.272"
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintTop_toTopOf="@+id/matedWithSpinner"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.6" />
 
 </android.support.constraint.ConstraintLayout>

@@ -13,6 +13,7 @@ import android.widget.ListView;
 
 import com.example.kocja.rabbiter_reworked.R;
 import com.example.kocja.rabbiter_reworked.databases.Events;
+import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class UpcomingEventsFragment extends Fragment {
         ListView upcomingEvents = upcomingList.findViewById(R.id.upcomingList);
         SQLite.select()
                 .from(Events.class)
+                .where(Events_Table.yesClicked.eq(false))
                 .async()
                 .queryListResultCallback((transaction, events) -> {
                     List<String> noteToDisplay = new ArrayList<>(events.size());
