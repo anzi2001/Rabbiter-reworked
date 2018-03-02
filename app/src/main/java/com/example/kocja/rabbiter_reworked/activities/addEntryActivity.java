@@ -69,8 +69,8 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private Date lastDate;
     private Uri baseImageUri;
     private Entry editable;
-    ArrayAdapter<String> matedWithAdapter;
-    ArrayAdapter<String> genderAdapter;
+    private ArrayAdapter<String> matedWithAdapter;
+    private ArrayAdapter<String> genderAdapter;
 
     //NOTE Female events: firstEvent = birth, secondEvent = ready
     //NOTE Group events: firstEvent = move, secondEvent = slaughter

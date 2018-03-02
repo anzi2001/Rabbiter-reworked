@@ -32,7 +32,7 @@ public class viewEntry extends AppCompatActivity {
     private viewEntryData mainEntryFragment;
     private viewEntryData mergedEntryFragment;
     private UUID mainEntryUUID;
-    boolean dataChanged = false;
+    private boolean dataChanged = false;
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_entry);
@@ -116,9 +116,7 @@ public class viewEntry extends AppCompatActivity {
                     .from(Entry.class)
                     .where(Entry_Table.entryID.eq(mainEntryUUID))
                     .async()
-                    .querySingleResultCallback((transaction, entry) -> {
-                                mainEntryFragment.setData(entry.entryName, entry.chooseGender, entry.birthDate, entry.matedDate, entry.matedWithOrParents);
-                            }
+                    .querySingleResultCallback((transaction, entry) -> mainEntryFragment.setData(entry.entryName, entry.chooseGender, entry.birthDate, entry.matedDate, entry.matedWithOrParents)
                     ).execute();
             dataChanged = true;
 

@@ -1,4 +1,4 @@
-package com.example.kocja.rabbiter_reworked.BroadcastRecievers;
+package com.example.kocja.rabbiter_reworked.broadcastrecievers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,7 +10,7 @@ import com.example.kocja.rabbiter_reworked.services.onBootService;
  * Created by kocja on 27/02/2018.
  */
 
-public class onBootReciever extends BroadcastReceiver {
+public class onBootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Intent startOnBootService = new Intent(context,onBootService.class);

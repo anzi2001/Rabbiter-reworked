@@ -27,7 +27,7 @@ public class viewEntryData extends Fragment {
     private TextView matedDateText;
     private TextView matedWithText;
     private SimpleDateFormat fragmentFormat;
-    View mainView;
+    private View mainView;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

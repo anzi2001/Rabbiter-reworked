@@ -25,15 +25,11 @@ import java.util.List;
  */
 
 public class HistoryFragment extends Fragment {
-    LayoutInflater inflater;
-    ViewGroup container;
     private static View historyView;
     private static Context context;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         context = getContext();
-        this.inflater = inflater;
-        this.container = container;
         historyView = inflater.inflate(R.layout.upcoming_history_fragment_layout,container,false);
         return historyView;
     }

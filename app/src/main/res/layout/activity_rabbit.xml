@@ -22,7 +22,6 @@
     </android.support.design.widget.AppBarLayout>
 
     <include
-        android:id="@+id/include"
         layout="@layout/content_rabbit"
         android:layout_width="358dp"
         android:layout_height="0dp"

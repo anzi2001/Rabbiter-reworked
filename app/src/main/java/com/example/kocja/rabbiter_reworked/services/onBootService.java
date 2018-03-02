@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.databases.Events_Table;
@@ -25,16 +26,16 @@ public class onBootService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         SQLite.select()
                 .from(Events.class)
-                .where(Events_Table.timesNotified.lessThan(3))
-                .and(Events_Table.yesClicked.eq(false))
+                .where(Events_Table.yesClicked.eq(false))
                 .async()
                 .queryListResultCallback((transaction, tResult) -> {
                     AlarmManager alarmManager =(AlarmManager) getSystemService(Context.ALARM_SERVICE);
                     if(tResult != null){
+                        Intent setNotifcation = new Intent(this,AlertEventService.class);
+                        Random randomGen = new Random();
                         for(Events event : tResult){
-                            Intent setNotifcation = new Intent(this,AlertEventService.class);
                             setNotifcation.putExtra("eventUUID",event.eventUUID);
-                            PendingIntent setNotifIntent = PendingIntent.getBroadcast(this, new Random().nextInt(),setNotifcation,0);
+                            PendingIntent setNotifIntent = PendingIntent.getBroadcast(this, randomGen.nextInt(),setNotifcation,0);
                             alarmManager.set(AlarmManager.RTC_WAKEUP,event.dateOfEvent.getTime(),setNotifIntent);
 
                         }

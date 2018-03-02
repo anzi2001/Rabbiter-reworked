@@ -48,7 +48,7 @@
         <service android:name=".services.processEvents"/>
         <service android:name=".services.alertIfNotAlertedService"/>
 
-        <receiver android:name=".BroadcastRecievers$onBootReciever">
+        <receiver android:name=".broadcastrecievers.onBootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
