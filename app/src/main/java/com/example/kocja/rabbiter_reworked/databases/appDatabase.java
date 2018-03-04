@@ -13,7 +13,7 @@ public class appDatabase {
     static final int VERSION = 2;
 
     @Migration(version = 2,database = appDatabase.class)
-    class migration extends AlterTableMigration<Entry>{
+    public static class migration extends AlterTableMigration<Entry>{
 
         public migration(Class<Entry> table) {
             super(table);

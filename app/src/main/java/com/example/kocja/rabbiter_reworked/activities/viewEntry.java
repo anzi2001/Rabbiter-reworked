@@ -45,7 +45,13 @@ public class viewEntry extends AppCompatActivity {
                 .querySingleResultCallback((transaction, entry) -> {
                     mainEntryFragment = (viewEntryData) getSupportFragmentManager().findFragmentById(R.id.mainEntryFragment);
 
-                    HistoryFragment.setPastEvents(entry.entryName);
+                    HistoryFragment historyFragment = new HistoryFragment();
+                    if(entry.chooseGender.equals("Male")){
+                        historyFragment.maleParentOf(this,entry.entryName);
+                    }
+                    else {
+                        historyFragment.setPastEvents(this, entry.entryName);
+                    }
 
                     mainEntry = entry;
 

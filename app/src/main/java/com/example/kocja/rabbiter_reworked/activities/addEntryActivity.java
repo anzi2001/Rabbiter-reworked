@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -128,8 +129,8 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     setEditableEntryProps(getMode);
                 }).execute();
 
-
-        DatePickerDialog pickDate = new DatePickerDialog(this,addEntryActivity.this,2018,1,24);
+        Calendar c = Calendar.getInstance();
+        DatePickerDialog pickDate = new DatePickerDialog(this,addEntryActivity.this,c.get(Calendar.YEAR),c.get(Calendar.MONTH)+1,c.get(Calendar.DAY_OF_MONTH));
         addBirthDateCal.setOnClickListener(view -> {
             takeBirthDateCal = true;
             pickDate.show();
@@ -195,7 +196,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     }
                     rabbitEntry.chooseGender = genderSpinner.getSelectedItem().toString();
                     rabbitEntry.matedWithOrParents = matedWithSpinner.getSelectedItem().toString();
-                    rabbitEntry.secondParent = parentSpinner.getSelectedItem().toString();
+
                     rabbitEntry.birthDate = birthDate;
                     rabbitEntry.matedDate = matingDate;
                     createEvents(rabbitEntry);
@@ -252,9 +253,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         Uri photoURI = null;
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(this.getPackageManager()) != null) {
-            // Create the File where the pho
-            // to should go
-
+            // Create the File where the photo should go
             File photoFile = null;
             try {
                 photoFile = createImageFile(this);
@@ -272,8 +271,6 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                 this.startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
             Glide.with(this).load(photoURI).into(baseImage);
-
-
         }
         return photoURI;
     }
@@ -326,6 +323,8 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                 moveEvent.dateOfEvent = moveDate;
                 moveEvent.typeOfEvent = 2;
                 moveEvent.save();
+
+                rabbitEntry.secondParent = parentSpinner.getSelectedItem().toString();
                 rabbitEntry.firstEvent = moveEvent.eventUUID;
 
                 alertEventService.putExtra("eventUUID", moveEvent.eventUUID);

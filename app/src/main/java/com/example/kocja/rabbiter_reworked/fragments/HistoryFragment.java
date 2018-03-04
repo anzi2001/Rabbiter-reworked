@@ -13,10 +13,14 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.example.kocja.rabbiter_reworked.R;
+import com.example.kocja.rabbiter_reworked.databases.Entry;
+import com.example.kocja.rabbiter_reworked.databases.Entry_Table;
 import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,15 +29,14 @@ import java.util.List;
  */
 
 public class HistoryFragment extends Fragment {
-    private static View historyView;
-    private static Context context;
+    ListView historyList;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        context = getContext();
-        historyView = inflater.inflate(R.layout.upcoming_history_fragment_layout,container,false);
+        View historyView = inflater.inflate(R.layout.upcoming_history_fragment_layout, container, false);
+        historyList = historyView.findViewById(R.id.upcomingList);
         return historyView;
     }
-    public static void setPastEvents(String entryName){
+    public void setPastEvents(Context context,String entryName){
         SQLite.select()
                 .from(Events.class)
                 .where(Events_Table.name.eq(entryName))
@@ -45,11 +48,23 @@ public class HistoryFragment extends Fragment {
                         eventStrings.add(event.eventString);
                     }
 
-                    ListView historyList = historyView.findViewById(R.id.upcomingList);
                     ListAdapter adapter = new ArrayAdapter<>(context,android.R.layout.simple_list_item_1,eventStrings);
                     historyList.setAdapter(adapter);
                 }).execute();
-
     }
-
+    public void maleParentOf(Context context, String parent){
+        SQLite.select()
+                .from(Entry.class)
+                .where(Entry_Table.matedWithOrParents.eq(parent))
+                .or(Entry_Table.secondParent.eq(parent))
+                .async()
+                .queryListResultCallback((transaction, tResult) -> {
+                    List<String> parentOfList = new ArrayList<>(tResult.size());
+                    for(Entry entry : tResult){
+                        parentOfList.add("Parent of: " + entry.entryName);
+                    }
+                    ListAdapter adapter = new ArrayAdapter<>(context,android.R.layout.simple_list_item_1,parentOfList);
+                    historyList.setAdapter(adapter);
+                }).execute();
+    }
 }
