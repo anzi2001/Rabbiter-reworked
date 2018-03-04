@@ -49,7 +49,7 @@ public class viewEntry extends AppCompatActivity {
 
                     mainEntry = entry;
 
-                    mainEntryFragment.setData(entry.entryName,entry.chooseGender,entry.birthDate,entry.matedDate,entry.matedWithOrParents);
+                    mainEntryFragment.setData(entry);
 
                     ImageView mainView = findViewById(R.id.mainEntryView);
                     Glide.with(viewEntry.this).load(entry.entryPhLoc).into(mainView);
@@ -68,9 +68,7 @@ public class viewEntry extends AppCompatActivity {
 
                             mergedEntry = entry.mergedEntry;
 
-                            mergedEntryFragment.setData(
-                                    mergedEntry.entryName,mergedEntry.chooseGender,mergedEntry.birthDate,
-                                    mergedEntry.matedDate,mergedEntry.matedWithOrParents);
+                            mergedEntryFragment.setData(mergedEntry);
                         }).load();
                     }
                     else{
@@ -116,7 +114,7 @@ public class viewEntry extends AppCompatActivity {
                     .from(Entry.class)
                     .where(Entry_Table.entryID.eq(mainEntryUUID))
                     .async()
-                    .querySingleResultCallback((transaction, entry) -> mainEntryFragment.setData(entry.entryName, entry.chooseGender, entry.birthDate, entry.matedDate, entry.matedWithOrParents)
+                    .querySingleResultCallback((transaction, entry) -> mainEntryFragment.setData(entry)
                     ).execute();
             dataChanged = true;
 

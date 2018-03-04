@@ -23,6 +23,8 @@ public class Entry extends BaseModel{
     @Column
     public String matedWithOrParents;
     @Column
+    public String secondParent;
+    @Column
     public Date birthDate;
     @Column
     public Date matedDate;

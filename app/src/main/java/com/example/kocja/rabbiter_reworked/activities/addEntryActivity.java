@@ -71,6 +71,8 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private Entry editable;
     private ArrayAdapter<String> matedWithAdapter;
     private ArrayAdapter<String> genderAdapter;
+    private String lastGender;
+    private Spinner parentSpinner;
 
     //NOTE Female events: firstEvent = birth, secondEvent = ready
     //NOTE Group events: firstEvent = move, secondEvent = slaughter
@@ -91,7 +93,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         final ImageButton addBirthDateCal = findViewById(R.id.addBirthDateCal);
         final ImageButton addMatingDateCal = findViewById(R.id.addMatingDateCal);
         final ImageButton addEntry = findViewById(R.id.addEntry);
-        final Spinner parentSpinner = findViewById(R.id.parentSpinner);
+        parentSpinner = findViewById(R.id.parentSpinner);
 
         int getMode = getIntent().getIntExtra("getMode",-1);
 
@@ -173,8 +175,11 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     }
                     editable.chooseGender = genderSpinner.getSelectedItem().toString();
                     editable.matedWithOrParents = matedWithSpinner.getSelectedItem().toString();
+                    editable.secondParent = parentSpinner.getSelectedItem().toString();
                     editable.birthDate = birthDate;
-                    if(lastDate != matingDate){
+                    // i check if the date is not the same, initialize new events based on those dates
+                    // i do the same if the user is changing the gender from male to female or group
+                    if(lastDate != matingDate || (lastGender.equals("Male") && !editable.chooseGender.equals("Male"))){
                         editable.matedDate = matingDate;
                         createEvents(editable);
                     }
@@ -190,6 +195,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     }
                     rabbitEntry.chooseGender = genderSpinner.getSelectedItem().toString();
                     rabbitEntry.matedWithOrParents = matedWithSpinner.getSelectedItem().toString();
+                    rabbitEntry.secondParent = parentSpinner.getSelectedItem().toString();
                     rabbitEntry.birthDate = birthDate;
                     rabbitEntry.matedDate = matingDate;
                     createEvents(rabbitEntry);
@@ -265,7 +271,6 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 this.startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
-            //display a picture in intent. Save the uri as a string so i can save it later.
             Glide.with(this).load(photoURI).into(baseImage);
 
 
@@ -353,6 +358,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     .async()
                     .querySingleResultCallback((transaction, editable) -> {
                         this.editable = editable;
+                        lastGender = editable.chooseGender;
                         addName.setText(editable.entryName);
                         matedWithSpinner.setSelection(matedWithAdapter.getPosition(editable.matedWithOrParents));
                         genderSpinner.setSelection(genderAdapter.getPosition(editable.chooseGender));
@@ -377,7 +383,8 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     .querySingleResultCallback((transaction, events) -> {
                         NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
                         manager.cancel(events.id);
-                        matedWithSpinner.setSelection(matedWithAdapter.getPosition(events.name));//events.secondParent;
+                        matedWithSpinner.setSelection(matedWithAdapter.getPosition(events.name));
+                        parentSpinner.setSelection(matedWithAdapter.getPosition(events.secondParent));
 
                         Intent processEventsIntent = new Intent(this,processEvents.class);
                         processEventsIntent.putExtra("processEventUUID",events.eventUUID);
