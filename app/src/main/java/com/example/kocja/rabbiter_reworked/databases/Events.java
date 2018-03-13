@@ -24,10 +24,14 @@ public class Events extends BaseModel {
     @Column
     public Date dateOfEvent;
     @Column
+    public int rabbitsNum;
+    @Column
+    public int numDead;
+    @Column
     public int id;
     @Column
     public int typeOfEvent;
-    @Column(defaultValue = "1")
+    @Column
     public int timesNotified;
     @Column(defaultValue = "false")
     public boolean yesClicked;

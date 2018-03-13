@@ -29,30 +29,30 @@ import java.util.List;
  */
 
 public class HistoryFragment extends Fragment {
-    ListView historyList;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View historyView = inflater.inflate(R.layout.upcoming_history_fragment_layout, container, false);
-        historyList = historyView.findViewById(R.id.upcomingList);
-        return historyView;
+
+        return inflater.inflate(R.layout.upcoming_history_fragment_layout, container, false);
     }
-    public void setPastEvents(Context context,String entryName){
+    public static void setPastEvents(Context context,String entryName,ListView view){
         SQLite.select()
                 .from(Events.class)
                 .where(Events_Table.name.eq(entryName))
                 .and(Events_Table.yesClicked.eq(true))
                 .async()
                 .queryListResultCallback((transaction, tResult) -> {
+                    //historyList = context.findViewById(R.id.upcomingList);
                     List<String> eventStrings = new ArrayList<>(tResult.size());
                     for(Events event : tResult){
                         eventStrings.add(event.eventString);
                     }
-
-                    ListAdapter adapter = new ArrayAdapter<>(context,android.R.layout.simple_list_item_1,eventStrings);
-                    historyList.setAdapter(adapter);
+                    ListAdapter adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, eventStrings);
+                    view.setAdapter(adapter);
                 }).execute();
     }
-    public void maleParentOf(Context context, String parent){
+
+    public static void maleParentOf(Context context, String parent,ListView view){
         SQLite.select()
                 .from(Entry.class)
                 .where(Entry_Table.matedWithOrParents.eq(parent))
@@ -64,7 +64,7 @@ public class HistoryFragment extends Fragment {
                         parentOfList.add("Parent of: " + entry.entryName);
                     }
                     ListAdapter adapter = new ArrayAdapter<>(context,android.R.layout.simple_list_item_1,parentOfList);
-                    historyList.setAdapter(adapter);
+                    view.setAdapter(adapter);
                 }).execute();
     }
 }

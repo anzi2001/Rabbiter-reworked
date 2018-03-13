@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 
 import com.bumptech.glide.Glide;
 import com.example.kocja.rabbiter_reworked.R;
@@ -43,17 +45,18 @@ public class viewEntry extends AppCompatActivity {
                 .where(Entry_Table.entryID.eq(mainEntryUUID))
                 .async()
                 .querySingleResultCallback((transaction, entry) -> {
+                    mainEntry = entry;
+
                     mainEntryFragment = (viewEntryData) getSupportFragmentManager().findFragmentById(R.id.mainEntryFragment);
 
-                    HistoryFragment historyFragment = new HistoryFragment();
+                    ListView historyView = findViewById(R.id.upcomingList);
                     if(entry.chooseGender.equals("Male")){
-                        historyFragment.maleParentOf(this,entry.entryName);
+                        HistoryFragment.maleParentOf(this,entry.entryName,historyView);
                     }
                     else {
-                        historyFragment.setPastEvents(this, entry.entryName);
+                        HistoryFragment.setPastEvents(this, entry.entryName,historyView);
                     }
 
-                    mainEntry = entry;
 
                     mainEntryFragment.setData(entry);
 
@@ -83,36 +86,6 @@ public class viewEntry extends AppCompatActivity {
                                 .commit();
                     }
                 }).execute();
-
-        ImageButton deleteEntry = findViewById(R.id.deleteEntry);
-        deleteEntry.setOnClickListener(view -> {
-
-            AlertDialog.Builder assureDeletion = new AlertDialog.Builder(viewEntry.this)
-                    .setTitle("Are you sure you want to delete?")
-                    .setPositiveButton("Yes", (dialogInterface, i) ->
-                            SQLite.select()
-                            .from(Events.class)
-                            .where(Events_Table.name.eq(mainEntry.entryName))
-                            .async()
-                            .queryListResultCallback((transaction, tResult) -> {
-                                for(Events event: tResult){
-                                    event.delete();
-                                }
-                                mainEntry.delete();
-                                setResult(RESULT_OK);
-                                finish();
-                            }).execute())
-                    .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.cancel());
-            assureDeletion.show();
-
-        });
-        ImageButton editEntry = findViewById(R.id.editEntry);
-        editEntry.setOnClickListener(view -> {
-            Intent startEditProc = new Intent(viewEntry.this,addEntryActivity.class);
-            startEditProc.putExtra("getMode",addEntryActivity.EDIT_EXISTING_ENTRY);
-            startEditProc.putExtra("entryEdit",mainEntry.entryID);
-            startActivityForResult(startEditProc,addEntryActivity.EDIT_EXISTING_ENTRY);
-        });
     }
     public void onActivityResult(int requestCode,int resultCode,Intent data){
         if(requestCode == addEntryActivity.EDIT_EXISTING_ENTRY && resultCode == RESULT_OK){
@@ -120,8 +93,7 @@ public class viewEntry extends AppCompatActivity {
                     .from(Entry.class)
                     .where(Entry_Table.entryID.eq(mainEntryUUID))
                     .async()
-                    .querySingleResultCallback((transaction, entry) -> mainEntryFragment.setData(entry)
-                    ).execute();
+                    .querySingleResultCallback((transaction, entry) -> mainEntryFragment.setData(entry)).execute();
             dataChanged = true;
 
         }
@@ -134,5 +106,54 @@ public class viewEntry extends AppCompatActivity {
         else{
             super.onBackPressed();
         }
+    }
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_rabbit,menu);
+        if(!mainEntry.isMerged){
+            MenuItem showMerged = menu.findItem(R.id.showMergedEntry);
+            showMerged.setVisible(false);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.editEntry){
+            Intent startEditProc = new Intent(viewEntry.this,addEntryActivity.class);
+            startEditProc.putExtra("getMode",addEntryActivity.EDIT_EXISTING_ENTRY);
+            startEditProc.putExtra("entryEdit",mainEntry.entryID);
+            startActivityForResult(startEditProc,addEntryActivity.EDIT_EXISTING_ENTRY);
+        }
+        else if(id == R.id.deleteEntry){
+            AlertDialog.Builder assureDeletion = new AlertDialog.Builder(viewEntry.this)
+                    .setTitle("Are you sure you want to delete?")
+                    .setPositiveButton("Yes", (dialogInterface, i) ->
+                            SQLite.select()
+                                    .from(Events.class)
+                                    .where(Events_Table.name.eq(mainEntry.entryName))
+                                    .async()
+                                    .queryListResultCallback((transaction, tResult) -> {
+                                        for(Events event: tResult){
+                                            event.delete();
+                                        }
+                                        mainEntry.delete();
+                                        setResult(RESULT_OK);
+                                        finish();
+                                    }).execute())
+                    .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.cancel());
+            assureDeletion.show();
+        }
+        else if (id == R.id.showMergedEntry) {
+            Intent startMergedViewEntry = new Intent(getApplicationContext(), viewEntry.class);
+            startMergedViewEntry.putExtra("entryID", mainEntry.mergedEntry.entryID);
+            startActivity(startMergedViewEntry);
+        }
+        else if(id == R.id.entryStats){
+            Intent startStatActiv = new Intent(getApplicationContext(),viewEntryStats.class);
+            startStatActiv.putExtra("entryUUID",mainEntry.entryID);
+            startActivity(startStatActiv);
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

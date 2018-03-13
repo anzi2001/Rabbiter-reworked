@@ -31,6 +31,7 @@ public class UpcomingEventsFragment extends Fragment {
         SQLite.select()
                 .from(Events.class)
                 .where(Events_Table.yesClicked.eq(false))
+                .orderBy(Events_Table.dateOfEvent,true)
                 .async()
                 .queryListResultCallback((transaction, events) -> {
                     List<String> noteToDisplay = new ArrayList<>(events.size());

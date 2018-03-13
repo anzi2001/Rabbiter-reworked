@@ -36,13 +36,13 @@ public class Entry extends BaseModel{
     public boolean isChildMerged;
     @Column
     public String mergedEntryPhLoc;
+    /*@Column
+    public int groupSize;
     @Column
+    public int deadRabbits;
+    @Column*/
     public String mergedEntryName;
     @ForeignKey(stubbedRelationship = true)
     public Entry mergedEntry;
-    @Column
-    public UUID firstEvent;
-    @Column
-    public UUID secondEvent;
 }
 

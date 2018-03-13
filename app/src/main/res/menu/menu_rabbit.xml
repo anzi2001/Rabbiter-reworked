@@ -3,8 +3,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.kocja.rabbiter_reworked.rabbitActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/editEntry"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="Edit entry"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/deleteEntry"
+        android:orderInCategory="101"
+        android:title="Delete entry" />
+    <item
+        android:id="@+id/showMergedEntry"
+        android:orderInCategory="102"
+        android:title="Show merged entry" />
+    <item
+        android:id="@+id/entryStats"
+        android:orderInCategory="103"
+        android:title="Entry statistics" />
 </menu>

@@ -75,33 +75,6 @@
             app:layout_constraintVertical_bias="0.0"
             tools:layout="@layout/upcoming_history_fragment_layout" />
 
-        <ImageButton
-            android:id="@+id/deleteEntry"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            app:layout_constraintBottom_toTopOf="@+id/mainEntryFragment"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.972"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.1"
-            app:srcCompat="@drawable/ic_delete_black_24dp" />
-
-        <ImageButton
-            android:id="@+id/editEntry"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@android:color/transparent"
-            app:layout_constraintBottom_toTopOf="@+id/guideline2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.03"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.100000024"
-            app:srcCompat="@drawable/ic_edit_black_24dp" />
-
         <ImageView
             android:id="@+id/mainEntryView"
             android:layout_width="0dp"
