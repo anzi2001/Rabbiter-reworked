@@ -18,9 +18,7 @@ import com.example.kocja.rabbiter_reworked.databases.Entry_Table;
 import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +37,7 @@ public class HistoryFragment extends Fragment {
         SQLite.select()
                 .from(Events.class)
                 .where(Events_Table.name.eq(entryName))
-                .and(Events_Table.yesClicked.eq(true))
+                .and(Events_Table.notificationState.notEq(Events.NOT_YET_ALERTED))
                 .async()
                 .queryListResultCallback((transaction, tResult) -> {
                     //historyList = context.findViewById(R.id.upcomingList);

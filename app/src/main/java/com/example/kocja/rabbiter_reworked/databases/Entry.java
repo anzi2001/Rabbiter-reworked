@@ -14,6 +14,7 @@ import java.util.UUID;
  */
 @Table(database = appDatabase.class)
 public class Entry extends BaseModel{
+
     @PrimaryKey
     public UUID entryID;
     @Column
@@ -36,11 +37,7 @@ public class Entry extends BaseModel{
     public boolean isChildMerged;
     @Column
     public String mergedEntryPhLoc;
-    /*@Column
-    public int groupSize;
     @Column
-    public int deadRabbits;
-    @Column*/
     public String mergedEntryName;
     @ForeignKey(stubbedRelationship = true)
     public Entry mergedEntry;

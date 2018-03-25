@@ -1,6 +1,5 @@
 package com.example.kocja.rabbiter_reworked.activities;
 
-import android.support.v4.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -20,7 +19,6 @@ import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.example.kocja.rabbiter_reworked.fragments.HistoryFragment;
 import com.example.kocja.rabbiter_reworked.fragments.viewEntryData;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import java.util.UUID;
 
@@ -29,10 +27,8 @@ import java.util.UUID;
  */
 
 public class viewEntry extends AppCompatActivity {
-    private Entry mergedEntry;
     private Entry mainEntry;
     private viewEntryData mainEntryFragment;
-    private viewEntryData mergedEntryFragment;
     private UUID mainEntryUUID;
     private boolean dataChanged = false;
     public void onCreate(Bundle savedInstanceState){
@@ -57,34 +53,16 @@ public class viewEntry extends AppCompatActivity {
                         HistoryFragment.setPastEvents(this, entry.entryName,historyView);
                     }
 
-
                     mainEntryFragment.setData(entry);
 
                     ImageView mainView = findViewById(R.id.mainEntryView);
                     Glide.with(viewEntry.this).load(entry.entryPhLoc).into(mainView);
 
-                    mergedEntryFragment =(viewEntryData)getSupportFragmentManager().findFragmentById(R.id.mergedEntryFragment);
-                    FragmentManager manager = getSupportFragmentManager();
-
                     if(entry.isMerged){
-                        View line = findViewById(R.id.line);
-                        line.setVisibility(View.VISIBLE);
                         ImageView mergedView = findViewById(R.id.mergedView);
                         mergedView.setVisibility(View.VISIBLE);
                         Glide.with(this).load(entry.mergedEntryPhLoc).into(mergedView);
-
-                        entry.mergedEntry.async().success((Transaction.Success) transaction1 -> {
-
-                            mergedEntry = entry.mergedEntry;
-
-                            mergedEntryFragment.setData(mergedEntry);
-                        }).load();
-                    }
-                    else{
-                        manager.beginTransaction()
-                                .hide(mergedEntryFragment)
-                                .commit();
-                    }
+                    } 
                 }).execute();
     }
     public void onActivityResult(int requestCode,int resultCode,Intent data){
@@ -150,9 +128,9 @@ public class viewEntry extends AppCompatActivity {
             startActivity(startMergedViewEntry);
         }
         else if(id == R.id.entryStats){
-            Intent startStatActiv = new Intent(getApplicationContext(),viewEntryStats.class);
-            startStatActiv.putExtra("entryUUID",mainEntry.entryID);
-            startActivity(startStatActiv);
+            Intent startStatActivity = new Intent(getApplicationContext(),viewEntryStats.class);
+            startStatActivity.putExtra("entryUUID",mainEntry.entryID);
+            startActivity(startStatActivity);
         }
         return super.onOptionsItemSelected(item);
     }

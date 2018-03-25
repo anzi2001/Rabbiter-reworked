@@ -18,7 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageButton;  
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -57,7 +57,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private static final int REQUEST_TAKE_PHOTO = 0;
     private static final int SELECT_PHOTO = 1;
     public static final int EDIT_EXISTING_ENTRY = 2;
-    private static boolean takeBirthDateCal = false;
+    private boolean takeBirthDateCal = false;
     private SimpleDateFormat defaultFormatter;
     private EditText addBirthDate;
     private EditText addMatingDate;
@@ -76,15 +76,17 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private Spinner parentSpinner;
     private EditText rabbitsNum;
     private EditText deadRabbitNum;
-    private Intent alertEventService;
     private AlarmManager eventsManager;
-    //NOTE Female events: firstEvent = birth, secondEvent = ready
-    //NOTE Group events: firstEvent = move, secondEvent = slaughter
+    //NOTE: type 0: birth
+    //NOTE: type 1: ready for mating
+    //NOTE: type 2: move group
+    //NOTE: type 3: slaughter date
 
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_entry);
         setTitle("Add Entry");
+
         defaultFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.GERMANY);
         addBirthDate = findViewById(R.id.addBirthDate);
         addMatingDate = findViewById(R.id.addMatingDate);
@@ -137,7 +139,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                 }).execute();
 
         Calendar c = Calendar.getInstance();
-        DatePickerDialog pickDate = new DatePickerDialog(this,addEntryActivity.this,c.get(Calendar.YEAR),c.get(Calendar.MONTH)+1,c.get(Calendar.DAY_OF_MONTH));
+        DatePickerDialog pickDate = new DatePickerDialog(this,addEntryActivity.this,c.get(Calendar.YEAR),c.get(Calendar.MONTH),c.get(Calendar.DAY_OF_MONTH));
         addBirthDateCal.setOnClickListener(view -> {
             takeBirthDateCal = true;
             pickDate.show();
@@ -150,16 +152,26 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
         genderAdapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{"Male","Female","Group"});
         genderSpinner.setAdapter(genderAdapter);
+        TextView numDeadRabTitle = findViewById(R.id.deadNumTextTitle);
+        TextView rabbitsNumText = findViewById(R.id.rabbitsNumText);
         genderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if(genderSpinner.getSelectedItem().toString().equals("Group")){
                     parentSpinner.setVisibility(View.VISIBLE);
                     matedWith.setText("Parents: ");
+                    rabbitsNum.setVisibility(View.VISIBLE);
+                    deadRabbitNum.setVisibility(View.VISIBLE);
+                    numDeadRabTitle.setVisibility(View.VISIBLE);
+                    rabbitsNumText.setVisibility(View.VISIBLE);
                 }
                 else{
                     parentSpinner.setVisibility(View.GONE);
                     matedWith.setText("Mated with: ");
+                    rabbitsNum.setVisibility(View.GONE);
+                    deadRabbitNum.setVisibility(View.GONE);
+                    numDeadRabTitle.setVisibility(View.GONE);
+                    rabbitsNumText.setVisibility(View.GONE );
                 }
             }
 
@@ -171,7 +183,6 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
 
         addEntry.setOnClickListener(view ->{
-
 
             DatabaseDefinition database = FlowManager.getDatabase(appDatabase.class);
             Transaction transaction = database.beginTransactionAsync(databaseWrapper -> {
@@ -207,6 +218,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     rabbitEntry.birthDate = birthDate;
                     rabbitEntry.matedDate = matingDate;
                     createEvents(rabbitEntry);
+
 
                     rabbitEntry.save(databaseWrapper);
                 }
@@ -282,12 +294,11 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         return photoURI;
     }
     private void createEvents(Entry rabbitEntry){
-        alertEventService = new Intent(this, AlertEventService.class);
+
         eventsManager =(AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
         if (rabbitEntry.chooseGender.equals("Female")) {
             if(rabbitEntry.matedDate != null) {
-
 
                 Date UpcomingBirth = new Date(rabbitEntry.matedDate.getTime() + (1000L * 60 * 60 * 24 * 31));
                 newEvent(rabbitEntry,defaultFormatter.format(UpcomingBirth) + ": " + "Did " + rabbitEntry.entryName + " give birth?",UpcomingBirth,0);
@@ -317,14 +328,18 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         createEvent.eventString = eventString;
         createEvent.dateOfEvent = dateOfEvent;
         createEvent.typeOfEvent = type;
-        if(type == 0){
+        if(type == 0 && !deadRabbitNum.getText().toString().isEmpty()){
             createEvent.numDead = Integer.parseInt(deadRabbitNum.getText().toString());
+
+        }
+        if(type == 0 && !rabbitsNum.getText().toString().isEmpty()){
             createEvent.rabbitsNum = Integer.parseInt(rabbitsNum.getText().toString());
         }
         createEvent.save();
 
+        Intent alertEventService = new Intent(this, AlertEventService.class);
         alertEventService.putExtra("eventUUID", createEvent.eventUUID);
-        PendingIntent slaughterEventAlarm = PendingIntent.getService(this, new Random().nextInt(),alertEventService,0);
+        PendingIntent slaughterEventAlarm = PendingIntent.getService(this, new Random().nextInt(), alertEventService,PendingIntent.FLAG_CANCEL_CURRENT);
         eventsManager.set(AlarmManager.RTC_WAKEUP, dateOfEvent.getTime(), slaughterEventAlarm);
     }
     private void setEditableEntryProps(int getMode){

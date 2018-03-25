@@ -1,6 +1,8 @@
 package com.example.kocja.rabbiter_reworked.fragments;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -26,6 +28,8 @@ import java.util.UUID;
  */
 
 public class statsBirthFragment extends Fragment {
+    private int failedBirths = 0;
+    private int successBirths = 0;
     public static statsBirthFragment createNewFragment(String entryID,int page){
         Bundle passBundle = new Bundle();
         passBundle.putString("UUID",entryID);
@@ -36,6 +40,7 @@ public class statsBirthFragment extends Fragment {
         return newFragment;
 
     }
+    @SuppressLint("StaticFieldLeak")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View birthStats = inflater.inflate(R.layout.stats_birth_fragment,container,false);
@@ -45,38 +50,81 @@ public class statsBirthFragment extends Fragment {
                 .where(Entry_Table.entryID.eq(UUID.fromString(entryID)))
                 .async()
                 .querySingleResultCallback((transaction, entry) -> {
-                    GraphView birthGraph = birthStats.findViewById(R.id.BirthChart);
-                    TextView birthNum = birthStats.findViewById(R.id.birthNum);
-                    TextView deadNum = birthStats.findViewById(R.id.deadNum);
+                    final GraphView birthGraph = birthStats.findViewById(R.id.BirthChart);
+                    final GraphView deadRabbitsGraph = birthStats.findViewById(R.id.deadChart);
+                    final TextView successfulBirths = birthStats.findViewById(R.id.successBirths);
+                    final TextView failedBirthsText = birthStats.findViewById(R.id.failedBirthsText);
 
                     SQLite.select()
                             .from(Events.class)
                             .where(Events_Table.name.eq(entry.entryName))
+                            .and(Events_Table.typeOfEvent.eq(0))
                             .or(Events_Table.secondParent.eq(entry.entryName))
+                            .and(Events_Table.typeOfEvent.eq(0))
                             .orderBy(Events_Table.dateOfEvent,true)
                             .async()
                             .queryListResultCallback((transaction1, tResult) -> {
+                                new AsyncTask<Void,Void,Void>(){
+                                    @Override
+                                    protected Void doInBackground(Void... voids) {
 
-                                birthNum.setText(tResult.get(0).rabbitsNum);
-                                deadNum.setText(tResult.get(0).numDead);
+                                        LineGraphSeries<DataPoint> numBirthsSeries = new LineGraphSeries<>();
+                                        LineGraphSeries<DataPoint> averageBirthSeries = new LineGraphSeries<>();
+                                        LineGraphSeries<DataPoint> numDeathSeries = new LineGraphSeries<>();
+                                        LineGraphSeries<DataPoint> avgDeadRabbits = new LineGraphSeries<>();
 
-                                LineGraphSeries NumbirthsSeries = new LineGraphSeries<>();
-                                LineGraphSeries averageBirthSeries = new LineGraphSeries();
+                                        float avgRabbitsNum = 0;
+                                        float deadRabbitsNum = 0;
 
-                                float avgRabbitsNum = 0;
-                                for(Events singleEvent : tResult){
-                                    avgRabbitsNum += singleEvent.rabbitsNum;
-                                    NumbirthsSeries.appendData(new DataPoint(singleEvent.rabbitsNum,singleEvent.dateOfEvent.getTime()),true,50);
-                                }
-                                avgRabbitsNum /= tResult.size();
-                                for(Events singleEvent : tResult) {
-                                    averageBirthSeries.appendData(new DataPoint(avgRabbitsNum,singleEvent.dateOfEvent.getTime()),true,50);
-                                }
-                                NumbirthsSeries.setColor(Color.BLUE);
-                                birthGraph.addSeries(NumbirthsSeries);
-                                averageBirthSeries.setColor(Color.YELLOW);
-                                birthGraph.addSeries(averageBirthSeries);
-                                birthGraph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
+                                        for(Events singleEvent : tResult){
+                                            if(singleEvent.notificationState == Events.EVENT_SUCCESSFUL){
+                                                successBirths++;
+                                            }
+                                            else{
+                                                failedBirths++;
+                                            }
+                                            avgRabbitsNum += singleEvent.rabbitsNum;
+                                            deadRabbitsNum += singleEvent.numDead;
+
+                                            numBirthsSeries.appendData(new DataPoint(singleEvent.dateOfEvent.getTime(),singleEvent.rabbitsNum),true,50);
+                                        }
+                                        avgRabbitsNum /= tResult.size();
+                                        deadRabbitsNum /= tResult.size();
+
+                                        for(Events singleEvent : tResult) {
+                                            averageBirthSeries.appendData(new DataPoint(singleEvent.dateOfEvent.getTime(),avgRabbitsNum),true,50);
+                                        }
+
+
+                                        for(Events deadNumEvent : tResult){
+                                            numDeathSeries.appendData(new DataPoint(deadNumEvent.dateOfEvent.getTime(),deadNumEvent.numDead),true,50);
+                                            avgDeadRabbits.appendData(new DataPoint(deadNumEvent.dateOfEvent.getTime(),deadRabbitsNum),true,50);
+                                        }
+
+                                        numBirthsSeries.setColor(Color.BLUE);
+                                        birthGraph.addSeries(numBirthsSeries);
+                                        averageBirthSeries.setColor(Color.YELLOW);
+                                        birthGraph.addSeries(averageBirthSeries);
+
+                                        numDeathSeries.setColor(Color.BLUE);
+                                        deadRabbitsGraph.addSeries(numDeathSeries);
+                                        avgDeadRabbits.setColor(Color.YELLOW);
+                                        deadRabbitsGraph.addSeries(avgDeadRabbits);
+
+                                        return null;
+                                    }
+
+                                    @Override
+                                    protected void onPostExecute(Void aVoid) {
+                                        birthGraph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
+                                        birthGraph.getGridLabelRenderer().setNumHorizontalLabels(3);
+                                        deadRabbitsGraph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
+                                        deadRabbitsGraph.getGridLabelRenderer().setNumHorizontalLabels(3);
+                                        failedBirthsText.setText(Integer.toString(failedBirths));
+                                        successfulBirths.setText(Integer.toString(successBirths));
+                                        super.onPostExecute(aVoid);
+                                    }
+                                }.execute();
                             }).execute();
 
                 }).execute();
@@ -84,7 +132,6 @@ public class statsBirthFragment extends Fragment {
 
 
         return birthStats;
-
 
     }
 }

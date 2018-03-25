@@ -46,8 +46,9 @@ public class askNotifAgain extends IntentService {
                         events.update();
 
                         Intent alertIntent = new Intent(this, AlertEventService.class);
-                        PendingIntent alertPending = PendingIntent.getService(this, 2, alertIntent, 0);
+                        alertIntent.putExtra("eventUUID",events.eventUUID);
 
+                        PendingIntent alertPending = PendingIntent.getService(this, 2, alertIntent, 0);
                         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
                         manager.set(AlarmManager.RTC_WAKEUP, events.dateOfEvent.getTime(), alertPending);
                     }

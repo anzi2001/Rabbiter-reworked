@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:context=".activities.viewEntry">
 
     <android.support.constraint.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="1000dp"
+        android:layout_height="match_parent"
         android:minHeight="500dp">
 
 
@@ -20,69 +20,33 @@
             app:layout_constraintGuide_percent="0.3" />
 
         <android.support.constraint.Guideline
+            android:id="@+id/guideline3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.65" />
 
-        <View
-            android:id="@+id/line"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@id/mainEntryFragment"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/mergedEntryFragment"
-            app:layout_constraintVertical_bias="0.498" />
-
-        <fragment
-            android:id="@+id/mergedEntryFragment"
-            android:name="com.example.kocja.rabbiter_reworked.fragments.viewEntryData"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/mainEntryFragment"
-            app:layout_constraintVertical_bias="0.302"
-            tools:layout="@layout/fragment_view_entry_data" />
-
-        <fragment
-            android:id="@+id/mainEntryFragment"
-            android:name="com.example.kocja.rabbiter_reworked.fragments.viewEntryData"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/mainEntryView"
-            tools:layout="@layout/fragment_view_entry_data" />
-
         <fragment
             android:id="@+id/historyEvents"
             android:name="com.example.kocja.rabbiter_reworked.fragments.HistoryFragment"
-            android:layout_width="0dp"
-            android:layout_height="100dp"
+            android:layout_width="360dp"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/mergedEntryFragment"
-            app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintTop_toTopOf="@+id/guideline3"
             tools:layout="@layout/upcoming_history_fragment_layout" />
 
         <ImageView
             android:id="@+id/mainEntryView"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="152dp"
             app:layout_constraintBottom_toTopOf="@+id/guideline2"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0"
             app:srcCompat="@drawable/frame_imageview" />
 
         <ImageView
@@ -97,6 +61,17 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
             app:srcCompat="@drawable/frame_imageview" />
+
+        <fragment
+            android:id="@+id/mainEntryFragment"
+            android:name="com.example.kocja.rabbiter_reworked.fragments.viewEntryData"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/historyEvents"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mainEntryView"
+            tools:layout="@layout/fragment_view_entry_data" />
 
     </android.support.constraint.ConstraintLayout>
 </ScrollView>

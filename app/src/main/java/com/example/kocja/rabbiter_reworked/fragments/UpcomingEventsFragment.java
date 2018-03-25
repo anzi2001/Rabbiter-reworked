@@ -30,7 +30,8 @@ public class UpcomingEventsFragment extends Fragment {
         ListView upcomingEvents = upcomingList.findViewById(R.id.upcomingList);
         SQLite.select()
                 .from(Events.class)
-                .where(Events_Table.yesClicked.eq(false))
+                .where(Events_Table.notificationState.eq(Events.NOT_YET_ALERTED))
+                //.or(Events_Table.yesClicked.eq(Events.EVENT_SUCCESSFUL))
                 .orderBy(Events_Table.dateOfEvent,true)
                 .async()
                 .queryListResultCallback((transaction, events) -> {
@@ -38,11 +39,14 @@ public class UpcomingEventsFragment extends Fragment {
                     for(Events event : events){
                         noteToDisplay.add(event.eventString);
                     }
-                    ListAdapter listAdapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_list_item_1,noteToDisplay);
+                    ListAdapter listAdapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1,noteToDisplay);
                     upcomingEvents.setAdapter(listAdapter);
                 }).execute();
 
 
         return upcomingList;
+    }
+    public static void refreshFragment(){
+
     }
 }

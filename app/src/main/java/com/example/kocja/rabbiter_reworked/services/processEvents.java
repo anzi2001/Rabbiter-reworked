@@ -34,10 +34,12 @@ public class processEvents extends IntentService {
                 .async()
                 .querySingleResultCallback((transaction, events) -> {
                     NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    manager.cancel(events.id);
+                    if(events.typeOfEvent != 1){
+                        manager.cancel(events.id);
+                    }
                     if(happened) {
                         Date currentDate = new Date();
-                        events.yesClicked = true;
+                        events.notificationState = Events.EVENT_SUCCESSFUL;
                         if (events.typeOfEvent == 0) {
                             events.eventString = dateFormatter.format(currentDate) + ": " + events.name + " gave birth";
                         } else if (events.typeOfEvent == 2) {
@@ -47,14 +49,16 @@ public class processEvents extends IntentService {
                         }
                     }
                     else{
-                        //since we process a no event we can set the yesClicked to true, so it counts
-                        //as notified so it doesn't annoy the user
-                        events.yesClicked = true;
+                        //since we process a no event we can set the notificationState to EVENT_FAILED, so it counts
+                        //as notified and doesn't annoy the user
+                        events.notificationState = Events.EVENT_FAILED;
                         if (events.typeOfEvent == 0) {
                             events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " did not give birth";
-                        } else if (events.typeOfEvent == 2) {
+                        }
+                        else if (events.typeOfEvent == 2) {
                             events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " wasn't moved into another cage";
-                        } else if (events.typeOfEvent == 3) {
+                        }
+                        else if (events.typeOfEvent == 3) {
                             events.eventString = dateFormatter.format(events.dateOfEvent) + ": The group " + events.name + "wasn't slaughtered";
                         }
                     }

@@ -118,6 +118,7 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 27 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="com.android.support.constraint:constraint-layout-solver:1.1.0-beta6@jar" level="project" />
     <orderEntry type="library" name="com.android.support:animated-vector-drawable-27.1.0" level="project" />
     <orderEntry type="library" name="com.android.support:appcompat-v7-27.1.0" level="project" />
     <orderEntry type="library" name="com.android.support:design-27.1.0" level="project" />
@@ -129,13 +130,12 @@
     <orderEntry type="library" name="com.android.support:support-annotations:27.1.0@jar" level="project" />
     <orderEntry type="library" name="com.android.support:recyclerview-v7-27.1.0" level="project" />
     <orderEntry type="library" name="com.github.Raizlabs.DBFlow:dbflow-4.2.4" level="project" />
-    <orderEntry type="library" name="com.android.support.constraint:constraint-layout-solver:1.0.2@jar" level="project" />
-    <orderEntry type="library" name="com.android.support.constraint:constraint-layout-1.0.2" level="project" />
     <orderEntry type="library" name="com.jjoe64:graphview-4.2.1" level="project" />
     <orderEntry type="library" name="com.github.bumptech.glide:glide-4.6.1" level="project" />
     <orderEntry type="library" name="com.android.support:support-vector-drawable-27.1.0" level="project" />
     <orderEntry type="library" name="android.arch.lifecycle:runtime-1.1.0" level="project" />
     <orderEntry type="library" name="android.arch.lifecycle:common:1.1.0@jar" level="project" />
+    <orderEntry type="library" name="com.android.support.constraint:constraint-layout-1.1.0-beta6" level="project" />
     <orderEntry type="library" name="com.android.support:support-compat-27.1.0" level="project" />
     <orderEntry type="library" name="android.arch.lifecycle:viewmodel-1.1.0" level="project" />
     <orderEntry type="library" name="com.android.support:support-core-ui-27.1.0" level="project" />

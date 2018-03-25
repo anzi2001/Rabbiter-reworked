@@ -13,6 +13,9 @@ import java.util.UUID;
  */
 @Table(database = appDatabase.class)
 public class Events extends BaseModel {
+    public static final int EVENT_FAILED = -1;
+    public static final int NOT_YET_ALERTED = 0;
+    public static final int EVENT_SUCCESSFUL = 1;
     @PrimaryKey
     public UUID eventUUID;
     @Column
@@ -33,6 +36,6 @@ public class Events extends BaseModel {
     public int typeOfEvent;
     @Column
     public int timesNotified;
-    @Column(defaultValue = "false")
-    public boolean yesClicked;
+    @Column
+    public int notificationState;
 }
