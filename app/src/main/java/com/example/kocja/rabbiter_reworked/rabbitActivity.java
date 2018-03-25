@@ -11,11 +11,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.kocja.rabbiter_reworked.activities.addEntryActivity;
 import com.example.kocja.rabbiter_reworked.activities.viewEntry;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
+import com.example.kocja.rabbiter_reworked.fragments.UpcomingEventsFragment;
 import com.example.kocja.rabbiter_reworked.services.alertIfNotAlertedService;
 
 import java.util.List;
@@ -160,7 +162,12 @@ public class rabbitActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode,int resultcode, Intent data){
-        if((requestCode == ADD_ENTRY_START ||requestCode == START_VIEW_ENTRY) && resultcode == RESULT_OK){
+        if(requestCode == ADD_ENTRY_START && resultcode == RESULT_OK){
+            entriesList = fillData.getEntries(this,mainGrid);
+            ListView upcomingEvents = findViewById(R.id.upcomingList);
+            UpcomingEventsFragment.refreshFragment(upcomingEvents,this);
+        }
+        else if(requestCode == START_VIEW_ENTRY){
             entriesList = fillData.getEntries(this,mainGrid);
         }
     }
