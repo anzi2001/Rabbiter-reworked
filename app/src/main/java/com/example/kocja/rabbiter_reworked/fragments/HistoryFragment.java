@@ -53,8 +53,10 @@ public class HistoryFragment extends Fragment {
     public static void maleParentOf(Context context, String parent,ListView view){
         SQLite.select()
                 .from(Entry.class)
-                .where(Entry_Table.matedWithOrParents.eq(parent))
+                .where(Entry_Table.chooseGender.eq("Group"))
+                .and(Entry_Table.matedWithOrParents.eq(parent))
                 .or(Entry_Table.secondParent.eq(parent))
+                .and(Entry_Table.chooseGender.eq("Group"))
                 .async()
                 .queryListResultCallback((transaction, tResult) -> {
                     List<String> parentOfList = new ArrayList<>(tResult.size());
