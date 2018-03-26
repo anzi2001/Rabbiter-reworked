@@ -55,6 +55,11 @@ public class statsBirthFragment extends Fragment {
                     final TextView successfulBirths = birthStats.findViewById(R.id.successBirths);
                     final TextView failedBirthsText = birthStats.findViewById(R.id.failedBirthsText);
 
+                    final LineGraphSeries<DataPoint> numBirthsSeries = new LineGraphSeries<>();
+                    final LineGraphSeries<DataPoint> averageBirthSeries = new LineGraphSeries<>();
+                    final LineGraphSeries<DataPoint> numDeathSeries = new LineGraphSeries<>();
+                    final LineGraphSeries<DataPoint> avgDeadRabbits = new LineGraphSeries<>();
+
                     SQLite.select()
                             .from(Events.class)
                             .where(Events_Table.name.eq(entry.entryName))
@@ -63,69 +68,67 @@ public class statsBirthFragment extends Fragment {
                             .and(Events_Table.typeOfEvent.eq(0))
                             .orderBy(Events_Table.dateOfEvent,true)
                             .async()
-                            .queryListResultCallback((transaction1, tResult) -> {
-                                new AsyncTask<Void,Void,Void>(){
-                                    @Override
-                                    protected Void doInBackground(Void... voids) {
+                            .queryListResultCallback((transaction1, tResult) -> new AsyncTask<Void,Void,Void>(){
+                                @Override
+                                protected Void doInBackground(Void... voids) {
 
-                                        LineGraphSeries<DataPoint> numBirthsSeries = new LineGraphSeries<>();
-                                        LineGraphSeries<DataPoint> averageBirthSeries = new LineGraphSeries<>();
-                                        LineGraphSeries<DataPoint> numDeathSeries = new LineGraphSeries<>();
-                                        LineGraphSeries<DataPoint> avgDeadRabbits = new LineGraphSeries<>();
+                                    float avgRabbitsNum = 0;
+                                    float deadRabbitsNum = 0;
 
-                                        float avgRabbitsNum = 0;
-                                        float deadRabbitsNum = 0;
-
-                                        for(Events singleEvent : tResult){
-                                            if(singleEvent.notificationState == Events.EVENT_SUCCESSFUL){
-                                                successBirths++;
-                                            }
-                                            else{
-                                                failedBirths++;
-                                            }
-                                            avgRabbitsNum += singleEvent.rabbitsNum;
-                                            deadRabbitsNum += singleEvent.numDead;
-
-                                            numBirthsSeries.appendData(new DataPoint(singleEvent.dateOfEvent.getTime(),singleEvent.rabbitsNum),true,50);
+                                    for(Events singleEvent : tResult){
+                                        if(singleEvent.notificationState == Events.EVENT_SUCCESSFUL){
+                                            successBirths++;
                                         }
-                                        avgRabbitsNum /= tResult.size();
-                                        deadRabbitsNum /= tResult.size();
-
-                                        for(Events singleEvent : tResult) {
-                                            averageBirthSeries.appendData(new DataPoint(singleEvent.dateOfEvent.getTime(),avgRabbitsNum),true,50);
+                                        else{
+                                            failedBirths++;
                                         }
+                                        avgRabbitsNum += singleEvent.rabbitsNum;
+                                        deadRabbitsNum += singleEvent.numDead;
 
+                                        numBirthsSeries.appendData(new DataPoint(singleEvent.dateOfEvent.getTime(),singleEvent.rabbitsNum),true,50);
+                                    }
+                                    avgRabbitsNum /= tResult.size();
+                                    deadRabbitsNum /= tResult.size();
 
-                                        for(Events deadNumEvent : tResult){
-                                            numDeathSeries.appendData(new DataPoint(deadNumEvent.dateOfEvent.getTime(),deadNumEvent.numDead),true,50);
-                                            avgDeadRabbits.appendData(new DataPoint(deadNumEvent.dateOfEvent.getTime(),deadRabbitsNum),true,50);
-                                        }
-
-                                        numBirthsSeries.setColor(Color.BLUE);
-                                        birthGraph.addSeries(numBirthsSeries);
-                                        averageBirthSeries.setColor(Color.YELLOW);
-                                        birthGraph.addSeries(averageBirthSeries);
-
-                                        numDeathSeries.setColor(Color.BLUE);
-                                        deadRabbitsGraph.addSeries(numDeathSeries);
-                                        avgDeadRabbits.setColor(Color.YELLOW);
-                                        deadRabbitsGraph.addSeries(avgDeadRabbits);
-
-                                        return null;
+                                    for(Events singleEvent : tResult) {
+                                        averageBirthSeries.appendData(new DataPoint(singleEvent.dateOfEvent.getTime(),avgRabbitsNum),true,50);
                                     }
 
-                                    @Override
-                                    protected void onPostExecute(Void aVoid) {
-                                        birthGraph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
-                                        birthGraph.getGridLabelRenderer().setNumHorizontalLabels(3);
-                                        deadRabbitsGraph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
-                                        deadRabbitsGraph.getGridLabelRenderer().setNumHorizontalLabels(3);
-                                        failedBirthsText.setText(Integer.toString(failedBirths));
-                                        successfulBirths.setText(Integer.toString(successBirths));
-                                        super.onPostExecute(aVoid);
+
+                                    for(Events deadNumEvent : tResult){
+                                        numDeathSeries.appendData(new DataPoint(deadNumEvent.dateOfEvent.getTime(),deadNumEvent.numDead),true,50);
+                                        avgDeadRabbits.appendData(new DataPoint(deadNumEvent.dateOfEvent.getTime(),deadRabbitsNum),true,50);
                                     }
-                                }.execute();
-                            }).execute();
+
+                                    numBirthsSeries.setColor(Color.BLUE);
+
+                                    averageBirthSeries.setColor(Color.YELLOW);
+
+
+                                    numDeathSeries.setColor(Color.BLUE);
+                                    avgDeadRabbits.setColor(Color.YELLOW);
+
+
+                                    return null;
+                                }
+
+                                @Override
+                                protected void onPostExecute(Void aVoid) {
+                                    deadRabbitsGraph.addSeries(numDeathSeries);
+                                    deadRabbitsGraph.addSeries(avgDeadRabbits);
+
+                                    birthGraph.addSeries(averageBirthSeries);
+                                    birthGraph.addSeries(numBirthsSeries);
+
+                                    birthGraph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
+                                    birthGraph.getGridLabelRenderer().setNumHorizontalLabels(3);
+                                    deadRabbitsGraph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
+                                    deadRabbitsGraph.getGridLabelRenderer().setNumHorizontalLabels(3);
+                                    failedBirthsText.setText(String.valueOf(failedBirths));
+                                    successfulBirths.setText(String.valueOf(successBirths));
+                                    super.onPostExecute(aVoid);
+                                }
+                            }.execute()).execute();
 
                 }).execute();
 

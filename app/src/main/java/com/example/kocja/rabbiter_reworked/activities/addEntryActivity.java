@@ -154,24 +154,35 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         genderSpinner.setAdapter(genderAdapter);
         TextView numDeadRabTitle = findViewById(R.id.deadNumTextTitle);
         TextView rabbitsNumText = findViewById(R.id.rabbitsNumText);
+        TextView matingDateText = findViewById(R.id.matingDate);
         genderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if(genderSpinner.getSelectedItem().toString().equals("Group")){
                     parentSpinner.setVisibility(View.VISIBLE);
                     matedWith.setText("Parents: ");
+
                     rabbitsNum.setVisibility(View.VISIBLE);
                     deadRabbitNum.setVisibility(View.VISIBLE);
                     numDeadRabTitle.setVisibility(View.VISIBLE);
                     rabbitsNumText.setVisibility(View.VISIBLE);
+
+                    addMatingDate.setVisibility(View.GONE);
+                    addMatingDateCal.setVisibility(View.GONE);
+                    matingDateText.setVisibility(View.GONE);
                 }
                 else{
                     parentSpinner.setVisibility(View.GONE);
                     matedWith.setText("Mated with: ");
+
                     rabbitsNum.setVisibility(View.GONE);
                     deadRabbitNum.setVisibility(View.GONE);
                     numDeadRabTitle.setVisibility(View.GONE);
                     rabbitsNumText.setVisibility(View.GONE );
+
+                    addMatingDateCal.setVisibility(View.VISIBLE);
+                    addMatingDate.setVisibility(View.VISIBLE);
+                    matingDateText.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -188,20 +199,31 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             Transaction transaction = database.beginTransactionAsync(databaseWrapper -> {
 
                 if(getMode == EDIT_EXISTING_ENTRY){
-                    editable.entryName = addName.getText().toString();
-                    if(baseImageUri != null){
-                        editable.entryPhLoc = baseImageUri.toString();
+                    Date lastMateDate = editable.matedDate;
+                    if(matingDate != editable.matedDate && matingDate != null){
+                        createEvents(editable);
                     }
+
+                    editable.entryName = addName.getText().toString();
                     editable.chooseGender = genderSpinner.getSelectedItem().toString();
                     editable.matedWithOrParents = matedWithSpinner.getSelectedItem().toString();
                     editable.secondParent = parentSpinner.getSelectedItem().toString();
                     editable.birthDate = birthDate;
-                    // i check if the date is not the same, initialize new events based on those dates
-                    // i do the same if the user is changing the gender from male to female or group
+                    editable.matedDate = matingDate;
+
+                    if(lastMateDate != matingDate){
+                        createEvents(editable);
+                    }
+                    if(baseImageUri != null){
+                        editable.entryPhLoc = baseImageUri.toString();
+                    }
                     if(lastDate != matingDate || (lastGender.equals("Male") && !editable.chooseGender.equals("Male"))){
                         editable.matedDate = matingDate;
                         createEvents(editable);
                     }
+                    // i check if the date is not the same, initialize new events based on those dates
+                    // i do the same if the user is changing the gender from male to female or group
+
                     editable.update();
 
                 }
@@ -312,6 +334,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             if(rabbitEntry.birthDate != null) {
                 Date moveDate = new Date(rabbitEntry.birthDate.getTime() + (1000L * 60 * 60 * 24 * 62));
                 newEvent(rabbitEntry,defaultFormatter.format(moveDate) + ": Was the group " + rabbitEntry.entryName + " moved into another cage?",moveDate,2);
+
                 rabbitEntry.secondParent = parentSpinner.getSelectedItem().toString();
 
 

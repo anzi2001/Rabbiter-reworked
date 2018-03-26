@@ -36,6 +36,10 @@ public class viewEntry extends AppCompatActivity {
         setContentView(R.layout.activity_view_entry);
         Intent currentIntent = getIntent();
         mainEntryUUID =(UUID) currentIntent.getSerializableExtra("entryID");
+        ImageView mainEntryView = findViewById(R.id.mainEntryView);
+        mainEntryView.setOnClickListener(view -> {
+
+        });
         SQLite.select()
                 .from(Entry.class)
                 .where(Entry_Table.entryID.eq(mainEntryUUID))
@@ -55,8 +59,8 @@ public class viewEntry extends AppCompatActivity {
 
                     mainEntryFragment.setData(entry);
 
-                    ImageView mainView = findViewById(R.id.mainEntryView);
-                    Glide.with(viewEntry.this).load(entry.entryPhLoc).into(mainView);
+
+                    Glide.with(viewEntry.this).load(entry.entryPhLoc).into(mainEntryView);
 
                     if(entry.isMerged){
                         ImageView mergedView = findViewById(R.id.mergedView);

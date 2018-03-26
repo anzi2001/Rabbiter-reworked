@@ -2,7 +2,6 @@ package com.example.kocja.rabbiter_reworked.activities;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
@@ -16,8 +15,8 @@ import java.util.UUID;
  */
 
 public class viewEntryStats extends AppCompatActivity {
-    public void onCreate(Bundle savedIntstanceState){
-        super.onCreate(savedIntstanceState);
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.viewstatentry_activity);
         UUID entryUUID =(UUID) getIntent().getSerializableExtra("entryUUID");
         FragmentPagerAdapter adapter = new statsPagerAdapter(getSupportFragmentManager(),entryUUID.toString());

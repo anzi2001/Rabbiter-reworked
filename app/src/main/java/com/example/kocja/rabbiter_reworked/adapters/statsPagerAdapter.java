@@ -3,8 +3,6 @@ package com.example.kocja.rabbiter_reworked.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
-
 import com.example.kocja.rabbiter_reworked.fragments.statsBirthFragment;
 
 /**
