@@ -42,6 +42,8 @@
         <activity android:name=".activities.addEntryActivity"/>
         <activity android:name=".activities.viewEntry"/>
         <activity android:name=".activities.viewEntryStats"/>
+        <activity android:name=".activities.largerMainImage"
+            android:theme="@style/Theme.Transparent"/>
 
         <service android:name=".services.AlertEventService"/>
         <service android:name=".services.askNotifAgain"/>

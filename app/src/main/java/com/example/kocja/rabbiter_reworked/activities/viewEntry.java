@@ -1,7 +1,9 @@
 package com.example.kocja.rabbiter_reworked.activities;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -37,7 +39,16 @@ public class viewEntry extends AppCompatActivity {
         Intent currentIntent = getIntent();
         mainEntryUUID =(UUID) currentIntent.getSerializableExtra("entryID");
         ImageView mainEntryView = findViewById(R.id.mainEntryView);
+        Intent viewLargerImage = new Intent(this,largerMainImage.class);
         mainEntryView.setOnClickListener(view -> {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+                mainEntryView.setTransitionName("closerLook");
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this,mainEntryView,"closerLook");
+                startActivity(viewLargerImage,options.toBundle());
+            }
+            else{
+                startActivity(viewLargerImage);
+            }
 
         });
         SQLite.select()
@@ -45,8 +56,10 @@ public class viewEntry extends AppCompatActivity {
                 .where(Entry_Table.entryID.eq(mainEntryUUID))
                 .async()
                 .querySingleResultCallback((transaction, entry) -> {
-                    mainEntry = entry;
+                    viewLargerImage.putExtra("imageURI",entry.entryPhLoc);
 
+
+                    mainEntry = entry;
                     mainEntryFragment = (viewEntryData) getSupportFragmentManager().findFragmentById(R.id.mainEntryFragment);
 
                     ListView historyView = findViewById(R.id.upcomingList);
@@ -83,7 +96,8 @@ public class viewEntry extends AppCompatActivity {
     public void onBackPressed(){
         if(dataChanged){
             setResult(RESULT_OK);
-            finish();
+            supportFinishAfterTransition();
+            //finish();
         }
         else{
             super.onBackPressed();
@@ -92,9 +106,10 @@ public class viewEntry extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_rabbit,menu);
         if(!mainEntry.isMerged){
-            MenuItem showMerged = menu.findItem(R.id.showMergedEntry);
-            showMerged.setVisible(false);
+            MenuItem showMergedItem = menu.findItem(R.id.showMergedEntry);
+            showMergedItem.setVisible(false);
         }
+
         return true;
     }
 
