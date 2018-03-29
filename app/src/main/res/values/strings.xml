@@ -4,4 +4,11 @@
         <item>Choose from gallery</item>
         <item>Take a photo</item>
     </array>
+    <string name="mainImageDesc">This image displays an image to be added in the entry.</string>
+    <string name="addBirthDateDesc">A button that adds a birth date to an entry.</string>
+    <string name="addMatingDateDesc">A button that adds a mating date of a rabbit.</string>
+    <string name="takePhotoDesc">A button that chooses a photo for an entry.</string>
+    <string name="addEntryDesc">Confirms the entry content and saves it.</string>
+    <string name="mainEntryViewDesc">Views the image that was added to an entry.</string>
+    <string name="mergedViewDesc">Image to see the merged rabbit.</string>
 </resources>

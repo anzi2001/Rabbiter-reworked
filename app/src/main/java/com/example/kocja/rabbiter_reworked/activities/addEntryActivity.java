@@ -239,8 +239,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
                     rabbitEntry.birthDate = birthDate;
                     rabbitEntry.matedDate = matingDate;
-                    createEvents(rabbitEntry);
-
+                    createEvents(rabbitEntry); 
 
                     rabbitEntry.save(databaseWrapper);
                 }

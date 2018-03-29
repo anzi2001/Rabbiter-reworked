@@ -1,6 +1,7 @@
 package com.example.kocja.rabbiter_reworked.fragments;
 
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,8 +12,13 @@ import android.widget.TextView;
 
 import com.example.kocja.rabbiter_reworked.R;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
+import com.example.kocja.rabbiter_reworked.databases.Events;
+import com.example.kocja.rabbiter_reworked.databases.Events_Table;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 
@@ -25,7 +31,8 @@ public class viewEntryData extends Fragment {
     private TextView entryGender;
     private TextView entryBirthDate;
     private TextView matedDateText;
-    private TextView matedWithText;
+    private TextView entryMatedWith;
+    private TextView rabbitAge;
     private final SimpleDateFormat fragmentFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.GERMANY);
     private View mainView;
 
@@ -36,7 +43,8 @@ public class viewEntryData extends Fragment {
         entryGender = mainView.findViewById(R.id.entryGender);
         entryBirthDate = mainView.findViewById(R.id.entryBirthDate);
         matedDateText = mainView.findViewById(R.id.entryMatedDateOrParents);
-        matedWithText = mainView.findViewById(R.id.entryMatedWith);
+        entryMatedWith = mainView.findViewById(R.id.entryMatedWith);
+        rabbitAge = mainView.findViewById(R.id.RabbitAge);
         return mainView;
     }
     public void setData(Entry entry){
@@ -45,19 +53,34 @@ public class viewEntryData extends Fragment {
         if(entry.birthDate != null) {
             entryBirthDate.setText(fragmentFormat.format(entry.birthDate));
         }
-        matedWithText.setText(entry.matedWithOrParents);
+        entryMatedWith.setText(entry.matedWithOrParents);
+        TextView matedWithText = mainView.findViewById(R.id.matedWith);
         if(entry.matedDate != null && entry.chooseGender.equals("Group")){
             TextView parents = mainView.findViewById(R.id.MatedDateOrParents);
             parents.setText("Parents: ");
             matedDateText.setText(entry.matedWithOrParents + entry.secondParent);
-            TextView matedWithString = mainView.findViewById(R.id.matedWith);
-            matedWithString.setVisibility(View.GONE);
-            matedWithText.setVisibility(View.GONE);
+            //entryMatedWith.setVisibility(View.GONE);
 
+            SQLite.select()
+                    .from(Events.class)
+                    .where(Events_Table.name.eq(entry.entryName))
+                    .and(Events_Table.typeOfEvent.eq(0))
+                    .async()
+                    .querySingleResultCallback((transaction, events) -> {
+                        entryMatedWith.setText(events.rabbitsNum);
+                        matedWithText.setText("Number of Rabbits");
+                    }).execute();
         }
         else if(entry.matedDate != null) {
             matedDateText.setText(fragmentFormat.format(entry.matedDate));
         }
+
+        Calendar ageCal = Calendar.getInstance();
+        Date ageDate = new Date(new Date().getTime() - entry.birthDate.getTime());
+        ageCal.setTime(ageDate);
+        rabbitAge.setText(ageCal.get(Calendar.YEAR) + " years, " + ageCal.get(Calendar.MONTH +1) + " months and " + ageCal.get(Calendar.DAY_OF_MONTH) + " days old");
+
+
 
     }
 }
