@@ -21,15 +21,14 @@ public class statsPagerAdapter extends FragmentPagerAdapter {
     }
     @Override
     public Fragment getItem(int position) {
-        if (position == 0) {
-            return statsBirthFragment.createNewFragment(id,0);
-        }
-        else if (position == 1) {
-            return statsBirthFragment.createNewFragment(id,1);
+        switch (position) {
+            case 0:
+                return statsBirthFragment.createNewFragment(id, 0);
+            case 1:
+                return statsBirthFragment.createNewFragment(id, 1);
 
-        }
-        else if (position == 2) {
-            return statsBirthFragment.createNewFragment(id ,2);
+            case 2:
+                return statsBirthFragment.createNewFragment(id, 2);
         }
         return null;
     }

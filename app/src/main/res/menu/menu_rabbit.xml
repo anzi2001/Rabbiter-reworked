@@ -5,18 +5,18 @@
     <item
         android:id="@+id/editEntry"
         android:orderInCategory="100"
-        android:title="Edit entry"
+        android:title="@string/menuEditEntry"
         app:showAsAction="never" />
     <item
         android:id="@+id/deleteEntry"
         android:orderInCategory="101"
-        android:title="Delete entry" />
+        android:title="@string/menuDeleteEntry" />
     <item
         android:id="@+id/showMergedEntry"
         android:orderInCategory="102"
-        android:title="Show merged entry" />
+        android:title="@string/menuShowMerged" />
     <item
         android:id="@+id/entryStats"
         android:orderInCategory="103"
-        android:title="Entry statistics" />
+        android:title="@string/menuEntryStatistics" />
 </menu>

@@ -17,6 +17,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
+
 /**
  * Created by kocja on 04/02/2018.
  */
@@ -63,16 +64,17 @@ public class EntriesAdapter extends BaseAdapter {
                     .into(entryImage);
 
             entryImage.setBorderWidth(6);
-            switch (singleEntry.chooseGender) {
-                case "Female":
-                    entryImage.setBorderColor(Color.parseColor("#EC407A"));
-                    break;
-                case "Male":
-                    entryImage.setBorderColor(Color.BLUE);
-                    break;
-                default:
-                    entryImage.setBorderColor(Color.WHITE);
-                    break;
+            if ("Female".equals(singleEntry.chooseGender)) {
+                entryImage.setBorderColor(Color.parseColor("#EC407A"));
+
+            }
+            else if ("Male".equals(singleEntry.chooseGender)) {
+                entryImage.setBorderColor(Color.BLUE);
+
+            }
+            else {
+                entryImage.setBorderColor(Color.WHITE);
+
             }
 
 
@@ -86,8 +88,7 @@ public class EntriesAdapter extends BaseAdapter {
                 Glide.with(mainContext)
                         .load(singleEntry.mergedEntryPhLoc)
                         .into(mergedImage);
-
-                textName.setText(singleEntry.entryName + ", " + singleEntry.mergedEntryName);
+                textName.setText(mainContext.getString(R.string.mergedStrings,singleEntry.entryName,  singleEntry.mergedEntryName));
             }
             else{
                 textName.setText(singleEntry.entryName);

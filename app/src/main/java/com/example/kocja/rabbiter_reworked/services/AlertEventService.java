@@ -53,13 +53,11 @@ public class AlertEventService extends IntentService {
                     notificationManager.createNotificationChannel(chanel);
                 }
                 if (events.typeOfEvent == 0) {
-
                     Intent yesIntent = new Intent(this, addEntryActivity.class);
                     yesIntent.putExtra("eventUUID", eventUUID);
                     yesIntent.putExtra("getMode", ADD_BIRTH_FROM_SERVICE);
                     yesIntent.putExtra("happened", true);
                     PendingIntent yesAction = PendingIntent.getActivity(this, randomCode, yesIntent, 0);
-
                     NotificationCompat.Builder alertEvent = new NotificationCompat.Builder(this, "id")
                             .setSmallIcon(R.mipmap.dokoncana_ikona_zajec)
                             .setContentTitle("Event!")
@@ -68,14 +66,12 @@ public class AlertEventService extends IntentService {
                             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                             .addAction(0, "Yes", yesAction)
                             .addAction(0, "No", noAction);
-
                     notificationManager.notify(events.id, alertEvent.build());
-                }
-                else if (events.typeOfEvent == 1) {
+                } else if (events.typeOfEvent == 1) {
                     Intent processEvents = new Intent(this, com.example.kocja.rabbiter_reworked.services.processEvents.class);
-                    processEvents.putExtra("happened",true);
+                    processEvents.putExtra("happened", true);
                     processEvents.putExtra("processEventUUID", eventUUID);
-                    PendingIntent processEventsOnDelete = PendingIntent.getService(this,new Random().nextInt(),processEvents,0);
+                    PendingIntent processEventsOnDelete = PendingIntent.getService(this, new Random().nextInt(), processEvents, 0);
 
                     NotificationCompat.Builder alertEvent2 = new NotificationCompat.Builder(this, "id")
                             .setSmallIcon(R.mipmap.dokoncana_ikona_zajec)
@@ -87,14 +83,11 @@ public class AlertEventService extends IntentService {
                     notificationManager.notify(events.id, alertEvent2.build());
 
 
-                }
-                else{
-
+                } else {
                     Intent yesProcessEvent = new Intent(this, processEvents.class);
                     yesProcessEvent.putExtra("processEventUUID", events.eventUUID);
                     yesProcessEvent.putExtra("happened", true);
                     PendingIntent yesProcessPending = PendingIntent.getService(this, randomCode, yesProcessEvent, 0);
-
                     NotificationCompat.Builder alertEvent = new NotificationCompat.Builder(this, "id")
                             .setSmallIcon(R.mipmap.dokoncana_ikona_zajec)
                             .setContentTitle("Event!")
@@ -103,8 +96,6 @@ public class AlertEventService extends IntentService {
                             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                             .addAction(0, "Yes", yesProcessPending)
                             .addAction(0, "No", noAction);
-
-
                     notificationManager.notify(events.id, alertEvent.build());
                 }
                 events.update();

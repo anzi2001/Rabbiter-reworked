@@ -1,7 +1,6 @@
 package com.example.kocja.rabbiter_reworked.fragments;
 
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -57,8 +56,8 @@ public class viewEntryData extends Fragment {
         TextView matedWithText = mainView.findViewById(R.id.matedWith);
         if(entry.matedDate != null && entry.chooseGender.equals("Group")){
             TextView parents = mainView.findViewById(R.id.MatedDateOrParents);
-            parents.setText("Parents: ");
-            matedDateText.setText(entry.matedWithOrParents + entry.secondParent);
+            parents.setText(getString(R.string.setParents));
+            matedDateText.setText(getString(R.string.Parents,entry.matedWithOrParents, entry.secondParent));
             //entryMatedWith.setVisibility(View.GONE);
 
             SQLite.select()
@@ -68,7 +67,7 @@ public class viewEntryData extends Fragment {
                     .async()
                     .querySingleResultCallback((transaction, events) -> {
                         entryMatedWith.setText(events.rabbitsNum);
-                        matedWithText.setText("Number of Rabbits");
+                        matedWithText.setText(getString(R.string.entryRabbitNum));
                     }).execute();
         }
         else if(entry.matedDate != null) {
@@ -78,9 +77,7 @@ public class viewEntryData extends Fragment {
         Calendar ageCal = Calendar.getInstance();
         Date ageDate = new Date(new Date().getTime() - entry.birthDate.getTime());
         ageCal.setTime(ageDate);
-        rabbitAge.setText(ageCal.get(Calendar.YEAR) + " years, " + ageCal.get(Calendar.MONTH +1) + " months and " + ageCal.get(Calendar.DAY_OF_MONTH) + " days old");
-
-
-
+        //rabbitAge.setText(ageCal.get(Calendar.YEAR) + " years, " + ageCal.get(Calendar.MONTH +1) + " months and " + ageCal.get(Calendar.DAY_OF_MONTH) + " days old");
+        rabbitAge.setText(getString(R.string.setAge,ageCal.get(Calendar.YEAR),ageCal.get(Calendar.MONTH +1), ageCal.get(Calendar.DAY_OF_MONTH)));
     }
 }

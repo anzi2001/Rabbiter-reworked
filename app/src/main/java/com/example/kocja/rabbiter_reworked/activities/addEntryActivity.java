@@ -160,7 +160,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if(genderSpinner.getSelectedItem().toString().equals("Group")){
                     parentSpinner.setVisibility(View.VISIBLE);
-                    matedWith.setText("Parents: ");
+                    matedWith.setText(getString(R.string.setParents));
 
                     rabbitsNum.setVisibility(View.VISIBLE);
                     deadRabbitNum.setVisibility(View.VISIBLE);
@@ -173,7 +173,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                 }
                 else{
                     parentSpinner.setVisibility(View.GONE);
-                    matedWith.setText("Mated with: ");
+                    matedWith.setText(getString(R.string.entryMatedWith));
 
                     rabbitsNum.setVisibility(View.GONE);
                     deadRabbitNum.setVisibility(View.GONE);

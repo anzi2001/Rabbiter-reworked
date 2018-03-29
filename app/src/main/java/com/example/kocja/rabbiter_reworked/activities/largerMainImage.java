@@ -24,8 +24,6 @@ public class largerMainImage extends AppCompatActivity {
         String imageUri = getIntent().getStringExtra("imageURI");
         Glide.with(this).load(imageUri).into(largerMainView);
         ConstraintLayout layout = findViewById(R.id.constraint);
-        layout.setOnClickListener(view -> {
-            supportFinishAfterTransition();
-        });
+        layout.setOnClickListener(view -> supportFinishAfterTransition());
     }
 }

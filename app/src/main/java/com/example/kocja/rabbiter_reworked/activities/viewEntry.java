@@ -116,13 +116,13 @@ public class viewEntry extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if(id == R.id.editEntry){
-            Intent startEditProc = new Intent(viewEntry.this,addEntryActivity.class);
-            startEditProc.putExtra("getMode",addEntryActivity.EDIT_EXISTING_ENTRY);
-            startEditProc.putExtra("entryEdit",mainEntry.entryID);
-            startActivityForResult(startEditProc,addEntryActivity.EDIT_EXISTING_ENTRY);
-        }
-        else if(id == R.id.deleteEntry){
+        if (id == R.id.editEntry) {
+            Intent startEditProc = new Intent(viewEntry.this, addEntryActivity.class);
+            startEditProc.putExtra("getMode", addEntryActivity.EDIT_EXISTING_ENTRY);
+            startEditProc.putExtra("entryEdit", mainEntry.entryID);
+            startActivityForResult(startEditProc, addEntryActivity.EDIT_EXISTING_ENTRY);
+
+        } else if (id == R.id.deleteEntry) {
             AlertDialog.Builder assureDeletion = new AlertDialog.Builder(viewEntry.this)
                     .setTitle("Are you sure you want to delete?")
                     .setPositiveButton("Yes", (dialogInterface, i) ->
@@ -131,7 +131,7 @@ public class viewEntry extends AppCompatActivity {
                                     .where(Events_Table.name.eq(mainEntry.entryName))
                                     .async()
                                     .queryListResultCallback((transaction, tResult) -> {
-                                        for(Events event: tResult){
+                                        for (Events event : tResult) {
                                             event.delete();
                                         }
                                         mainEntry.delete();
@@ -140,16 +140,17 @@ public class viewEntry extends AppCompatActivity {
                                     }).execute())
                     .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.cancel());
             assureDeletion.show();
-        }
-        else if (id == R.id.showMergedEntry) {
+
+        } else if (id == R.id.showMergedEntry) {
             Intent startMergedViewEntry = new Intent(getApplicationContext(), viewEntry.class);
             startMergedViewEntry.putExtra("entryID", mainEntry.mergedEntry.entryID);
             startActivity(startMergedViewEntry);
-        }
-        else if(id == R.id.entryStats){
-            Intent startStatActivity = new Intent(getApplicationContext(),viewEntryStats.class);
-            startStatActivity.putExtra("entryUUID",mainEntry.entryID);
+
+        } else if (id == R.id.entryStats) {
+            Intent startStatActivity = new Intent(getApplicationContext(), viewEntryStats.class);
+            startStatActivity.putExtra("entryUUID", mainEntry.entryID);
             startActivity(startStatActivity);
+
         }
         return super.onOptionsItemSelected(item);
     }

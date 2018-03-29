@@ -40,26 +40,32 @@ public class processEvents extends IntentService {
                     if(happened) {
                         Date currentDate = new Date();
                         events.notificationState = Events.EVENT_SUCCESSFUL;
-                        if (events.typeOfEvent == 0) {
-                            events.eventString = dateFormatter.format(currentDate) + ": " + events.name + " gave birth";
-                        } else if (events.typeOfEvent == 2) {
-                            events.eventString = dateFormatter.format(currentDate) + ": " + events.name + " was moved into another cage";
-                        } else if (events.typeOfEvent == 3) {
-                            events.eventString = dateFormatter.format(currentDate) + ": The group " + events.name + "was slaughtered";
+                        switch (events.typeOfEvent) {
+                            case 0:
+                                events.eventString = dateFormatter.format(currentDate) + ": " + events.name + " gave birth";
+                                break;
+                            case 2:
+                                events.eventString = dateFormatter.format(currentDate) + ": " + events.name + " was moved into another cage";
+                                break;
+                            case 3:
+                                events.eventString = dateFormatter.format(currentDate) + ": The group " + events.name + "was slaughtered";
+                                break;
                         }
                     }
                     else{
                         //since we process a no event we can set the notificationState to EVENT_FAILED, so it counts
                         //as notified and doesn't annoy the user
                         events.notificationState = Events.EVENT_FAILED;
-                        if (events.typeOfEvent == 0) {
-                            events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " did not give birth";
-                        }
-                        else if (events.typeOfEvent == 2) {
-                            events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " wasn't moved into another cage";
-                        }
-                        else if (events.typeOfEvent == 3) {
-                            events.eventString = dateFormatter.format(events.dateOfEvent) + ": The group " + events.name + "wasn't slaughtered";
+                        switch (events.typeOfEvent) {
+                            case 0:
+                                events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " did not give birth";
+                                break;
+                            case 2:
+                                events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " wasn't moved into another cage";
+                                break;
+                            case 3:
+                                events.eventString = dateFormatter.format(events.dateOfEvent) + ": The group " + events.name + "wasn't slaughtered";
+                                break;
                         }
                     }
 

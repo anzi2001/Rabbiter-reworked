@@ -4,11 +4,49 @@
         <item>Choose from gallery</item>
         <item>Take a photo</item>
     </array>
-    <string name="mainImageDesc">This image displays an image to be added in the entry.</string>
-    <string name="addBirthDateDesc">A button that adds a birth date to an entry.</string>
-    <string name="addMatingDateDesc">A button that adds a mating date of a rabbit.</string>
-    <string name="takePhotoDesc">A button that chooses a photo for an entry.</string>
-    <string name="addEntryDesc">Confirms the entry content and saves it.</string>
-    <string name="mainEntryViewDesc">Views the image that was added to an entry.</string>
-    <string name="mergedViewDesc">Image to see the merged rabbit.</string>
+    <!--ADD ENTRY ACTIVITY-->
+        <!--IMAGE DESCRIPTIONS-->
+        <string name="mainImageDesc">This image displays an image to be added in the entry.</string>
+        <string name="addBirthDateDesc">A button that adds a birth date to an entry.</string>
+        <string name="addMatingDateDesc">A button that adds a mating date of a rabbit.</string>
+        <string name="takePhotoDesc">A button that chooses a photo for an entry.</string>
+        <string name="addEntryDesc">Confirms the entry content and saves it.</string>
+        <string name="mainEntryViewDesc">Views the image that was added to an entry.</string>
+        <string name="mergedViewDesc">Image to see the merged rabbit.</string>
+        <!--MENU ITEMS-->
+        <string name="menuEditEntry">Edit entry</string>
+        <string name="menuDeleteEntry">Delete entry</string>
+        <string name="menuShowMerged">Show merged entry</string>
+        <string name="menuEntryStatistics">Entry statistics</string>
+
+        <!--TEXT VIEWS-->
+        <string name="entryName">Name</string>
+        <string name="entryGender">Gender</string>
+        <string name="entryBirthDate">Birth date</string>
+        <string name="entryMatingDate">Mating date</string>
+        <string name="entryMatedWith">Mated with </string>
+
+        <string name="entryRabbitNum">Number of rabbits: </string>
+        <string name="entryRabbitDeadNum">Number of dead rabbits: </string>
+
+        <!--EDIT TEXTS-->
+        <string name="editTextName">Name</string>
+        <string name="editTextBirthDate">Birth date</string>
+        <string name="editTextMatingDate">Mating date</string>
+    <!--BIRTH FRAGMENT STATS-->
+        <string name="successNumBirths">Number of successful births: </string>
+        <string name="successBirthsData">Successful births</string>
+        <string name="deadNumRabbits">Number of dead rabbits: </string>
+        <string name="totalRabbitsBorn">Total rabbits born: </string>
+        <string name="totalNumBirths">Total births: </string>
+        <string name="totalBirthsData">Total births</string>
+    <!--VIEW ENTRY DATA-->
+        <string name="RabbitAgeText">Rabbit age: </string>
+        <string name="rabbitAgeData">Rabbit age</string>
+    <!--VARIABLE STRINGS-->
+    <string name="mergedStrings">%1$s , %2$s</string>
+    <string name="setParents">Parents: </string>
+    <string name="Parents">%1$s %2$s</string>
+    <string name="setAge">%1$i years, %2$i months and %3$i days old</string>
+
 </resources>
