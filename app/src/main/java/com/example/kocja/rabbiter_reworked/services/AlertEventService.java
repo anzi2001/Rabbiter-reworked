@@ -58,7 +58,7 @@ public class AlertEventService extends IntentService {
                     yesIntent.putExtra("getMode", ADD_BIRTH_FROM_SERVICE);
                     yesIntent.putExtra("happened", true);
                     PendingIntent yesAction = PendingIntent.getActivity(this, randomCode, yesIntent, 0);
-                    NotificationCompat.Builder alertEvent = new NotificationCompat.Builder(this, "id")
+                    NotificationCompat.Builder alertEvent = new NotificationCompat.Builder(this, "NotifyEvent")
                             .setSmallIcon(R.mipmap.dokoncana_ikona_zajec)
                             .setContentTitle("Event!")
                             .setContentText(events.eventString)
@@ -73,7 +73,7 @@ public class AlertEventService extends IntentService {
                     processEvents.putExtra("processEventUUID", eventUUID);
                     PendingIntent processEventsOnDelete = PendingIntent.getService(this, new Random().nextInt(), processEvents, 0);
 
-                    NotificationCompat.Builder alertEvent2 = new NotificationCompat.Builder(this, "id")
+                    NotificationCompat.Builder alertEvent2 = new NotificationCompat.Builder(this, "NotifyEvent")
                             .setSmallIcon(R.mipmap.dokoncana_ikona_zajec)
                             .setContentTitle("Event!")
                             .setContentText(events.eventString)
@@ -88,7 +88,7 @@ public class AlertEventService extends IntentService {
                     yesProcessEvent.putExtra("processEventUUID", events.eventUUID);
                     yesProcessEvent.putExtra("happened", true);
                     PendingIntent yesProcessPending = PendingIntent.getService(this, randomCode, yesProcessEvent, 0);
-                    NotificationCompat.Builder alertEvent = new NotificationCompat.Builder(this, "id")
+                    NotificationCompat.Builder alertEvent = new NotificationCompat.Builder(this, "NotifyEvent")
                             .setSmallIcon(R.mipmap.dokoncana_ikona_zajec)
                             .setContentTitle("Event!")
                             .setContentText(events.eventString)

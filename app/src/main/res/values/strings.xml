@@ -47,6 +47,6 @@
     <string name="mergedStrings">%1$s , %2$s</string>
     <string name="setParents">Parents: </string>
     <string name="Parents">%1$s %2$s</string>
-    <string name="setAge">%1$i years, %2$i months and %3$i days old</string>
+    <string name="setAge">%1$d years, %2$d months and %3$d days old</string>
 
 </resources>
