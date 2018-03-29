@@ -31,10 +31,10 @@ public class onBootService extends IntentService {
                     AlarmManager alarmManager =(AlarmManager) getSystemService(Context.ALARM_SERVICE);
                     if(tResult != null){
                         Intent setNotification = new Intent(this,AlertEventService.class);
-                        Random randomGen = new Random();
+                        //Random randomGen = new Random();
                         for(Events event : tResult){
                             setNotification.putExtra("eventUUID",event.eventUUID);
-                            PendingIntent setNotifIntent = PendingIntent.getBroadcast(this, randomGen.nextInt(),setNotification,0);
+                            PendingIntent setNotifIntent = PendingIntent.getBroadcast(this, event.id,setNotification,0);
                             alarmManager.set(AlarmManager.RTC_WAKEUP,event.dateOfEvent.getTime(),setNotifIntent);
 
                         }

@@ -47,7 +47,7 @@ public class AlertEventService extends IntentService {
                 .querySingleResultCallback((transaction, events) -> {
             if(events != null) {
                 int randomCode = new Random().nextInt();
-                events.id = randomCode;
+                //events.id = randomCode;
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
                     NotificationChannel chanel = new NotificationChannel("NotifyEvent","Event",NotificationManager.IMPORTANCE_DEFAULT);
                     notificationManager.createNotificationChannel(chanel);

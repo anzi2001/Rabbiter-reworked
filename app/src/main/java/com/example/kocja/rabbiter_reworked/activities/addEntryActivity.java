@@ -77,6 +77,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private EditText rabbitsNum;
     private EditText deadRabbitNum;
     private AlarmManager eventsManager;
+    private final  Random randgen = new Random();
     //NOTE: type 0: birth
     //NOTE: type 1: ready for mating
     //NOTE: type 2: move group
@@ -357,12 +358,15 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         if(type == 0 && !rabbitsNum.getText().toString().isEmpty()){
             createEvent.rabbitsNum = Integer.parseInt(rabbitsNum.getText().toString());
         }
-        createEvent.save();
+
 
         Intent alertEventService = new Intent(this, AlertEventService.class);
         alertEventService.putExtra("eventUUID", createEvent.eventUUID);
-        PendingIntent slaughterEventAlarm = PendingIntent.getService(this, new Random().nextInt(), alertEventService,PendingIntent.FLAG_CANCEL_CURRENT);
+        createEvent.id = randgen.nextInt();
+        PendingIntent slaughterEventAlarm = PendingIntent.getService(this, createEvent.id, alertEventService,PendingIntent.FLAG_CANCEL_CURRENT);
         eventsManager.set(AlarmManager.RTC_WAKEUP, dateOfEvent.getTime(), slaughterEventAlarm);
+
+        createEvent.save();
     }
     private void setEditableEntryProps(int getMode){
         if(getMode == EDIT_EXISTING_ENTRY){
