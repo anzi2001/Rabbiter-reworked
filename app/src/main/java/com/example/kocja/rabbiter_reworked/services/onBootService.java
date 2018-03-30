@@ -11,8 +11,6 @@ import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
-import java.util.Random;
-
 /**
  * Created by kocja on 27/02/2018.
  */

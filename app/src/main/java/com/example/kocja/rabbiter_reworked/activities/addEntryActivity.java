@@ -77,7 +77,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private EditText rabbitsNum;
     private EditText deadRabbitNum;
     private AlarmManager eventsManager;
-    private final  Random randgen = new Random();
+    private final  Random randGen = new Random();
     //NOTE: type 0: birth
     //NOTE: type 1: ready for mating
     //NOTE: type 2: move group
@@ -362,7 +362,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
         Intent alertEventService = new Intent(this, AlertEventService.class);
         alertEventService.putExtra("eventUUID", createEvent.eventUUID);
-        createEvent.id = randgen.nextInt();
+        createEvent.id = randGen.nextInt();
         PendingIntent slaughterEventAlarm = PendingIntent.getService(this, createEvent.id, alertEventService,PendingIntent.FLAG_CANCEL_CURRENT);
         eventsManager.set(AlarmManager.RTC_WAKEUP, dateOfEvent.getTime(), slaughterEventAlarm);
 
