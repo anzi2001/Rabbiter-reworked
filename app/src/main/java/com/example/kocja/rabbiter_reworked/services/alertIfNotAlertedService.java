@@ -32,7 +32,7 @@ public class alertIfNotAlertedService extends IntentService {
                     for(Events event : tResult){
                             Log.v("Oops","This guy was not started");
                             startNotificationIntent.putExtra("eventUUID",event.eventUUID);
-                            PendingIntent startNotification = PendingIntent.getService(this,event.id,startNotificationIntent,PendingIntent.FLAG_CANCEL_CURRENT);
+                            PendingIntent startNotification = PendingIntent.getService(this,event.id,startNotificationIntent,PendingIntent.FLAG_UPDATE_CURRENT);
                             manager.set(AlarmManager.RTC_WAKEUP,event.dateOfEvent.getTime(),startNotification);
                     }
                 }).execute();

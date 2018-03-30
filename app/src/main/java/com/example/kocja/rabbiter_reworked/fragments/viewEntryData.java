@@ -73,11 +73,12 @@ public class viewEntryData extends Fragment {
         else if(entry.matedDate != null) {
             matedDateText.setText(fragmentFormat.format(entry.matedDate));
         }
-
-        Calendar ageCal = Calendar.getInstance();
-        Date ageDate = new Date(new Date().getTime() - entry.birthDate.getTime());
-        ageCal.setTime(ageDate);
-        //rabbitAge.setText(ageCal.get(Calendar.YEAR) + " years, " + ageCal.get(Calendar.MONTH +1) + " months and " + ageCal.get(Calendar.DAY_OF_MONTH) + " days old");
-        rabbitAge.setText(getString(R.string.setAge,ageCal.get(Calendar.YEAR),ageCal.get(Calendar.MONTH +1), ageCal.get(Calendar.DAY_OF_MONTH)));
+        if(entry.birthDate != null) {
+            Calendar ageCal = Calendar.getInstance();
+            Date ageDate = new Date(new Date().getTime() - entry.birthDate.getTime());
+            ageCal.setTime(ageDate);
+            //rabbitAge.setText(ageCal.get(Calendar.YEAR) + " years, " + ageCal.get(Calendar.MONTH +1) + " months and " + ageCal.get(Calendar.DAY_OF_MONTH) + " days old");
+            rabbitAge.setText(getString(R.string.setAge, ageCal.get(Calendar.YEAR), ageCal.get(Calendar.MONTH + 1), ageCal.get(Calendar.DAY_OF_MONTH)));
+        }
     }
 }
