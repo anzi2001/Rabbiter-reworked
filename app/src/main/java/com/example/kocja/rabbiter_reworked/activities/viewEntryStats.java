@@ -31,7 +31,7 @@ public class viewEntryStats extends AppCompatActivity {
     @SuppressLint("StaticFieldLeak")
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.viewstatentry_activity);
+        setContentView(R.layout.stats_birth_fragment);
         UUID entryID =(UUID) getIntent().getSerializableExtra("entryUUID");
         SQLite.select()
                 .from(com.example.kocja.rabbiter_reworked.databases.Entry.class)
@@ -89,7 +89,6 @@ public class viewEntryStats extends AppCompatActivity {
                                     }
 
                                     numBirthsSeries.setColor(Color.BLUE);
-
                                     averageBirthSeries.setColor(Color.YELLOW);
 
 
