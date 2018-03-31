@@ -30,7 +30,7 @@ import java.util.UUID;
 public class statsBirthFragment extends Fragment {
     private int failedBirths = 0;
     private int successBirths = 0;
-    public static statsBirthFragment createNewFragment(String entryID,int page){
+    /*public static statsBirthFragment createNewFragment(String entryID,int page){
         Bundle passBundle = new Bundle();
         passBundle.putString("UUID",entryID);
         passBundle.putInt("type",page);
@@ -39,7 +39,7 @@ public class statsBirthFragment extends Fragment {
 
         return newFragment;
 
-    }
+    }*/
     @SuppressLint("StaticFieldLeak")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
