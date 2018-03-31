@@ -52,35 +52,33 @@ public class AlertEventService extends IntentService {
                     NotificationChannel chanel = new NotificationChannel("NotifyEvent","Event",NotificationManager.IMPORTANCE_DEFAULT);
                     notificationManager.createNotificationChannel(chanel);
                 }
+                NotificationCompat.Builder alertEvent  = new NotificationCompat.Builder(this,"NotifyEvent");
+                alertEvent.setSmallIcon(R.mipmap.dokoncana_ikona_zajec_round_lowres);
+                alertEvent.setContentTitle("Event!");
+                alertEvent.setContentText(events.eventString);
+
                 if (events.typeOfEvent == 0) {
                     Intent yesIntent = new Intent(this, addEntryActivity.class);
                     yesIntent.putExtra("eventUUID", eventUUID);
                     yesIntent.putExtra("getMode", ADD_BIRTH_FROM_SERVICE);
                     yesIntent.putExtra("happened", true);
                     PendingIntent yesAction = PendingIntent.getActivity(this, randomCode, yesIntent, 0);
-                    NotificationCompat.Builder alertEvent = new NotificationCompat.Builder(this, "NotifyEvent")
-                            .setSmallIcon(R.mipmap.dokoncana_ikona_zajec_round_lowres)
-                            .setContentTitle("Event!")
-                            .setContentText(events.eventString)
-                            .setOngoing(true)
-                            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                            .addAction(0, "Yes", yesAction)
-                            .addAction(0, "No", noAction);
-                    notificationManager.notify(events.id, alertEvent.build());
+
+                    alertEvent.setOngoing(true);
+                    alertEvent.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    alertEvent.addAction(0, "Yes", yesAction);
+                    alertEvent.addAction(0, "No", noAction);
+                    //notificationManager.notify(events.id, alertEvent.build());
+
                 } else if (events.typeOfEvent == 1) {
                     Intent processEvents = new Intent(this, com.example.kocja.rabbiter_reworked.services.processEvents.class);
                     processEvents.putExtra("happened", true);
                     processEvents.putExtra("processEventUUID", eventUUID);
-                    PendingIntent processEventsOnDelete = PendingIntent.getService(this, new Random().nextInt(), processEvents, 0);
+                    PendingIntent processEventsOnDelete = PendingIntent.getService(this, randomCode, processEvents, 0);
 
-                    NotificationCompat.Builder alertEvent2 = new NotificationCompat.Builder(this, "NotifyEvent")
-                            .setSmallIcon(R.mipmap.dokoncana_ikona_zajec_round_lowres)
-                            .setContentTitle("Event!")
-                            .setContentText(events.eventString)
-                            .setDeleteIntent(processEventsOnDelete)
-                            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-                    notificationManager.notify(events.id, alertEvent2.build());
+                    alertEvent.setDeleteIntent(processEventsOnDelete);
+                    alertEvent.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    //notificationManager.notify(events.id, alertEvent.build());
 
 
                 } else {
@@ -88,16 +86,13 @@ public class AlertEventService extends IntentService {
                     yesProcessEvent.putExtra("processEventUUID", events.eventUUID);
                     yesProcessEvent.putExtra("happened", true);
                     PendingIntent yesProcessPending = PendingIntent.getService(this, randomCode, yesProcessEvent, 0);
-                    NotificationCompat.Builder alertEvent = new NotificationCompat.Builder(this, "NotifyEvent")
-                            .setSmallIcon(R.mipmap.dokoncana_ikona_zajec_round_lowres)
-                            .setContentTitle("Event!")
-                            .setContentText(events.eventString)
-                            .setOngoing(true)
-                            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                            .addAction(0, "Yes", yesProcessPending)
-                            .addAction(0, "No", noAction);
-                    notificationManager.notify(events.id, alertEvent.build());
+
+                    alertEvent.setOngoing(true);
+                    alertEvent.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    alertEvent.addAction(0, "Yes", yesProcessPending);
+                    alertEvent.addAction(0, "No", noAction);
                 }
+                notificationManager.notify(events.id, alertEvent.build());
                 events.update();
             }
                 }).execute();
