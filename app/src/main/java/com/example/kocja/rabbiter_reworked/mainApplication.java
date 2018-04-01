@@ -13,11 +13,12 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 
 public class mainApplication extends Application {
     public void onCreate(){
+        super.onCreate();
         FlowManager.init(FlowConfig.builder(this)
         .addDatabaseConfig(DatabaseConfig.builder(appDatabase.class)
         .databaseName("AppDatabase")
         .build())
         .build());
-        super.onCreate();
+
     }
 }

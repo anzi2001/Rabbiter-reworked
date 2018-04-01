@@ -16,9 +16,9 @@ import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -74,11 +74,12 @@ public class viewEntryData extends Fragment {
             matedDateText.setText(fragmentFormat.format(entry.matedDate));
         }
         if(entry.birthDate != null) {
-            Calendar ageCal = Calendar.getInstance();
-            Date ageDate = new Date(new Date().getTime() - entry.birthDate.getTime());
-            ageCal.setTime(ageDate);
-            //rabbitAge.setText(ageCal.get(Calendar.YEAR) + " years, " + ageCal.get(Calendar.MONTH +1) + " months and " + ageCal.get(Calendar.DAY_OF_MONTH) + " days old");
-            rabbitAge.setText(getString(R.string.setAge, ageCal.get(Calendar.YEAR), ageCal.get(Calendar.MONTH + 1), ageCal.get(Calendar.DAY_OF_MONTH)));
+            long ageDate = TimeUnit.DAYS.convert((new Date().getTime() - entry.birthDate.getTime()),TimeUnit.MILLISECONDS);
+            long years = ageDate / 365;
+            ageDate = ageDate % 365;
+            long months = ageDate / 30;
+            ageDate = ageDate %30;
+            rabbitAge.setText(getString(R.string.setAge, years, months, ageDate));
         }
     }
 }
