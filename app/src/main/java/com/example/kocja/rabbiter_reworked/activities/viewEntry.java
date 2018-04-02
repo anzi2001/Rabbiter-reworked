@@ -63,8 +63,8 @@ public class viewEntry extends AppCompatActivity {
                     mainEntryFragment = (viewEntryData) getSupportFragmentManager().findFragmentById(R.id.mainEntryFragment);
 
                     ListView historyView = findViewById(R.id.upcomingList);
-                    if(entry.chooseGender.equals("Male")){
-                        HistoryFragment.maleParentOf(this,entry.entryName,historyView);
+                    if(entry.chooseGender.equals(getString(R.string.genderMale))){
+                        HistoryFragment.maleParentOf(this,entry.entryName,historyView,viewEntry.this);
                     }
                     else {
                         HistoryFragment.setPastEvents(this, entry.entryName,historyView);
@@ -104,7 +104,7 @@ public class viewEntry extends AppCompatActivity {
         }
     }
     public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.menu_rabbit,menu);
+        getMenuInflater().inflate(R.menu.menu_view_entry_data,menu);
         if(!mainEntry.isMerged){
             MenuItem showMergedItem = menu.findItem(R.id.showMergedEntry);
             showMergedItem.setVisible(false);
@@ -124,8 +124,8 @@ public class viewEntry extends AppCompatActivity {
 
         } else if (id == R.id.deleteEntry) {
             AlertDialog.Builder assureDeletion = new AlertDialog.Builder(viewEntry.this)
-                    .setTitle("Are you sure you want to delete?")
-                    .setPositiveButton("Yes", (dialogInterface, i) ->
+                    .setTitle(R.string.confirmDeletion)
+                    .setPositiveButton(R.string.confirm, (dialogInterface, i) ->
                             SQLite.select()
                                     .from(Events.class)
                                     .where(Events_Table.name.eq(mainEntry.entryName))
@@ -138,7 +138,7 @@ public class viewEntry extends AppCompatActivity {
                                         setResult(RESULT_OK);
                                         finish();
                                     }).execute())
-                    .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.cancel());
+                    .setNegativeButton(R.string.decline, (dialogInterface, i) -> dialogInterface.cancel());
             assureDeletion.show();
 
         } else if (id == R.id.showMergedEntry) {

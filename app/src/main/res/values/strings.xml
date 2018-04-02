@@ -4,7 +4,24 @@
         <item>Choose from gallery</item>
         <item>Take a photo</item>
     </array>
+
+    <!--GENERAL STRINGS-->
+    <string name="genderMale">Male</string>
+    <string name="genderFemale">Female</string>
+    <string name="genderGroup">Group</string>
+
+    <string-array name="decideOnGender">
+        <item>@string/genderMale</item>
+        <item>@string/genderFemale</item>
+        <item>@string/genderGroup</item>
+    </string-array>
+
+    <string-array name="chooseLanguage">
+        <item>English</item>
+        <item>Slovenščina</item>
+    </string-array>
     <!--ADD ENTRY ACTIVITY-->
+        <string name="title">Add entry</string>
         <!--IMAGE DESCRIPTIONS-->
         <string name="mainImageDesc">This image displays an image to be added in the entry.</string>
         <string name="addBirthDateDesc">A button that adds a birth date to an entry.</string>
@@ -25,6 +42,8 @@
         <string name="entryBirthDate">Birth date</string>
         <string name="entryMatingDate">Mating date</string>
         <string name="entryMatedWith">Mated with </string>
+        <string name="photoOption">How do you want to get your photo?</string>
+        <string name="none">none</string>
 
         <string name="entryRabbitNum">Number of rabbits: </string>
         <string name="entryRabbitDeadNum">Number of dead rabbits: </string>
@@ -33,6 +52,11 @@
         <string name="editTextName">Name</string>
         <string name="editTextBirthDate">Birth date</string>
         <string name="editTextMatingDate">Mating date</string>
+        <!--ENTRY ADDING-->
+        <string name="femaleGaveBirth">%1$s: Did %2$s give birth?</string>
+        <string name="femaleReadyForMating">%1$s: %2$s is ready for mating</string>
+        <string name="groupMovedIntoCage">%1$s: Was the group %2$s moved into another cage?</string>
+        <string name="groupSlauhtered">%1$s: Was the group %2$s slaughtered?</string>
     <!--BIRTH FRAGMENT STATS-->
         <string name="successNumBirths">Number of successful births: </string>
         <string name="successBirthsData">Successful births</string>
@@ -43,10 +67,20 @@
     <!--VIEW ENTRY DATA-->
         <string name="RabbitAgeText">Rabbit age: </string>
         <string name="rabbitAgeData">Rabbit age</string>
+        <string name="confirm">yes</string>
+        <string name="decline">no</string>
+        <string name="confirmDeletion">Are you sure you want to delete the entry?</string>
     <!--VARIABLE STRINGS-->
     <string name="mergedStrings">%1$s , %2$s</string>
     <string name="setParents">Parents: </string>
     <string name="Parents">%1$s %2$s</string>
     <string name="setAge">%1$d years, %2$d months and %3$d days old</string>
+
+    <string name="chooseLanguage">Choose language</string>
+    <!--RABBIT ACTIVITY-->
+    <string name="alertMoreThan2Chosen">You have chosen more than 2 entries which is not possible</string>
+
+    <!--HISTORY FRAGMENT-->
+    <string name="parentOf">Parent of: %1$s</string>
 
 </resources>

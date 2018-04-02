@@ -77,7 +77,7 @@ public class viewEntryData extends Fragment {
             long ageDate = TimeUnit.DAYS.convert((new Date().getTime() - entry.birthDate.getTime()),TimeUnit.MILLISECONDS);
             long years = ageDate / 365;
             ageDate = ageDate % 365;
-            long months = ageDate / 30;
+             long months = ageDate / 30;
             ageDate = ageDate %30;
             rabbitAge.setText(getString(R.string.setAge, years, months, ageDate));
         }

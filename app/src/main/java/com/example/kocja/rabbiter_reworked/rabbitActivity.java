@@ -1,20 +1,26 @@
 package com.example.kocja.rabbiter_reworked;
 
 import android.Manifest;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.kocja.rabbiter_reworked.activities.addEntryActivity;
+import com.example.kocja.rabbiter_reworked.activities.settingsActivity;
 import com.example.kocja.rabbiter_reworked.activities.viewEntry;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
 import com.example.kocja.rabbiter_reworked.fragments.UpcomingEventsFragment;
@@ -43,6 +49,7 @@ public class rabbitActivity extends AppCompatActivity {
         setContentView(R.layout.activity_rabbit);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        PreferenceManager.setDefaultValues(this,R.xml.preferences,false);
 
 
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
@@ -114,7 +121,7 @@ public class rabbitActivity extends AppCompatActivity {
         mergeFab.setOnClickListener(view -> {
             if(chosenEntriesCounter > 2){
                 chosenEntriesCounter--;
-                Toast.makeText(rabbitActivity.this,"You have more than 2 entries chosen which is not possible",Toast.LENGTH_LONG).show();
+                Toast.makeText(rabbitActivity.this,R.string.alertMoreThan2Chosen,Toast.LENGTH_LONG).show();
                 return;
             }
             secondMergeEntry.isMerged = true;
@@ -158,6 +165,20 @@ public class rabbitActivity extends AppCompatActivity {
     }
     private static void animateUp(FloatingActionButton toMove){
         toMove.animate().translationY(-100);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_rabbit_acitivty,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+    public boolean onOptionsItemSelected(MenuItem item){
+        int id = item.getItemId();
+        if(id == R.id.settings){
+            Intent startSettings = new Intent(this,settingsActivity.class);
+            startActivity(startSettings);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

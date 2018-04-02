@@ -86,7 +86,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_entry);
-        setTitle("Add Entry");
+        setTitle(R.string.title);
 
         defaultFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.GERMANY);
         addBirthDate = findViewById(R.id.addBirthDate);
@@ -109,7 +109,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
         addPhoto.setOnClickListener(view -> {
             AlertDialog.Builder chooseMethod = new AlertDialog.Builder(this)
-                    .setTitle("How do you want to get your photo?")
+                    .setTitle(R.string.photoOption)
                     .setItems(R.array.DecideOnPhType, (dialogInterface, i) -> {
                         if(i == 0){
                             Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
@@ -129,7 +129,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                 .async()
                 .queryListResultCallback((transaction, tResult) -> {
                     List<String> allEntryNames = new ArrayList<>(tResult.size());
-                    allEntryNames.add("none");
+                    allEntryNames.add(getString(R.string.none));
                     for(Entry entry : tResult){
                         allEntryNames.add(entry.entryName);
                     }
@@ -151,7 +151,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             pickDate.show();
         });
 
-        genderAdapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{"Male","Female","Group"});
+        genderAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,getResources().getStringArray(R.array.decideOnGender));
         genderSpinner.setAdapter(genderAdapter);
         TextView numDeadRabTitle = findViewById(R.id.deadNumTextTitle);
         TextView rabbitsNumText = findViewById(R.id.rabbitsNumText);
@@ -159,7 +159,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         genderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if(genderSpinner.getSelectedItem().toString().equals("Group")){
+                if(genderSpinner.getSelectedItem().toString().equals(getString(R.string.genderMale))){
                     parentSpinner.setVisibility(View.VISIBLE);
                     matedWith.setText(getString(R.string.setParents));
 
@@ -192,8 +192,6 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             }
         });
 
-
-
         addEntry.setOnClickListener(view ->{
 
             DatabaseDefinition database = FlowManager.getDatabase(appDatabase.class);
@@ -218,7 +216,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     if(baseImageUri != null){
                         editable.entryPhLoc = baseImageUri.toString();
                     }
-                    if(lastDate != matingDate || (lastGender.equals("Male") && !editable.chooseGender.equals("Male"))){
+                    if(lastDate != matingDate || (lastGender.equals(getString(R.string.genderMale)) && !editable.chooseGender.equals(getString(R.string.genderMale)))){
                         editable.matedDate = matingDate;
                         createEvents(editable);
                     }
@@ -319,27 +317,29 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
         eventsManager =(AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-        if (rabbitEntry.chooseGender.equals("Female")) {
+        if (rabbitEntry.chooseGender.equals(getString(R.string.genderFemale))) {
             if(rabbitEntry.matedDate != null) {
 
                 Date UpcomingBirth = new Date(rabbitEntry.matedDate.getTime() + (1000L * 60 * 60 * 24 * 31));
-                newEvent(rabbitEntry,defaultFormatter.format(UpcomingBirth) + ": " + "Did " + rabbitEntry.entryName + " give birth?",UpcomingBirth,0);
-
+                //newEvent(rabbitEntry,defaultFormatter.format(UpcomingBirth) + ": " + "Did " + rabbitEntry.entryName + " give birth?",UpcomingBirth,0);
+                newEvent(rabbitEntry,getString(R.string.femaleGaveBirth,defaultFormatter.format(UpcomingBirth),rabbitEntry.entryName),UpcomingBirth,0);
 
                 Date readyMateDate = new Date(UpcomingBirth.getTime() + (1000L * 60 * 60 * 24 * 66));
-                newEvent(rabbitEntry,defaultFormatter.format(readyMateDate) + ": " + rabbitEntry.entryName + " is ready for mating",readyMateDate,1);
+                //newEvent(rabbitEntry,defaultFormatter.format(readyMateDate) + ": " + rabbitEntry.entryName + " is ready for mating",readyMateDate,1);
+                newEvent(rabbitEntry,getString(R.string.femaleReadyForMating,defaultFormatter.format(readyMateDate),rabbitEntry.entryName),readyMateDate,1);
             }
-
-        } else if (rabbitEntry.chooseGender.equals("Group")) {
+        } else if (rabbitEntry.chooseGender.equals(getString(R.string.genderGroup))) {
             if(rabbitEntry.birthDate != null) {
                 Date moveDate = new Date(rabbitEntry.birthDate.getTime() + (1000L * 60 * 60 * 24 * 62));
-                newEvent(rabbitEntry,defaultFormatter.format(moveDate) + ": Was the group " + rabbitEntry.entryName + " moved into another cage?",moveDate,2);
+                //newEvent(rabbitEntry,defaultFormatter.format(moveDate) + ": Was the group " + rabbitEntry.entryName + " moved into another cage?",moveDate,2);
+                newEvent(rabbitEntry,getString(R.string.groupMovedIntoCage,defaultFormatter.format(moveDate),rabbitEntry.entryName),moveDate,2);
 
                 rabbitEntry.secondParent = parentSpinner.getSelectedItem().toString();
 
 
                 Date slaughterDate = new Date(rabbitEntry.birthDate.getTime() + (1000L * 60 * 60 * 24 * 124));
-                newEvent(rabbitEntry,defaultFormatter.format(slaughterDate) + ": Was the group " + rabbitEntry.entryName + " slaughtered?",slaughterDate,3);
+                //newEvent(rabbitEntry,defaultFormatter.format(slaughterDate) + ": Was the group " + rabbitEntry.entryName + " slaughtered?",slaughterDate,3);
+                newEvent(rabbitEntry,getString(R.string.groupSlauhtered,defaultFormatter.format(slaughterDate),rabbitEntry.entryName),slaughterDate,3);
 
             }
         }

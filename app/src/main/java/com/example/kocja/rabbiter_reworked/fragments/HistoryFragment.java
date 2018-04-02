@@ -1,5 +1,6 @@
 package com.example.kocja.rabbiter_reworked.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -30,7 +31,6 @@ public class HistoryFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         return inflater.inflate(R.layout.upcoming_history_fragment_layout, container, false);
     }
     public static void setPastEvents(Context context,String entryName,ListView view){
@@ -50,18 +50,18 @@ public class HistoryFragment extends Fragment {
                 }).execute();
     }
 
-    public static void maleParentOf(Context context, String parent,ListView view){
+    public static void maleParentOf(Context context, String parent,ListView view,Activity activity){
         SQLite.select()
                 .from(Entry.class)
-                .where(Entry_Table.chooseGender.eq("Group"))
+                .where(Entry_Table.chooseGender.eq(activity.getString(R.string.genderMale)))
                 .and(Entry_Table.matedWithOrParents.eq(parent))
                 .or(Entry_Table.secondParent.eq(parent))
-                .and(Entry_Table.chooseGender.eq("Group"))
+                .and(Entry_Table.chooseGender.eq(activity.getString(R.string.genderGroup)))
                 .async()
                 .queryListResultCallback((transaction, tResult) -> {
                     List<String> parentOfList = new ArrayList<>(tResult.size());
                     for(Entry entry : tResult){
-                        parentOfList.add("Parent of: " + entry.entryName);
+                        parentOfList.add(activity.getString(R.string.parentOf,entry.entryName));
                     }
                     ListAdapter adapter = new ArrayAdapter<>(context,android.R.layout.simple_list_item_1,parentOfList);
                     view.setAdapter(adapter);
