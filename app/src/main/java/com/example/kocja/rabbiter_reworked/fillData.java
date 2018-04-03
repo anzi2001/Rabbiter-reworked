@@ -1,10 +1,10 @@
 package com.example.kocja.rabbiter_reworked;
 
 
-import android.content.Context;
-import android.widget.GridView;
+import android.app.Activity;
+import android.support.v7.widget.RecyclerView;
 
-import com.example.kocja.rabbiter_reworked.adapters.EntriesAdapter;
+import com.example.kocja.rabbiter_reworked.adapters.EntriesRecyclerAdapter;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
 import com.example.kocja.rabbiter_reworked.databases.Entry_Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
@@ -17,14 +17,15 @@ import java.util.List;
  */
 
 class fillData {
-    static List<Entry> getEntries(Context context, GridView view){
+    static List<Entry> getEntries(Activity context, RecyclerView view,EntriesRecyclerAdapter.onItemClickListener listener){
         final List<Entry> temporaryList = new ArrayList<>(0);
         SQLite.select()
                 .from(Entry.class)
                 .where(Entry_Table.isChildMerged.eq(false))
                 .async()
                 .queryListResultCallback((transaction, tResult) -> {
-                    EntriesAdapter adapter = new EntriesAdapter(context,tResult);
+                    EntriesRecyclerAdapter adapter = new EntriesRecyclerAdapter(context,tResult);
+                    adapter.setLongClickListener(listener);
                     temporaryList.addAll(tResult);
                     view.setAdapter(adapter);
                 }).execute();
