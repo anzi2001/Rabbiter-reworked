@@ -19,6 +19,7 @@ import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.kocja.rabbiter_reworked.activities.addEntryActivity;
 import com.example.kocja.rabbiter_reworked.activities.settingsActivity;
 import com.example.kocja.rabbiter_reworked.activities.viewEntry;
@@ -77,6 +78,9 @@ public class rabbitActivity extends AppCompatActivity {
 
         mainGrid.setOnItemLongClickListener((adapterView, view, i, l) -> {
             CircleImageView markedOrNot = view.findViewById(R.id.MarkedOrNot);
+            if(markedOrNot.getDrawable() == null){
+                Glide.with(this).load(R.drawable.ic_markedornot).into(markedOrNot);
+            }
             if(markedOrNot.getVisibility() == View.GONE) {
                 chosenEntriesCounter++;
 

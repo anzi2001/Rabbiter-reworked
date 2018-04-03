@@ -151,7 +151,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             pickDate.show();
         });
 
-        genderAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,new String[]{getString(R.string.genderMale),getString(R.string.genderFemale),getString(R.string.genderGroup)});
+        genderAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,new String[]{"Male","Female","Group"});
         genderSpinner.setAdapter(genderAdapter);
         TextView numDeadRabTitle = findViewById(R.id.deadNumTextTitle);
         TextView rabbitsNumText = findViewById(R.id.rabbitsNumText);
@@ -168,9 +168,10 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     numDeadRabTitle.setVisibility(View.VISIBLE);
                     rabbitsNumText.setVisibility(View.VISIBLE);
 
-                    addMatingDate.setVisibility(View.GONE);
-                    addMatingDateCal.setVisibility(View.GONE);
-                    matingDateText.setVisibility(View.GONE);
+                    //Temporary fix, would have to reconstraint views. will see.
+                    /*addMatingDate.setVisibility(View.INVISIBLE);
+                    addMatingDateCal.setVisibility(View.INVISIBLE);
+                    matingDateText.setVisibility(View.INVISIBLE);*/
                 }
                 else{
                     parentSpinner.setVisibility(View.GONE);
@@ -181,9 +182,9 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     numDeadRabTitle.setVisibility(View.GONE);
                     rabbitsNumText.setVisibility(View.GONE );
 
-                    addMatingDateCal.setVisibility(View.VISIBLE);
+                    /*addMatingDateCal.setVisibility(View.VISIBLE);
                     addMatingDate.setVisibility(View.VISIBLE);
-                    matingDateText.setVisibility(View.VISIBLE);
+                    matingDateText.setVisibility(View.VISIBLE);*/
                 }
             }
 
