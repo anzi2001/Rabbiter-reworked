@@ -151,7 +151,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             pickDate.show();
         });
 
-        genderAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,getResources().getStringArray(R.array.decideOnGender));
+        genderAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,new String[]{getString(R.string.genderMale),getString(R.string.genderFemale),getString(R.string.genderGroup)});
         genderSpinner.setAdapter(genderAdapter);
         TextView numDeadRabTitle = findViewById(R.id.deadNumTextTitle);
         TextView rabbitsNumText = findViewById(R.id.rabbitsNumText);

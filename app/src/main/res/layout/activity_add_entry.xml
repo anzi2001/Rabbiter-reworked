@@ -202,16 +202,17 @@
         <ImageButton
             android:id="@+id/addEntry"
             android:layout_width="44dp"
-            android:layout_height="wrap_content"
+            android:layout_height="41dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="52dp"
             android:contentDescription="@string/addEntryDesc"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.973"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/deadRabbits"
+            app:layout_constraintTop_toTopOf="@+id/deadRabbits"
+            app:layout_constraintVertical_bias="1.0"
             app:srcCompat="@drawable/ic_check_black_24dp" />
 
         <Spinner
