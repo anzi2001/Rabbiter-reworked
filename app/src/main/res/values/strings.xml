@@ -65,6 +65,7 @@
         <string name="totalNumBirths">Total births: </string>
         <string name="totalBirthsData">Total births</string>
     <!--VIEW ENTRY DATA-->
+        <string name="OK">OK</string>
         <string name="RabbitAgeText">Rabbit age: </string>
         <string name="rabbitAgeData">Rabbit age</string>
         <string name="confirm">yes</string>

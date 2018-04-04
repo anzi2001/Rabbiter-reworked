@@ -19,6 +19,7 @@ public class onBootService extends IntentService {
     public onBootService(){
         super("This is onBootService");
     }
+
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         SQLite.select()
@@ -38,5 +39,6 @@ public class onBootService extends IntentService {
                         }
                     }
                 }).execute();
+
     }
 }

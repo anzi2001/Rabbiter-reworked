@@ -105,11 +105,6 @@ public class viewEntry extends AppCompatActivity {
     }
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_view_entry_data,menu);
-        if(!mainEntry.isMerged){
-            MenuItem showMergedItem = menu.findItem(R.id.showMergedEntry);
-            showMergedItem.setVisible(false);
-        }
-
         return true;
     }
 
@@ -142,9 +137,21 @@ public class viewEntry extends AppCompatActivity {
             assureDeletion.show();
 
         } else if (id == R.id.showMergedEntry) {
-            Intent startMergedViewEntry = new Intent(getApplicationContext(), viewEntry.class);
-            startMergedViewEntry.putExtra("entryID", mainEntry.mergedEntry.entryID);
-            startActivity(startMergedViewEntry);
+            if(mainEntry.isMerged){
+                Intent startMergedViewEntry = new Intent(getApplicationContext(), viewEntry.class);
+                startMergedViewEntry.putExtra("entryID", mainEntry.mergedEntry.entryID);
+                startActivity(startMergedViewEntry);
+            }
+            else{
+                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                        .setTitle("Oops")
+                        .setMessage("It appears that the entry does not have a merged entry")
+                        .setPositiveButton(R.string.OK, (dialogInterface, i) -> {
+                            dialogInterface.cancel();
+                        });
+                builder.show();
+            }
+
 
         } else if (id == R.id.entryStats) {
             Intent startStatActivity = new Intent(getApplicationContext(), viewEntryStats.class);
