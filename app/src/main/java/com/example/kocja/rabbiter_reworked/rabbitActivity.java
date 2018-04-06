@@ -4,8 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -21,14 +19,11 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.kocja.rabbiter_reworked.activities.addEntryActivity;
-import com.example.kocja.rabbiter_reworked.activities.settingsActivity;
 import com.example.kocja.rabbiter_reworked.activities.viewEntry;
 import com.example.kocja.rabbiter_reworked.adapters.EntriesRecyclerAdapter;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
 import com.example.kocja.rabbiter_reworked.fragments.UpcomingEventsFragment;
 import com.example.kocja.rabbiter_reworked.services.alertIfNotAlertedService;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 
 import java.util.List;
 import java.util.UUID;
@@ -56,7 +51,6 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
         setContentView(R.layout.activity_rabbit);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        PreferenceManager.setDefaultValues(this,R.xml.preferences,false);
 
 
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
@@ -174,20 +168,6 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
     }
     private static void animateUp(FloatingActionButton toMove){
         toMove.animate().translationY(-100);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_rabbit_acitivty,menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-    public boolean onOptionsItemSelected(MenuItem item){
-        int id = item.getItemId();
-        if(id == R.id.settings){
-            Intent startSettings = new Intent(this,settingsActivity.class);
-            startActivity(startSettings);
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

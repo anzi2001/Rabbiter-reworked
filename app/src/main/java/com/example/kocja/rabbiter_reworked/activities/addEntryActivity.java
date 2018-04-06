@@ -7,12 +7,16 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -151,7 +155,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             pickDate.show();
         });
 
-        genderAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,new String[]{"Male","Female","Group"});
+        genderAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,getResources().getStringArray(R.array.decideOnGender));
         genderSpinner.setAdapter(genderAdapter);
         TextView numDeadRabTitle = findViewById(R.id.deadNumTextTitle);
         TextView rabbitsNumText = findViewById(R.id.rabbitsNumText);

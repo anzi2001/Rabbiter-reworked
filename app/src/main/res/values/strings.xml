@@ -78,6 +78,10 @@
     <string name="setAge">%1$d years, %2$d months and %3$d days old</string>
 
     <string name="chooseLanguage">Choose language</string>
+    <string-array name="chooseLanguageValues">
+        <item>en-GB</item>
+        <item>sl-rSI</item>
+    </string-array>
     <!--RABBIT ACTIVITY-->
     <string name="alertMoreThan2Chosen">You have chosen more than 2 entries which is not possible</string>
 

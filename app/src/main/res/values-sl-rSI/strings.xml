@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Rabbiter</string>
+    <array name="DecideOnPhType">
+        <item>Izberi iz galerije</item>
+        <item>Fotografiraj</item>
+    </array>
+
+    <!--GENERAL STRINGS-->
+    <string name="genderMale">Samec</string>
+    <string name="genderFemale">Samica</string>
+    <string name="genderGroup">Skupina</string>
+
+    <string-array name="decideOnGender">
+        <item>@string/genderMale</item>
+        <item>@string/genderFemale</item>
+        <item>@string/genderGroup</item>
+    </string-array>
+
+    <string-array name="chooseLanguage">
+        <item>English</item>
+        <item>Slovenščina</item>
+    </string-array>
+    <!--ADD ENTRY ACTIVITY-->
+    <string name="title">Dodaj vnos</string>
+    <!--IMAGE DESCRIPTIONS-->
+    <string name="mainImageDesc">This image displays an image to be added in the entry.</string>
+    <string name="addBirthDateDesc">A button that adds a birth date to an entry.</string>
+    <string name="addMatingDateDesc">A button that adds a mating date of a rabbit.</string>
+    <string name="takePhotoDesc">A button that chooses a photo for an entry.</string>
+    <string name="addEntryDesc">Confirms the entry content and saves it.</string>
+    <string name="mainEntryViewDesc">Views the image that was added to an entry.</string>
+    <string name="mergedViewDesc">Image to see the merged rabbit.</string>
+    <!--MENU ITEMS-->
+    <string name="menuEditEntry">Uredi</string>
+    <string name="menuDeleteEntry">Izbriši</string>
+    <string name="menuShowMerged">Prikaži pridruženi vnos</string>
+    <string name="menuEntryStatistics">Statistika vnosa</string>
+
+    <!--TEXT VIEWS-->
+    <string name="entryName">Ime</string>
+    <string name="entryGender">Spol</string>
+    <string name="entryBirthDate">Rojstvo</string>
+    <string name="entryMatingDate">Datum paritve</string>
+    <string name="entryMatedWith">Partner</string>
+    <string name="photoOption">Kako želiš dodati fotografijo?</string>
+    <string name="none">nič</string>
+
+    <string name="entryRabbitNum">Število kuncev: </string>
+    <string name="entryRabbitDeadNum">Število mrtvorojenih kuncev: </string>
+
+    <!--EDIT TEXTS-->
+    <string name="editTextName">Ime</string>
+    <string name="editTextBirthDate">Rojstvo</string>
+    <string name="editTextMatingDate">Datum paritve</string>
+    <!--ENTRY ADDING-->
+    <string name="femaleGaveBirth">%1$s: Ali je %2$s imela mladiče?</string>
+    <string name="femaleReadyForMating">%1$s: %2$s je pripravljena na paritev</string>
+    <string name="groupMovedIntoCage">%1$s: Je bila skupina %2$s ločena od mame?</string>
+    <string name="groupSlauhtered">%1$s: Ali je bil pri skupini %2$s izveden zakol?</string>
+    <!--BIRTH FRAGMENT STATS-->
+    <string name="successNumBirths">Število uspešnih rojstev: </string>
+    <string name="successBirthsData">Uspešna rojstva</string>
+    <string name="deadNumRabbits">Število mrtvorojenih kuncev: </string>
+    <string name="totalRabbitsBorn">Število živorojenih kuncev: </string>
+    <string name="totalNumBirths">Skupaj rojstev(uspešnih in neuspešnih): </string>
+    <string name="totalBirthsData">Skupaj rojstev</string>
+    <!--VIEW ENTRY DATA-->
+    <string name="OK">OK</string>
+    <string name="RabbitAgeText">Starost: </string>
+    <string name="rabbitAgeData">Starost</string>
+    <string name="confirm">da</string>
+    <string name="decline">ne</string>
+    <string name="confirmDeletion">Ste preprični, da želite izbrisati vnos?</string>
+    <!--VARIABLE STRINGS-->
+    <string name="mergedStrings">%1$s , %2$s</string>
+    <string name="setParents">Starša: </string>
+    <string name="Parents">%1$s %2$s</string>
+    <string name="setAge">%1$d let, %2$d mesecev in %3$d dni</string>
+
+    <string name="chooseLanguage">Izberi jezik</string>
+    <string-array name="chooseLanguageValues">
+        <item>en-GB</item>
+        <item>sl-rSI</item>
+    </string-array>
+    <!--RABBIT ACTIVITY-->
+    <string name="alertMoreThan2Chosen">Izbrali ste več kot dva vnosa kar ni dovoljeno</string>
+
+    <!--HISTORY FRAGMENT-->
+    <string name="parentOf">Potomci: %1$s</string>
+
+</resources>
