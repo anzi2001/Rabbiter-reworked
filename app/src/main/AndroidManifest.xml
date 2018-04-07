@@ -9,6 +9,7 @@
     <uses-feature android:name="android.hardware.camera"
         android:required="false"/>
 
+
     <application
         android:name=".mainApplication"
         android:allowBackup="false"
@@ -17,6 +18,9 @@
         android:roundIcon="@mipmap/dokoncana_ikona_zajec_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+
+
 
         <provider
             android:name="android.support.v4.content.FileProvider"
