@@ -221,12 +221,14 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     if(baseImageUri != null){
                         editable.entryPhLoc = baseImageUri.toString();
                     }
+
+                    // i check if the date is not the same, initialize new events based on those dates
+                    // i do the same if the user is changing the gender from male to female or group
                     if(lastDate != matingDate || (lastGender.equals(getString(R.string.genderMale)) && !editable.chooseGender.equals(getString(R.string.genderMale)))){
                         editable.matedDate = matingDate;
                         createEvents(editable);
                     }
-                    // i check if the date is not the same, initialize new events based on those dates
-                    // i do the same if the user is changing the gender from male to female or group
+
 
                     editable.update();
 

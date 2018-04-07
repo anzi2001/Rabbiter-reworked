@@ -3,6 +3,7 @@ package com.example.kocja.rabbiter_reworked.activities;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +22,7 @@ import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.example.kocja.rabbiter_reworked.fragments.HistoryFragment;
 import com.example.kocja.rabbiter_reworked.fragments.viewEntryData;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 
 import java.util.UUID;
 
@@ -33,12 +35,13 @@ public class viewEntry extends AppCompatActivity {
     private viewEntryData mainEntryFragment;
     private UUID mainEntryUUID;
     private boolean dataChanged = false;
+    private ImageView mainEntryView;
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_entry);
         Intent currentIntent = getIntent();
         mainEntryUUID =(UUID) currentIntent.getSerializableExtra("entryID");
-        ImageView mainEntryView = findViewById(R.id.mainEntryView);
+        mainEntryView = findViewById(R.id.mainEntryView);
         Intent viewLargerImage = new Intent(this,largerMainImage.class);
         mainEntryView.setOnClickListener(view -> {
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
@@ -58,11 +61,11 @@ public class viewEntry extends AppCompatActivity {
                 .querySingleResultCallback((transaction, entry) -> {
                     viewLargerImage.putExtra("imageURI",entry.entryPhLoc);
 
-
                     mainEntry = entry;
                     mainEntryFragment = (viewEntryData) getSupportFragmentManager().findFragmentById(R.id.mainEntryFragment);
 
                     ListView historyView = findViewById(R.id.upcomingList);
+
                     if(entry.chooseGender.equals(getString(R.string.genderMale))){
                         HistoryFragment.maleParentOf(this,entry.entryName,historyView,viewEntry.this);
                     }
@@ -71,7 +74,6 @@ public class viewEntry extends AppCompatActivity {
                     }
 
                     mainEntryFragment.setData(entry);
-
 
                     Glide.with(viewEntry.this).load(entry.entryPhLoc).into(mainEntryView);
 
@@ -88,8 +90,13 @@ public class viewEntry extends AppCompatActivity {
                     .from(Entry.class)
                     .where(Entry_Table.entryID.eq(mainEntryUUID))
                     .async()
-                    .querySingleResultCallback((transaction, entry) -> mainEntryFragment.setData(entry)).execute();
-            dataChanged = true;
+                    .querySingleResultCallback((transaction, entry) -> {
+                        mainEntryFragment.setData(entry);
+                        Glide.with(this)
+                                .load(entry.entryPhLoc)
+                                .into(mainEntryView);
+                    }).execute();
+                    dataChanged = true;
 
         }
     }

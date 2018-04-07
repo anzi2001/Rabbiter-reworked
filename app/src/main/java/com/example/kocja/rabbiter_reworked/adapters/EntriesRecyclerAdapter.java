@@ -2,6 +2,7 @@ package com.example.kocja.rabbiter_reworked.adapters;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -69,9 +70,28 @@ public class EntriesRecyclerAdapter extends RecyclerView.Adapter<EntriesRecycler
     @Override
     public void onBindViewHolder(@NonNull EntriesRecyclerAdapter.viewHolder holder, int position) {
         holder.textName.setText(allEntries.get(position).entryName);
-        Glide.with(c).load(allEntries.get(position).entryPhLoc).into(holder.entryImage);
+        Glide.with(c)
+                .load(allEntries.get(position).entryPhLoc)
+                .into(holder.entryImage);
+
+        holder.entryImage.setBorderWidth(6);
+        if (allEntries.get(position).chooseGender.equals("Female")) {
+            holder.entryImage.setBorderColor(Color.parseColor("#EC407A"));
+        }
+        else if (allEntries.get(position).chooseGender.equals("Male")) {
+            holder.entryImage.setBorderColor(Color.BLUE);
+        }
+        else {
+            holder.entryImage.setBorderColor(Color.WHITE);
+        }
+
         if(allEntries.get(position).isMerged){
-            Glide.with(c).load(allEntries.get(position).mergedEntryPhLoc).into(holder.mergedImage);
+            holder.mergedImage.setVisibility(View.VISIBLE);
+            holder.mergedImage.setBorderWidth(4);
+            holder.mergedImage.setBorderColor(Color.WHITE);
+            Glide.with(c)
+                    .load(allEntries.get(position).mergedEntryPhLoc)
+                    .into(holder.mergedImage);
         }
 
     }
