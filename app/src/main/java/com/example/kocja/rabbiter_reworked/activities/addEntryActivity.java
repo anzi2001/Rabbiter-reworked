@@ -410,6 +410,9 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                         addName.setText(editable.entryName);
                         matedWithSpinner.setSelection(matedWithAdapter.getPosition(editable.matedWithOrParents));
                         genderSpinner.setSelection(genderAdapter.getPosition(editable.chooseGender));
+                        //i believe i can just set rabbitsNum and deadRabbits since it hides anyway
+                        rabbitsNum.setText(editable.rabbitNumber);
+                        deadRabbitNum.setText(editable.rabbitDeadNumber);
                         if (editable.birthDate != null) {
                             birthDate = editable.birthDate;
                             addBirthDate.setText(defaultFormatter.format(editable.birthDate));
