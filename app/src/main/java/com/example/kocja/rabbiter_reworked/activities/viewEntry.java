@@ -77,6 +77,12 @@ public class viewEntry extends AppCompatActivity {
 
                     if(entry.isMerged){
                         ImageView mergedView = findViewById(R.id.mergedView);
+                        mergedView.setOnClickListener(view -> {
+                            Intent startMergedMain = new Intent(this,viewEntry.class);
+                            startMergedMain.putExtra("entryID",entry.mergedEntry.entryID);
+                            ActivityOptionsCompat compat = ActivityOptionsCompat.makeSceneTransitionAnimation(this,mainEntryView,"mergedName");
+                            startActivity(startMergedMain,compat.toBundle());
+                        });
                         mergedView.setVisibility(View.VISIBLE);
                         Glide.with(this).load(entry.mergedEntryPhLoc).into(mergedView);
                     } 
@@ -141,24 +147,8 @@ public class viewEntry extends AppCompatActivity {
                     .setNegativeButton(R.string.decline, (dialogInterface, i) -> dialogInterface.cancel());
             assureDeletion.show();
 
-        } else if (id == R.id.showMergedEntry) {
-            if(mainEntry.isMerged){
-                Intent startMergedViewEntry = new Intent(getApplicationContext(), viewEntry.class);
-                startMergedViewEntry.putExtra("entryID", mainEntry.mergedEntry.entryID);
-                startActivity(startMergedViewEntry);
-            }
-            else{
-                AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                        .setTitle("Oops")
-                        .setMessage("It appears that the entry does not have a merged entry")
-                        .setPositiveButton(R.string.OK, (dialogInterface, i) -> {
-                            dialogInterface.cancel();
-                        });
-                builder.show();
-            }
-
-
-        } else if (id == R.id.entryStats) {
+        }
+        else if (id == R.id.entryStats) {
             Intent startStatActivity = new Intent(getApplicationContext(), viewEntryStats.class);
             startStatActivity.putExtra("entryUUID", mainEntry.entryID);
             startActivity(startStatActivity);

@@ -34,8 +34,7 @@
 
         <activity
             android:name=".rabbitActivity"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -44,7 +43,7 @@
         </activity>
 
         <activity android:name=".activities.addEntryActivity"/>
-        <activity android:name=".activities.viewEntry"/>
+        <activity android:name=".activities.viewEntry" />
         <activity android:name=".activities.viewEntryStats"/>
         <activity android:name=".activities.largerMainImage"
             android:theme="@style/Theme.Transparent"/>

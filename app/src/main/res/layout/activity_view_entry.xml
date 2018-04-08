@@ -45,6 +45,7 @@
             android:id="@+id/mainEntryView"
             android:layout_width="0dp"
             android:layout_height="152dp"
+            android:transitionName="mergedName"
             android:contentDescription="@string/mainEntryViewDesc"
             app:layout_constraintBottom_toTopOf="@+id/guideline2"
             app:layout_constraintEnd_toEndOf="parent"
@@ -54,19 +55,20 @@
             app:layout_constraintVertical_bias="1.0"
             app:srcCompat="@drawable/frame_imageview" />
 
-        <ImageView
-            android:id="@+id/mergedView"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:visibility="gone"
-            android:contentDescription="@string/mergedViewDesc"
-            app:layout_constraintBottom_toTopOf="@+id/mainEntryFragment"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0"
-            app:srcCompat="@drawable/frame_imageview" />
+    <ImageView
+        android:id="@+id/mergedView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:contentDescription="@string/mergedViewDesc"
+        android:transitionName="mergedName"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/guideline2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/frame_imageview" />
 
         <fragment
             android:id="@+id/mainEntryFragment"

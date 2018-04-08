@@ -12,10 +12,6 @@
         android:orderInCategory="101"
         android:title="@string/menuDeleteEntry" />
     <item
-        android:id="@+id/showMergedEntry"
-        android:orderInCategory="102"
-        android:title="@string/menuShowMerged" />
-    <item
         android:id="@+id/entryStats"
         android:orderInCategory="103"
         android:title="@string/menuEntryStatistics" />
