@@ -3,7 +3,6 @@ package com.example.kocja.rabbiter_reworked.activities;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +21,6 @@ import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.example.kocja.rabbiter_reworked.fragments.HistoryFragment;
 import com.example.kocja.rabbiter_reworked.fragments.viewEntryData;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 
 import java.util.UUID;
 

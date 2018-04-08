@@ -38,4 +38,5 @@ public class Events extends BaseModel {
     public int timesNotified;
     @Column
     public int notificationState;
+
 }

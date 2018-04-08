@@ -44,6 +44,8 @@ public class viewEntryData extends Fragment {
         matedDateText = mainView.findViewById(R.id.entryMatedDateOrParents);
         entryMatedWith = mainView.findViewById(R.id.entryMatedWith);
         rabbitAge = mainView.findViewById(R.id.RabbitAge);
+        //rabbitNumText = mainView.findViewById(R.id.groupRabbitNumText);
+        //rabbitNum = mainView.findViewById(R.id.groupRabbitNum);
         return mainView;
     }
     public void setData(Entry entry){
@@ -53,23 +55,18 @@ public class viewEntryData extends Fragment {
             entryBirthDate.setText(fragmentFormat.format(entry.birthDate));
         }
         entryMatedWith.setText(entry.matedWithOrParents);
+
         TextView matedWithText = mainView.findViewById(R.id.matedWith);
+
+
         if(entry.matedDate != null && entry.chooseGender.equals("Group")){
             TextView parents = mainView.findViewById(R.id.MatedDateOrParents);
             parents.setText(getString(R.string.setParents));
             matedDateText.setText(getString(R.string.Parents,entry.matedWithOrParents, entry.secondParent));
             //entryMatedWith.setVisibility(View.GONE);
 
-            SQLite.select()
-                    .from(Events.class)
-                    .where(Events_Table.name.eq(entry.entryName))
-                    .and(Events_Table.typeOfEvent.eq(0))
-                    .async()
-                    .querySingleResultCallback((transaction, events) -> {
-                        entryMatedWith.setText(events.rabbitsNum);
-                        matedWithText.setText(getString(R.string.entryRabbitNum));
-                    }).execute();
         }
+
         else if(entry.matedDate != null) {
             matedDateText.setText(fragmentFormat.format(entry.matedDate));
         }
@@ -77,9 +74,16 @@ public class viewEntryData extends Fragment {
             long ageDate = TimeUnit.DAYS.convert((new Date().getTime() - entry.birthDate.getTime()),TimeUnit.MILLISECONDS);
             long years = ageDate / 365;
             ageDate = ageDate % 365;
-             long months = ageDate / 30;
+            long months = ageDate / 30;
             ageDate = ageDate %30;
             rabbitAge.setText(getString(R.string.setAge, years, months, ageDate));
+        }
+        if(entry.chooseGender.equals("Group")) {
+            /*rabbitNumText.setVisibility(View.VISIBLE);
+            rabbitNum.setVisibility(View.VISIBLE);
+            rabbitNum.setText(Integer.toString(entry.rabbitNumber));*/
+            entryMatedWith.setText(Integer.toString(entry.rabbitNumber));
+            matedWithText.setText(getString(R.string.entryRabbitNum));
         }
     }
 }

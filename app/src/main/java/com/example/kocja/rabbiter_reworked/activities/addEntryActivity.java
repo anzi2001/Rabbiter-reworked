@@ -7,16 +7,12 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -164,18 +160,26 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if(genderSpinner.getSelectedItem().toString().equals(getString(R.string.genderMale))){
-                    parentSpinner.setVisibility(View.VISIBLE);
-                    matedWith.setText(getString(R.string.setParents));
+                    parentSpinner.setVisibility(View.GONE);
+                    matedWith.setText(getString(R.string.entryMatedWith));
 
-                    rabbitsNum.setVisibility(View.VISIBLE);
-                    deadRabbitNum.setVisibility(View.VISIBLE);
-                    numDeadRabTitle.setVisibility(View.VISIBLE);
-                    rabbitsNumText.setVisibility(View.VISIBLE);
+                    rabbitsNum.setVisibility(View.GONE);
+                    deadRabbitNum.setVisibility(View.GONE);
+                    numDeadRabTitle.setVisibility(View.GONE);
+                    rabbitsNumText.setVisibility(View.GONE);
 
                     //Temporary fix, would have to reconstraint views. will see.
                     /*addMatingDate.setVisibility(View.INVISIBLE);
                     addMatingDateCal.setVisibility(View.INVISIBLE);
                     matingDateText.setVisibility(View.INVISIBLE);*/
+                }
+                else if(genderSpinner.getSelectedItem().toString().equals("Group")){
+                    matedWith.setText(getString(R.string.setParents));
+                    parentSpinner.setVisibility(View.VISIBLE);
+                    rabbitsNum.setVisibility(View.VISIBLE);
+                    deadRabbitNum.setVisibility(View.VISIBLE);
+                    numDeadRabTitle.setVisibility(View.VISIBLE);
+                    rabbitsNumText.setVisibility(View.VISIBLE);
                 }
                 else{
                     parentSpinner.setVisibility(View.GONE);
@@ -214,6 +218,13 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     editable.secondParent = parentSpinner.getSelectedItem().toString();
                     editable.birthDate = birthDate;
                     editable.matedDate = matingDate;
+                    if(!rabbitsNum.getText().toString().isEmpty()){
+                        editable.rabbitNumber = Integer.parseInt(rabbitsNum.getText().toString());
+
+                    }
+                    if(!deadRabbitNum.getText().toString().isEmpty()){
+                        editable.rabbitDeadNumber = Integer.parseInt(deadRabbitNum.getText().toString());
+                    }
 
                     if(lastMateDate != matingDate){
                         createEvents(editable);
@@ -245,6 +256,17 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
                     rabbitEntry.birthDate = birthDate;
                     rabbitEntry.matedDate = matingDate;
+
+                    if(!deadRabbitNum.getText().toString().isEmpty()){
+                        rabbitEntry.rabbitNumber = Integer.parseInt(rabbitsNum.getText().toString());
+
+                    }
+                    if(!rabbitsNum.getText().toString().isEmpty()){
+                        rabbitEntry.rabbitDeadNumber = Integer.parseInt(deadRabbitNum.getText().toString());
+                    }
+
+
+
                     createEvents(rabbitEntry); 
 
                     rabbitEntry.save(databaseWrapper);
@@ -358,13 +380,13 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         createEvent.eventString = eventString;
         createEvent.dateOfEvent = dateOfEvent;
         createEvent.typeOfEvent = type;
-        if(type == 0 && !deadRabbitNum.getText().toString().isEmpty()){
+        /*if(type == 0 && !deadRabbitNum.getText().toString().isEmpty()){
             createEvent.numDead = Integer.parseInt(deadRabbitNum.getText().toString());
 
         }
         if(type == 0 && !rabbitsNum.getText().toString().isEmpty()){
             createEvent.rabbitsNum = Integer.parseInt(rabbitsNum.getText().toString());
-        }
+        }*/
 
 
         Intent alertEventService = new Intent(this, AlertEventService.class);

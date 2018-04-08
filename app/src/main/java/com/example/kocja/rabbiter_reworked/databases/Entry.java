@@ -41,5 +41,9 @@ public class Entry extends BaseModel{
     public String mergedEntryName;
     @ForeignKey(stubbedRelationship = true)
     public Entry mergedEntry;
+    @Column
+    public int rabbitNumber;
+    @Column
+    public int rabbitDeadNumber;
 }
 
