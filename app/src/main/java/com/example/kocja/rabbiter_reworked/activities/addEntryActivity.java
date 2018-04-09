@@ -257,11 +257,11 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     rabbitEntry.birthDate = birthDate;
                     rabbitEntry.matedDate = matingDate;
 
-                    if(!deadRabbitNum.getText().toString().isEmpty()){
+                    if(!rabbitsNum.getText().toString().isEmpty()){
                         rabbitEntry.rabbitNumber = Integer.parseInt(rabbitsNum.getText().toString());
 
                     }
-                    if(!rabbitsNum.getText().toString().isEmpty()){
+                    if(!deadRabbitNum.getText().toString().isEmpty()){
                         rabbitEntry.rabbitDeadNumber = Integer.parseInt(deadRabbitNum.getText().toString());
                     }
 
@@ -410,9 +410,10 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                         addName.setText(editable.entryName);
                         matedWithSpinner.setSelection(matedWithAdapter.getPosition(editable.matedWithOrParents));
                         genderSpinner.setSelection(genderAdapter.getPosition(editable.chooseGender));
+                        parentSpinner.setSelection(matedWithAdapter.getPosition(editable.secondParent));
                         //i believe i can just set rabbitsNum and deadRabbits since it hides anyway
-                        rabbitsNum.setText(editable.rabbitNumber);
-                        deadRabbitNum.setText(editable.rabbitDeadNumber);
+                        rabbitsNum.setText(Integer.toString(editable.rabbitNumber));
+                        deadRabbitNum.setText(Integer.toString(editable.rabbitDeadNumber));
                         if (editable.birthDate != null) {
                             birthDate = editable.birthDate;
                             addBirthDate.setText(defaultFormatter.format(editable.birthDate));
