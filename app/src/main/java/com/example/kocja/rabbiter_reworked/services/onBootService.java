@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import com.example.kocja.rabbiter_reworked.R;
+import com.example.kocja.rabbiter_reworked.broadcastrecievers.NotifReciever;
 import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
@@ -39,7 +40,7 @@ public class onBootService extends IntentService {
                 .queryListResultCallback((transaction, tResult) -> {
                     AlarmManager alarmManager =(AlarmManager) getSystemService(Context.ALARM_SERVICE);
                     if(tResult != null){
-                        Intent setNotification = new Intent(this,AlertEventService.class);
+                        Intent setNotification = new Intent(this,NotifReciever.class);
                         //Random randomGen = new Random();
                         for(Events event : tResult){
                             setNotification.putExtra("eventUUID",event.eventUUID);

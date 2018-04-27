@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.kocja.rabbiter_reworked.R;
+import com.example.kocja.rabbiter_reworked.broadcastrecievers.NotifReciever;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
 import com.example.kocja.rabbiter_reworked.databases.Entry_Table;
 import com.example.kocja.rabbiter_reworked.databases.Events;
@@ -389,10 +390,10 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         }*/
 
 
-        Intent alertEventService = new Intent(this, AlertEventService.class);
+        Intent alertEventService = new Intent(this, NotifReciever.class);
         alertEventService.putExtra("eventUUID", createEvent.eventUUID);
         createEvent.id = randGen.nextInt();
-        PendingIntent slaughterEventAlarm = PendingIntent.getService(this, createEvent.id, alertEventService,PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent slaughterEventAlarm = PendingIntent.getBroadcast(this, createEvent.id, alertEventService,PendingIntent.FLAG_CANCEL_CURRENT);
         eventsManager.set(AlarmManager.RTC_WAKEUP, dateOfEvent.getTime(), slaughterEventAlarm);
 
         createEvent.save();

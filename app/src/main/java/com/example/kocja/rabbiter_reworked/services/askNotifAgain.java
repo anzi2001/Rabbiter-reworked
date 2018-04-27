@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 
+import com.example.kocja.rabbiter_reworked.broadcastrecievers.NotifReciever;
 import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
@@ -45,12 +46,12 @@ public class askNotifAgain extends IntentService {
                         events.dateOfEvent = new Date(events.dateOfEvent.getTime() + (1000L *60*60));
                         events.update();
 
-                        Intent alertIntent = new Intent(this, AlertEventService.class);
+                        Intent alertIntent = new Intent(this, NotifReciever.class);
                         alertIntent.putExtra("eventUUID",events.eventUUID);
 
-                        PendingIntent alertPending = PendingIntent.getService(this, events.id, alertIntent, 0);
+                        PendingIntent alertPending = PendingIntent.getBroadcast(this, events.id, alertIntent, 0);
                         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                        manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, events.dateOfEvent.getTime(), alertPending);
+                        manager.set(AlarmManager.RTC_WAKEUP, events.dateOfEvent.getTime(), alertPending);
                     }
                 }).execute();
     }
