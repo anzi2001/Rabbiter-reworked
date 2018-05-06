@@ -7,21 +7,20 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 
 import com.example.kocja.rabbiter_reworked.R;
 import com.example.kocja.rabbiter_reworked.activities.addEntryActivity;
+import com.example.kocja.rabbiter_reworked.adapters.UpcomingEventsAdapter;
 import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.example.kocja.rabbiter_reworked.services.AlertEventService;
 import com.example.kocja.rabbiter_reworked.services.askNotifAgain;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +29,16 @@ import java.util.List;
  * Created by kocja on 27/02/2018.
  */
 
-public class UpcomingEventsFragment extends Fragment {
+public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAdapter.onClickListen{
     List<String> noteToDisplay;
+    List<Events> eventList;
+    RecyclerView upcomingAdapter;
+    RecyclerView.LayoutManager manager;
+    UpcomingEventsAdapter adapter;
+    static UpcomingEventsAdapter.onClickListen listener;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View upcomingList = inflater.inflate(R.layout.upcoming_history_fragment_layout,container,false);
-        ListView upcomingEvents = upcomingList.findViewById(R.id.upcomingList);
         SQLite.select()
                 .from(Events.class)
                 .where(Events_Table.notificationState.eq(Events.NOT_YET_ALERTED))
@@ -43,58 +46,27 @@ public class UpcomingEventsFragment extends Fragment {
                 .orderBy(Events_Table.dateOfEvent,true)
                 .async()
                 .queryListResultCallback((transaction, events) -> {
+                    eventList = events;
                     noteToDisplay = new ArrayList<>(events.size());
                     for(Events event : events){
                         noteToDisplay.add(event.eventString);
                     }
+                    listener = this;
+                    upcomingAdapter = upcomingList.findViewById(R.id.upcomingAdapter);
+                    adapter = new UpcomingEventsAdapter(noteToDisplay,true);
+                    adapter.setLongClickListener(this);
+                    manager = new LinearLayoutManager(getContext());
+                    upcomingAdapter.setLayoutManager(manager);
+                    upcomingAdapter.setHasFixedSize(true);
+                    upcomingAdapter.setAdapter(adapter);
 
-                    ListAdapter listAdapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1,noteToDisplay);
-                    upcomingEvents.setAdapter(listAdapter);
-                    upcomingEvents.setOnItemClickListener((adapterView, view, i, l) -> {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
-                                .setTitle("Event")
-                                .setMessage(noteToDisplay.get(i))
-                                .setPositiveButton("yes", (dialogInterface, i1) -> {
-                                    if(events.get(i).typeOfEvent == 0){
-                                        Intent yesIntent = new Intent(getContext(), addEntryActivity.class);
-                                        yesIntent.putExtra("eventUUID", events.get(i).eventUUID);
-                                        yesIntent.putExtra("getMode", AlertEventService.ADD_BIRTH_FROM_SERVICE);
-                                        yesIntent.putExtra("happened", true);
-                                        getContext().startActivity(yesIntent);
-
-                                    }
-                                    else{
-                                        Intent processEvents = new Intent(getContext(), com.example.kocja.rabbiter_reworked.services.processEvents.class);
-                                        processEvents.putExtra("happened", true);
-                                        processEvents.putExtra("processEventUUID", events.get(i).eventUUID);
-                                        getContext().startService(processEvents);
-
-                                    }
-                                    noteToDisplay = updateNotesToDisplay(events.size());
-                                    ListAdapter refreshAdapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1,noteToDisplay);
-                                    upcomingEvents.setAdapter(refreshAdapter);
-
-                                })
-                                .setNegativeButton("no", (dialogInterface, i12) -> {
-                                        Intent noIntent = new Intent(getContext(),askNotifAgain.class);
-                                        noIntent.putExtra("eventUUID",events.get(i).eventUUID);
-                                        getContext().startService(noIntent);
-
-                                        noteToDisplay = updateNotesToDisplay(events.size());
-                                    ListAdapter refreshAdapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1,noteToDisplay);
-                                    upcomingEvents.setAdapter(refreshAdapter);
-
-                                })
-                                .setNeutralButton("cancel", (dialogInterface, i13) -> dialogInterface.cancel());
-                        builder.show();
-
-                    });
                 }).execute();
+
 
 
         return upcomingList;
     }
-    public static void refreshFragment(ListView upcomingEvents, Context context){
+    public static void refreshFragment(RecyclerView upcomingEvents,Context context){
         SQLite.select()
                 .from(Events.class)
                 .where(Events_Table.notificationState.eq(Events.NOT_YET_ALERTED))
@@ -105,23 +77,72 @@ public class UpcomingEventsFragment extends Fragment {
                     for (Events event : events) {
                         noteToDisplay.add(event.eventString);
                     }
-                    ListAdapter listAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, noteToDisplay);
-                    upcomingEvents.setAdapter(listAdapter);
+                    upcomingEvents.invalidate();
+                    UpcomingEventsAdapter adapter = new UpcomingEventsAdapter(noteToDisplay,true);
+                    adapter.setLongClickListener(listener);
+                    RecyclerView.LayoutManager manager = new LinearLayoutManager(context);
+                    upcomingEvents.setLayoutManager(manager);
+                    upcomingEvents.setHasFixedSize(true);
+                    upcomingEvents.setAdapter(adapter);
+
+
                 }).execute();
     }
-    private static List<String> updateNotesToDisplay(int eventSize){
-        List<String> noteToDisplay = new ArrayList<>(eventSize);
+
+    public void updateNotesToDisplay(){
         SQLite.select()
                 .from(Events.class)
                 .where(Events_Table.notificationState.eq(Events.NOT_YET_ALERTED))
                 .orderBy(Events_Table.dateOfEvent,true)
                 .async()
                 .queryListResultCallback((transaction, events) -> {
+                    noteToDisplay = new ArrayList<>(events.size());
                     for(Events event : events){
                         noteToDisplay.add(event.eventString);
                     }
-                }).execute();
 
-        return noteToDisplay;
+                }).execute();
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+                .setTitle("Event")
+                .setMessage(noteToDisplay.get(position))
+                .setPositiveButton("yes", (dialogInterface, i1) -> {
+                    if(eventList.get(position).typeOfEvent == 0){
+                        Intent yesIntent = new Intent(getContext(), addEntryActivity.class);
+                        yesIntent.putExtra("eventUUID", eventList.get(position).eventUUID);
+                        yesIntent.putExtra("getMode", AlertEventService.ADD_BIRTH_FROM_SERVICE);
+                        yesIntent.putExtra("happened", true);
+                        getContext().startActivity(yesIntent);
+
+                        refreshFragment(upcomingAdapter,getContext());
+                    }
+                    else{
+                        Intent processEvents = new Intent(getContext(), com.example.kocja.rabbiter_reworked.services.processEvents.class);
+                        processEvents.putExtra("happened", true);
+                        processEvents.putExtra("processEventUUID", eventList.get(position).eventUUID);
+                        getContext().startService(processEvents);
+
+                        refreshFragment(upcomingAdapter,getContext());
+
+                    }
+                    updateNotesToDisplay();
+                    adapter.notifyDataSetChanged();
+                })
+                .setNegativeButton("no", (dialogInterface, i12) -> {
+                    Intent noIntent = new Intent(getContext(),askNotifAgain.class);
+                    noIntent.putExtra("eventUUID",eventList.get(position).eventUUID);
+                    getContext().startService(noIntent);
+
+                    //updateNotesToDisplay();
+                    //adapter.notifyDataSetChanged();
+                    refreshFragment(upcomingAdapter,getContext());
+
+                })
+                .setNeutralButton("cancel", (dialogInterface, i13) -> dialogInterface.cancel());
+        builder.show();
+
     }
 }

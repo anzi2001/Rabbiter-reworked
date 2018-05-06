@@ -174,7 +174,7 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
     public void onActivityResult(int requestCode,int resultcode, Intent data){
         if(requestCode == ADD_ENTRY_START && resultcode == RESULT_OK){
             entriesList = fillData.getEntries(this,rabbitEntryView,this);
-            ListView upcomingEvents = findViewById(R.id.upcomingList);
+            RecyclerView upcomingEvents = findViewById(R.id.upcomingAdapter);
             UpcomingEventsFragment.refreshFragment(upcomingEvents,this);
         }
         else if(requestCode == START_VIEW_ENTRY){

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -62,13 +63,13 @@ public class viewEntry extends AppCompatActivity {
                     mainEntry = entry;
                     mainEntryFragment = (viewEntryData) getSupportFragmentManager().findFragmentById(R.id.mainEntryFragment);
 
-                    ListView historyView = findViewById(R.id.upcomingList);
+                    RecyclerView historyView = findViewById(R.id.upcomingAdapter);
 
                     if(entry.chooseGender.equals(getString(R.string.genderMale))){
-                        HistoryFragment.maleParentOf(this,entry.entryName,historyView,viewEntry.this);
+                        HistoryFragment.maleParentOf(this, entry.entryName,historyView,viewEntry.this);
                     }
                     else {
-                        HistoryFragment.setPastEvents(this, entry.entryName,historyView);
+                        HistoryFragment.setPastEvents(this,entry.entryName,historyView);
                     }
 
                     mainEntryFragment.setData(entry);
