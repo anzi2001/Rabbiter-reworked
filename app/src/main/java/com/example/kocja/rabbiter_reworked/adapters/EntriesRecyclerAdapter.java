@@ -66,7 +66,7 @@ public class EntriesRecyclerAdapter extends RecyclerView.Adapter<EntriesRecycler
 
     @Override
     public void onBindViewHolder(@NonNull EntriesRecyclerAdapter.viewHolder holder, int position) {
-        holder.textName.setText(allEntries.get(position).entryName);
+
         Glide.with(c)
                 .load(allEntries.get(position).entryPhLoc)
                 .into(holder.entryImage);
@@ -89,6 +89,10 @@ public class EntriesRecyclerAdapter extends RecyclerView.Adapter<EntriesRecycler
             Glide.with(c)
                     .load(allEntries.get(position).mergedEntryPhLoc)
                     .into(holder.mergedImage);
+            holder.textName.setText(c.getString(R.string.mergedStrings,allEntries.get(position).entryName,allEntries.get(position).mergedEntryName));
+        }
+        else{
+            holder.textName.setText(allEntries.get(position).entryName);
         }
 
     }
