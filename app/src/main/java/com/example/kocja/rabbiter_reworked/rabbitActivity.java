@@ -186,7 +186,7 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
     public void onItemClick(View view, int position) {
         Intent startViewEntry = new Intent(this,viewEntry.class);
         startViewEntry.putExtra("entryID",(UUID)view.getTag());
-        startActivity(startViewEntry);
+        startActivityForResult(startViewEntry,START_VIEW_ENTRY);
     }
 
     @Override
