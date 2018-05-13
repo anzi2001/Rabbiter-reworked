@@ -15,4 +15,8 @@
         android:id="@+id/entryStats"
         android:orderInCategory="103"
         android:title="@string/menuEntryStatistics" />
+    <item
+        android:id="@+id/showMerged"
+        android:orderInCategory="104"
+        android:title="Show merged entry" />
 </menu>

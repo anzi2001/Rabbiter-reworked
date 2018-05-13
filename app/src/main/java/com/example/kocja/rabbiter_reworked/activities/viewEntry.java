@@ -1,5 +1,6 @@
 package com.example.kocja.rabbiter_reworked.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -153,6 +154,21 @@ public class viewEntry extends AppCompatActivity {
             Intent startStatActivity = new Intent(getApplicationContext(), viewEntryStats.class);
             startStatActivity.putExtra("entryUUID", mainEntry.entryID);
             startActivity(startStatActivity);
+
+        }
+        else if(id == R.id.showMerged){
+            if(mainEntry.isMerged){
+                Intent showMerged = new Intent(getApplicationContext(),viewEntry.class);
+                showMerged.putExtra("entryID",mainEntry.mergedEntry.entryID);
+                startActivity(showMerged);
+            }
+            else{
+                AlertDialog.Builder alertNotMerged = new AlertDialog.Builder(this)
+                        .setTitle("Oops")
+                        .setMessage("your entry is not merged")
+                        .setPositiveButton("OK", (dialogInterface, i) -> dialogInterface.cancel());
+                alertNotMerged.show();
+            }
 
         }
         return super.onOptionsItemSelected(item);
