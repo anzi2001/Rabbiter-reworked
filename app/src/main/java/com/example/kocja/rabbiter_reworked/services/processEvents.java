@@ -6,10 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 
-import com.example.kocja.rabbiter_reworked.adapters.UpcomingEventsAdapter;
 import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.databases.Events_Table;
-import com.example.kocja.rabbiter_reworked.fragments.UpcomingEventsFragment;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import java.text.SimpleDateFormat;

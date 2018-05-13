@@ -20,6 +20,7 @@ import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.example.kocja.rabbiter_reworked.services.AlertEventService;
 import com.example.kocja.rabbiter_reworked.services.askNotifAgain;
+import com.example.kocja.rabbiter_reworked.services.processEvents;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import java.util.ArrayList;
@@ -132,8 +133,9 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                     adapter.notifyDataSetChanged();
                 })
                 .setNegativeButton("no", (dialogInterface, i12) -> {
-                    Intent noIntent = new Intent(getContext(),askNotifAgain.class);
-                    noIntent.putExtra("eventUUID",eventList.get(position).eventUUID);
+                    Intent noIntent = new Intent(getContext(),processEvents.class);
+                    noIntent.putExtra("processEventUUID",eventList.get(position).eventUUID);
+                    noIntent.putExtra("happened",false);
                     getContext().startService(noIntent);
 
                     //updateNotesToDisplay();
