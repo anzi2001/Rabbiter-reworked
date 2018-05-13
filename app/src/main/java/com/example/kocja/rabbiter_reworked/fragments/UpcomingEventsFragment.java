@@ -19,7 +19,6 @@ import com.example.kocja.rabbiter_reworked.adapters.UpcomingEventsAdapter;
 import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.databases.Events_Table;
 import com.example.kocja.rabbiter_reworked.services.AlertEventService;
-import com.example.kocja.rabbiter_reworked.services.askNotifAgain;
 import com.example.kocja.rabbiter_reworked.services.processEvents;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
@@ -31,12 +30,14 @@ import java.util.List;
  */
 
 public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAdapter.onClickListen{
-    List<String> noteToDisplay;
-    List<Events> eventList;
+    public static final int ADD_ENTRY_EVENT = 5;
+    static List<String> noteToDisplay;
+    static List<Events> eventList;
     RecyclerView upcomingAdapter;
     RecyclerView.LayoutManager manager;
     UpcomingEventsAdapter adapter;
     static UpcomingEventsAdapter.onClickListen listener;
+    int lastItemClicked;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View upcomingList = inflater.inflate(R.layout.upcoming_history_fragment_layout,container,false);
@@ -74,6 +75,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                 .orderBy(Events_Table.dateOfEvent, true)
                 .async()
                 .queryListResultCallback((transaction, events) -> {
+                    eventList = events;
                     List<String> noteToDisplay = new ArrayList<>(events.size());
                     for (Events event : events) {
                         noteToDisplay.add(event.eventString);
@@ -90,7 +92,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                 }).execute();
     }
 
-    public void updateNotesToDisplay(){
+    public static void updateNotesToDisplay(){
         SQLite.select()
                 .from(Events.class)
                 .where(Events_Table.notificationState.eq(Events.NOT_YET_ALERTED))
@@ -107,6 +109,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
 
     @Override
     public void onItemClick(View view, int position) {
+        lastItemClicked = position;
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                 .setTitle("Event")
                 .setMessage(noteToDisplay.get(position))
@@ -116,7 +119,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                         yesIntent.putExtra("eventUUID", eventList.get(position).eventUUID);
                         yesIntent.putExtra("getMode", AlertEventService.ADD_BIRTH_FROM_SERVICE);
                         yesIntent.putExtra("happened", true);
-                        getContext().startActivity(yesIntent);
+                        startActivityForResult(yesIntent,ADD_ENTRY_EVENT);
 
                         refreshFragment(upcomingAdapter,getContext());
                     }
@@ -146,5 +149,19 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                 .setNeutralButton("cancel", (dialogInterface, i13) -> dialogInterface.cancel());
         builder.show();
 
+    }
+    public void onActivityResult(int requestCode,int resultCode,Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+        if(requestCode == ADD_ENTRY_EVENT) {
+            refreshFragment(upcomingAdapter,getContext());
+            updateNotesToDisplay();
+            Intent processEvent = new Intent(getContext(),processEvents.class);
+            processEvent.putExtra("processEventUUID",eventList.get(lastItemClicked).eventUUID);
+            processEvent.putExtra("getMode",AlertEventService.ADD_BIRTH_FROM_SERVICE);
+            processEvent.putExtra("happened",true);
+            getContext().startService(processEvent);
+            refreshFragment(upcomingAdapter,getContext());
+
+        }
     }
 }

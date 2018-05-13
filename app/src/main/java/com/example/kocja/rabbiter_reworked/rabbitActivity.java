@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.example.kocja.rabbiter_reworked.activities.addEntryActivity;
 import com.example.kocja.rabbiter_reworked.activities.viewEntry;
 import com.example.kocja.rabbiter_reworked.adapters.EntriesRecyclerAdapter;
+import com.example.kocja.rabbiter_reworked.adapters.UpcomingEventsAdapter;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
 import com.example.kocja.rabbiter_reworked.fragments.UpcomingEventsFragment;
 import com.example.kocja.rabbiter_reworked.services.alertIfNotAlertedService;
@@ -172,13 +173,16 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
 
     @Override
     public void onActivityResult(int requestCode,int resultcode, Intent data){
+        super.onActivityResult(requestCode,resultcode,data);
         if(requestCode == ADD_ENTRY_START && resultcode == RESULT_OK){
             entriesList = fillData.getEntries(this,rabbitEntryView,this);
             RecyclerView upcomingEvents = findViewById(R.id.upcomingAdapter);
             UpcomingEventsFragment.refreshFragment(upcomingEvents,this);
+            UpcomingEventsFragment.updateNotesToDisplay();
         }
         else if(requestCode == START_VIEW_ENTRY){
             entriesList = fillData.getEntries(this,rabbitEntryView,this);
+            UpcomingEventsFragment.updateNotesToDisplay();
         }
     }
 

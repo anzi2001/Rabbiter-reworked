@@ -4,8 +4,10 @@ import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 
 import com.example.kocja.rabbiter_reworked.broadcastrecievers.NotifReciever;
@@ -20,12 +22,16 @@ import java.util.UUID;
  * If the user clicked that the event did not happen, try again in a day.
  */
 
-public class askNotifAgain extends IntentService {
-    public askNotifAgain(){
-        super("this is askNotifAgain");
-    }
+public class askNotifAgain extends Service {
+
+    @Nullable
     @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
         SQLite.select()
                 .from(Events.class)
                 .where(Events_Table.eventUUID.eq((UUID)intent.getSerializableExtra("eventUUID")))
@@ -54,5 +60,7 @@ public class askNotifAgain extends IntentService {
                         manager.set(AlarmManager.RTC_WAKEUP, events.dateOfEvent.getTime(), alertPending);
                     }
                 }).execute();
+        return super.onStartCommand(intent, flags, startId);
     }
+
 }
