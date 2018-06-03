@@ -29,17 +29,18 @@ import com.example.kocja.rabbiter_reworked.broadcastrecievers.NotifReciever;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
 import com.example.kocja.rabbiter_reworked.databases.Entry_Table;
 import com.example.kocja.rabbiter_reworked.databases.Events;
-import com.example.kocja.rabbiter_reworked.databases.Events_Table;
-import com.example.kocja.rabbiter_reworked.databases.appDatabase;
 import com.example.kocja.rabbiter_reworked.services.AlertEventService;
 import com.example.kocja.rabbiter_reworked.services.processEvents;
-import com.raizlabs.android.dbflow.config.DatabaseDefinition;
-import com.raizlabs.android.dbflow.config.FlowManager;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
+
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -49,6 +50,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
 
 /**
  * Created by kocja on 21/01/2018.
@@ -79,6 +83,8 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private EditText deadRabbitNum;
     private AlarmManager eventsManager;
     private final  Random randGen = new Random();
+    Socket socket;
+    Gson gson;
     //NOTE: type 0: birth
     //NOTE: type 1: ready for mating
     //NOTE: type 2: move group
@@ -89,6 +95,12 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         setContentView(R.layout.activity_add_entry);
         setTitle(R.string.title);
 
+        try {
+            socket = IO.socket("http://localhost");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        gson = new Gson();
         defaultFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.GERMANY);
         addBirthDate = findViewById(R.id.addBirthDate);
         addMatingDate = findViewById(R.id.addMatingDate);
@@ -125,20 +137,20 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
         });
 
-        SQLite.select()
-                .from(Entry.class)
-                .async()
-                .queryListResultCallback((transaction, tResult) -> {
-                    List<String> allEntryNames = new ArrayList<>(tResult.size());
-                    allEntryNames.add(getString(R.string.none));
-                    for(Entry entry : tResult){
-                        allEntryNames.add(entry.entryName);
-                    }
-                    matedWithAdapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,allEntryNames);
-                    matedWithSpinner.setAdapter(matedWithAdapter);
-                    parentSpinner.setAdapter(matedWithAdapter);
-                    setEditableEntryProps(getMode);
-                }).execute();
+        socket.emit("allEntriesReq");
+        socket.on("allEntriesRes", args -> {
+            List<String> allEntryNames = new ArrayList<>(args.length);
+            allEntryNames.add(getString(R.string.none));
+            for(Object entry : args){
+                JSONObject JSONEntry = (JSONObject) entry;
+                allEntryNames.add(JSONEntry.optString("entryName"));
+            }
+            matedWithAdapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,allEntryNames);
+            matedWithSpinner.setAdapter(matedWithAdapter);
+            parentSpinner.setAdapter(matedWithAdapter);
+            setEditableEntryProps(getMode);
+        });
+
 
         Calendar c = Calendar.getInstance();
         DatePickerDialog pickDate = new DatePickerDialog(this,addEntryActivity.this,c.get(Calendar.YEAR),c.get(Calendar.MONTH),c.get(Calendar.DAY_OF_MONTH));
@@ -204,79 +216,71 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
         addEntry.setOnClickListener(view ->{
 
-            DatabaseDefinition database = FlowManager.getDatabase(appDatabase.class);
-            Transaction transaction = database.beginTransactionAsync(databaseWrapper -> {
+            if(getMode == EDIT_EXISTING_ENTRY){
+                Date lastMateDate = null;
+                try {
+                    lastMateDate = defaultFormatter.parse(editable.matedDate);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                if(!defaultFormatter.format(matingDate).equals(editable.matedDate) && matingDate != null){
+                    createEvents(editable);
+                }
+                editable.entryName = addName.getText().toString();
+                editable.chooseGender = genderSpinner.getSelectedItem().toString();
+                editable.matedWithOrParents = matedWithSpinner.getSelectedItem().toString();
+                editable.secondParent = parentSpinner.getSelectedItem().toString();
+                editable.birthDate = defaultFormatter.format(birthDate);
+                editable.matedDate = defaultFormatter.format(matingDate);
+                if(!rabbitsNum.getText().toString().isEmpty()){
+                    editable.rabbitNumber = Integer.parseInt(rabbitsNum.getText().toString());
+                }
+                if(!deadRabbitNum.getText().toString().isEmpty()){
+                    editable.rabbitDeadNumber = Integer.parseInt(deadRabbitNum.getText().toString());
+                }
 
-                if(getMode == EDIT_EXISTING_ENTRY){
-                    Date lastMateDate = editable.matedDate;
-                    if(matingDate != editable.matedDate && matingDate != null){
-                        createEvents(editable);
-                    }
-
-                    editable.entryName = addName.getText().toString();
-                    editable.chooseGender = genderSpinner.getSelectedItem().toString();
-                    editable.matedWithOrParents = matedWithSpinner.getSelectedItem().toString();
-                    editable.secondParent = parentSpinner.getSelectedItem().toString();
-                    editable.birthDate = birthDate;
-                    editable.matedDate = matingDate;
-                    if(!rabbitsNum.getText().toString().isEmpty()){
-                        editable.rabbitNumber = Integer.parseInt(rabbitsNum.getText().toString());
-
-                    }
-                    if(!deadRabbitNum.getText().toString().isEmpty()){
-                        editable.rabbitDeadNumber = Integer.parseInt(deadRabbitNum.getText().toString());
-                    }
-
-                    if(lastMateDate != matingDate){
-                        createEvents(editable);
-                    }
-                    if(baseImageUri != null){
-                        editable.entryPhLoc = baseImageUri.toString();
-                    }
+                if(lastMateDate != matingDate){
+                    createEvents(editable);
+                }
+                if(baseImageUri != null){
+                    editable.entryPhLoc = baseImageUri.toString();
+                }
 
                     // i check if the date is not the same, initialize new events based on those dates
                     // i do the same if the user is changing the gender from male to female or group
-                    if(lastDate != matingDate || (lastGender.equals(getString(R.string.genderMale)) && !editable.chooseGender.equals(getString(R.string.genderMale)))){
-                        editable.matedDate = matingDate;
-                        createEvents(editable);
-                    }
-
-
-                    editable.update();
-
-                }
-                else {
-                    Entry rabbitEntry = new Entry();
-                    rabbitEntry.entryID = UUID.randomUUID();
-                    rabbitEntry.entryName = addName.getText().toString();
-                    if(baseImageUri != null) {
-                        rabbitEntry.entryPhLoc = baseImageUri.toString();
-                    }
-                    rabbitEntry.chooseGender = genderSpinner.getSelectedItem().toString();
-                    rabbitEntry.matedWithOrParents = matedWithSpinner.getSelectedItem().toString();
-
-                    rabbitEntry.birthDate = birthDate;
-                    rabbitEntry.matedDate = matingDate;
-
-                    if(!rabbitsNum.getText().toString().isEmpty()){
-                        rabbitEntry.rabbitNumber = Integer.parseInt(rabbitsNum.getText().toString());
-
-                    }
-                    if(!deadRabbitNum.getText().toString().isEmpty()){
-                        rabbitEntry.rabbitDeadNumber = Integer.parseInt(deadRabbitNum.getText().toString());
-                    }
-
-
-
-                    createEvents(rabbitEntry); 
-
-                    rabbitEntry.save(databaseWrapper);
+                if(lastDate != matingDate || (lastGender.equals(getString(R.string.genderMale)) && !editable.chooseGender.equals(getString(R.string.genderMale)))){
+                    editable.matedDate = defaultFormatter.format(matingDate);
+                    createEvents(editable);
                 }
 
 
+                socket.emit("updateEntry",gson.toJson(editable));
+            }
+            else {
+                Entry rabbitEntry = new Entry();
+                rabbitEntry.entryID = UUID.randomUUID();
+                rabbitEntry.entryName = addName.getText().toString();
+                if(baseImageUri != null) {
+                    rabbitEntry.entryPhLoc = baseImageUri.toString();
+                }
+                rabbitEntry.chooseGender = genderSpinner.getSelectedItem().toString();
+                rabbitEntry.matedWithOrParents = matedWithSpinner.getSelectedItem().toString();
 
-            }).build();
-            transaction.execute();
+                rabbitEntry.birthDate = defaultFormatter.format(birthDate);
+                rabbitEntry.matedDate = defaultFormatter.format(matingDate);
+
+                if(!rabbitsNum.getText().toString().isEmpty()){
+                    rabbitEntry.rabbitNumber = Integer.parseInt(rabbitsNum.getText().toString());
+
+                }
+                if(!deadRabbitNum.getText().toString().isEmpty()){
+                    rabbitEntry.rabbitDeadNumber = Integer.parseInt(deadRabbitNum.getText().toString());
+                }
+
+                createEvents(rabbitEntry);
+
+                socket.emit("createNewEntry",gson.toJson(rabbitEntry));
+                }
             setResult(RESULT_OK);
             finish();
         });
@@ -346,28 +350,60 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private void createEvents(Entry rabbitEntry){
 
         eventsManager =(AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Calendar cal = Calendar.getInstance();
 
         if (rabbitEntry.chooseGender.equals(getString(R.string.genderFemale))) {
             if(rabbitEntry.matedDate != null) {
 
-                Date UpcomingBirth = new Date(rabbitEntry.matedDate.getTime() + (1000L * 60 * 60 * 24 * 31));
+                Date UpcomingBirth = null;
+                Date readyMateDate = null;
+
+                try {
+                    UpcomingBirth = defaultFormatter.parse(rabbitEntry.matedDate);
+                    cal.setTime(UpcomingBirth);
+                    cal.add(Calendar.DAY_OF_YEAR,31);
+                    UpcomingBirth = cal.getTime();
+
+                    readyMateDate = UpcomingBirth;
+                    cal.setTime(readyMateDate);
+                    cal.add(Calendar.DAY_OF_YEAR,66);
+                    readyMateDate = cal.getTime();
+
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 //newEvent(rabbitEntry,defaultFormatter.format(UpcomingBirth) + ": " + "Did " + rabbitEntry.entryName + " give birth?",UpcomingBirth,0);
                 newEvent(rabbitEntry,getString(R.string.femaleGaveBirth,defaultFormatter.format(UpcomingBirth),rabbitEntry.entryName),UpcomingBirth,0);
 
-                Date readyMateDate = new Date(UpcomingBirth.getTime() + (1000L * 60 * 60 * 24 * 66));
+
                 //newEvent(rabbitEntry,defaultFormatter.format(readyMateDate) + ": " + rabbitEntry.entryName + " is ready for mating",readyMateDate,1);
                 newEvent(rabbitEntry,getString(R.string.femaleReadyForMating,defaultFormatter.format(readyMateDate),rabbitEntry.entryName),readyMateDate,1);
             }
         } else if (rabbitEntry.chooseGender.equals(getString(R.string.genderGroup))) {
             if(rabbitEntry.birthDate != null) {
-                Date moveDate = new Date(rabbitEntry.birthDate.getTime() + (1000L * 60 * 60 * 24 * 62));
+                Date moveDate = null;
+                Date slaughterDate = null;
+                try {
+                    moveDate = defaultFormatter.parse(rabbitEntry.birthDate);
+                    slaughterDate = moveDate;
+
+                    cal.setTime(moveDate);
+                    cal.add(Calendar.DAY_OF_YEAR,62);
+                    moveDate = cal.getTime();
+
+                    cal.setTime(slaughterDate);
+                    cal.add(Calendar.DAY_OF_YEAR,124);
+                    slaughterDate = cal.getTime();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 //newEvent(rabbitEntry,defaultFormatter.format(moveDate) + ": Was the group " + rabbitEntry.entryName + " moved into another cage?",moveDate,2);
                 newEvent(rabbitEntry,getString(R.string.groupMovedIntoCage,defaultFormatter.format(moveDate),rabbitEntry.entryName),moveDate,2);
 
                 rabbitEntry.secondParent = parentSpinner.getSelectedItem().toString();
 
 
-                Date slaughterDate = new Date(rabbitEntry.birthDate.getTime() + (1000L * 60 * 60 * 24 * 124));
+
                 //newEvent(rabbitEntry,defaultFormatter.format(slaughterDate) + ": Was the group " + rabbitEntry.entryName + " slaughtered?",slaughterDate,3);
                 newEvent(rabbitEntry,getString(R.string.groupSlauhtered,defaultFormatter.format(slaughterDate),rabbitEntry.entryName),slaughterDate,3);
 
@@ -379,7 +415,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         createEvent.eventUUID = UUID.randomUUID();
         createEvent.name = rabbitEntry.entryName;
         createEvent.eventString = eventString;
-        createEvent.dateOfEvent = dateOfEvent;
+        createEvent.dateOfEvent = defaultFormatter.format(dateOfEvent);
         createEvent.typeOfEvent = type;
         /*if(type == 0 && !deadRabbitNum.getText().toString().isEmpty()){
             createEvent.numDead = Integer.parseInt(deadRabbitNum.getText().toString());
@@ -396,54 +432,63 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         PendingIntent slaughterEventAlarm = PendingIntent.getBroadcast(this, createEvent.id, alertEventService,PendingIntent.FLAG_CANCEL_CURRENT);
         eventsManager.set(AlarmManager.RTC_WAKEUP, dateOfEvent.getTime(), slaughterEventAlarm);
 
-        createEvent.save();
+        socket.emit("createNewEvent",gson.toJson(createEvent));
     }
     private void setEditableEntryProps(int getMode){
+
         if(getMode == EDIT_EXISTING_ENTRY){
             UUID entryUUID = (UUID) getIntent().getSerializableExtra("entryEdit");
+            socket.emit("seekEditableReq",entryUUID);
+            socket.on("seekEditableRes", editable -> {
+                this.editable = gson.fromJson((JsonObject)editable[0],Entry.class);
+                lastGender = this.editable.chooseGender;
+                addName.setText(this.editable.entryName);
+                matedWithSpinner.setSelection(matedWithAdapter.getPosition(this.editable.matedWithOrParents));
+                genderSpinner.setSelection(genderAdapter.getPosition(this.editable.chooseGender));
+                parentSpinner.setSelection(matedWithAdapter.getPosition(this.editable.secondParent));
+                //i believe i can just set rabbitsNum and deadRabbits since it hides anyway
+                rabbitsNum.setText(String.valueOf(this.editable.rabbitNumber));
+                deadRabbitNum.setText(String.valueOf(this.editable.rabbitDeadNumber));
+                try{
+                    if (this.editable.birthDate != null) {
+                        birthDate = defaultFormatter.parse(this.editable.birthDate);
+                        addBirthDate.setText(defaultFormatter.format(this.editable.birthDate));
+                    }
+                    if(this.editable.matedDate != null){
+                        matingDate = defaultFormatter.parse(this.editable.matedDate);
+                        lastDate = defaultFormatter.parse(this.editable.matedDate);
+                        addMatingDate.setText(defaultFormatter.format(this.editable.matedDate));
+                    }
+                }
+                catch(ParseException e){
+                    e.printStackTrace();
+                }
+
+                Glide.with(addEntryActivity.this).load(this.editable.mergedEntryPhLoc).into(baseImage);
+            });
             SQLite.select()
                     .from(Entry.class)
                     .where(Entry_Table.entryID.eq(entryUUID))
                     .async()
                     .querySingleResultCallback((transaction, editable) -> {
-                        this.editable = editable;
-                        lastGender = editable.chooseGender;
-                        addName.setText(editable.entryName);
-                        matedWithSpinner.setSelection(matedWithAdapter.getPosition(editable.matedWithOrParents));
-                        genderSpinner.setSelection(genderAdapter.getPosition(editable.chooseGender));
-                        parentSpinner.setSelection(matedWithAdapter.getPosition(editable.secondParent));
-                        //i believe i can just set rabbitsNum and deadRabbits since it hides anyway
-                        rabbitsNum.setText(Integer.toString(editable.rabbitNumber));
-                        deadRabbitNum.setText(Integer.toString(editable.rabbitDeadNumber));
-                        if (editable.birthDate != null) {
-                            birthDate = editable.birthDate;
-                            addBirthDate.setText(defaultFormatter.format(editable.birthDate));
-                        }
-                        if(editable.matedDate != null){
-                            matingDate = editable.matedDate;
-                            lastDate = editable.matedDate;
-                            addMatingDate.setText(defaultFormatter.format(editable.matedDate));
-                        }
-                        Glide.with(addEntryActivity.this).load(editable.mergedEntryPhLoc).into(baseImage);
+
                     }).execute();
         }
         else if(getMode == AlertEventService.ADD_BIRTH_FROM_SERVICE){
             Intent intent = getIntent();
-            SQLite.select()
-                    .from(Events.class)
-                    .where(Events_Table.eventUUID.eq((UUID)intent.getSerializableExtra("eventUUID")))
-                    .async()
-                    .querySingleResultCallback((transaction, events) -> {
-                        NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-                        manager.cancel(events.id);
-                        matedWithSpinner.setSelection(matedWithAdapter.getPosition(events.name));
-                        parentSpinner.setSelection(matedWithAdapter.getPosition(events.secondParent));
+            socket.emit("getAddBirthReq",(UUID)intent.getSerializableExtra("eventUUID"));
+            socket.on("getAddBirthRes", args -> {
+                Events addBirthEvent = gson.fromJson((JsonObject)args[0],Events.class);
+                NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+                manager.cancel(addBirthEvent.id);
+                matedWithSpinner.setSelection(matedWithAdapter.getPosition(addBirthEvent.name));
+                parentSpinner.setSelection(matedWithAdapter.getPosition(addBirthEvent.secondParent));
 
-                        Intent processEventsIntent = new Intent(this,processEvents.class);
-                        processEventsIntent.putExtra("processEventUUID",events.eventUUID);
-                        processEventsIntent.putExtra("happened",intent.getBooleanExtra("happened",false));
-                        startService(processEventsIntent);
-                    }).execute();
+                Intent processEventsIntent = new Intent(this,processEvents.class);
+                processEventsIntent.putExtra("processEventUUID",addBirthEvent.eventUUID);
+                processEventsIntent.putExtra("happened",intent.getBooleanExtra("happened",false));
+                startService(processEventsIntent);
+            });
         }
         //public void setAdaptersToSpinners()
     }
