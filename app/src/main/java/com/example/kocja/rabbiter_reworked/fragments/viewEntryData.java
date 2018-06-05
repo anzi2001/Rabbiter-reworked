@@ -11,10 +11,8 @@ import android.widget.TextView;
 
 import com.example.kocja.rabbiter_reworked.R;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
-import com.example.kocja.rabbiter_reworked.databases.Events;
-import com.example.kocja.rabbiter_reworked.databases.Events_Table;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -71,7 +69,14 @@ public class viewEntryData extends Fragment {
             matedDateText.setText(fragmentFormat.format(entry.matedDate));
         }
         if(entry.birthDate != null) {
-            long ageDate = TimeUnit.DAYS.convert((new Date().getTime() - entry.birthDate.getTime()),TimeUnit.MILLISECONDS);
+            long ageDate = 0;
+
+            try {
+                ageDate = TimeUnit.DAYS.convert((new Date().getTime() - fragmentFormat.parse(entry.birthDate).getTime()),TimeUnit.MILLISECONDS);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
             long years = ageDate / 365;
             ageDate = ageDate % 365;
             long months = ageDate / 30;
@@ -82,7 +87,7 @@ public class viewEntryData extends Fragment {
             /*rabbitNumText.setVisibility(View.VISIBLE);
             rabbitNum.setVisibility(View.VISIBLE);
             rabbitNum.setText(Integer.toString(entry.rabbitNumber));*/
-            entryMatedWith.setText(Integer.toString(entry.rabbitNumber));
+            entryMatedWith.setText(String.valueOf(entry.rabbitNumber));
             matedWithText.setText(getString(R.string.entryRabbitNum));
         }
     }

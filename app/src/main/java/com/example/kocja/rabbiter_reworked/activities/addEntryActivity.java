@@ -24,22 +24,21 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.kocja.rabbiter_reworked.GsonManager;
 import com.example.kocja.rabbiter_reworked.R;
+import com.example.kocja.rabbiter_reworked.SocketIOManager;
 import com.example.kocja.rabbiter_reworked.broadcastrecievers.NotifReciever;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
-import com.example.kocja.rabbiter_reworked.databases.Entry_Table;
 import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.services.AlertEventService;
 import com.example.kocja.rabbiter_reworked.services.processEvents;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,7 +50,6 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
-import io.socket.client.IO;
 import io.socket.client.Socket;
 
 /**
@@ -94,13 +92,8 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_entry);
         setTitle(R.string.title);
-
-        try {
-            socket = IO.socket("http://localhost");
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        gson = new Gson();
+        socket = SocketIOManager.getSocket();
+        gson = GsonManager.getGson();
         defaultFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.GERMANY);
         addBirthDate = findViewById(R.id.addBirthDate);
         addMatingDate = findViewById(R.id.addMatingDate);
@@ -438,8 +431,8 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
         if(getMode == EDIT_EXISTING_ENTRY){
             UUID entryUUID = (UUID) getIntent().getSerializableExtra("entryEdit");
-            socket.emit("seekEditableReq",entryUUID);
-            socket.on("seekEditableRes", editable -> {
+            socket.emit("seekSingleReq",entryUUID);
+            socket.on("seekSingleRes", editable -> {
                 this.editable = gson.fromJson((JsonObject)editable[0],Entry.class);
                 lastGender = this.editable.chooseGender;
                 addName.setText(this.editable.entryName);
@@ -466,6 +459,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
                 Glide.with(addEntryActivity.this).load(this.editable.mergedEntryPhLoc).into(baseImage);
             });
+            /*
             SQLite.select()
                     .from(Entry.class)
                     .where(Entry_Table.entryID.eq(entryUUID))
@@ -473,6 +467,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     .querySingleResultCallback((transaction, editable) -> {
 
                     }).execute();
+             */
         }
         else if(getMode == AlertEventService.ADD_BIRTH_FROM_SERVICE){
             Intent intent = getIntent();

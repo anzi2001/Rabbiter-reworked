@@ -11,25 +11,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.kocja.rabbiter_reworked.activities.addEntryActivity;
 import com.example.kocja.rabbiter_reworked.activities.viewEntry;
 import com.example.kocja.rabbiter_reworked.adapters.EntriesRecyclerAdapter;
-import com.example.kocja.rabbiter_reworked.adapters.UpcomingEventsAdapter;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
 import com.example.kocja.rabbiter_reworked.fragments.UpcomingEventsFragment;
 import com.example.kocja.rabbiter_reworked.services.alertIfNotAlertedService;
+import com.google.gson.Gson;
 
 import java.util.List;
 import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.socket.client.Socket;
 
 public class rabbitActivity extends AppCompatActivity implements EntriesRecyclerAdapter.onItemClickListener {
     private static final int ADD_ENTRY_START = 0;
@@ -43,7 +41,8 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
     FloatingActionButton addFab;
     FloatingActionButton mergeFab;
     FloatingActionButton splitFab;
-
+    Socket socket;
+    Gson gson;
     private boolean wasMergedBefore = false;
 
     @Override
@@ -53,6 +52,10 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        SocketIOManager.initSocket();
+        socket = SocketIOManager.getSocket();
+        GsonManager.initGson();
+        gson = GsonManager.getGson();
 
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},START_PERMISSION_REQUEST);
@@ -75,53 +78,6 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
         rabbitEntryView.setLayoutManager(rabbitEntryManager);
         entriesList = fillData.getEntries(this,rabbitEntryView,this);
 
-
-        /*rabbitEntryView.setOnItemLongClickListener((adapterView, view, i, l) -> {
-            CircleImageView markedOrNot = view.findViewById(R.id.MarkedOrNot);
-            if(markedOrNot.getDrawable() == null){
-                Glide.with(this).load(R.drawable.ic_markedornot).into(markedOrNot);
-            }
-            if(markedOrNot.getVisibility() == View.GONE) {
-                chosenEntriesCounter++;
-
-                //Since we're adding a new entry we're passing the old one to the second one,
-                //since it became a second one now
-
-                secondMergeEntry = firstMergeEntry;
-                firstMergeEntry = entriesList.get(i);
-
-                if(firstMergeEntry.isMerged && chosenEntriesCounter < 2){
-                    animateUp(splitFab);
-                }
-
-                markedOrNot.setVisibility(View.VISIBLE);
-                // if both are not null we can safely merge the 2 chosen
-                if(secondMergeEntry != null){
-                    animateUp(mergeFab);
-                    wasMergedBefore = true;
-                }
-            }
-            else{
-                chosenEntriesCounter--;
-                markedOrNot.setVisibility(View.GONE);
-                if(firstMergeEntry.isMerged){
-                    animateDown(splitFab);
-                }
-
-                //If we're deselecting the entry, the second entry became the first, since
-                //we now have only 1 entry
-                firstMergeEntry = secondMergeEntry;
-                secondMergeEntry= null;
-
-                if(chosenEntriesCounter < 2 && wasMergedBefore){
-                    animateDown(mergeFab);
-                    wasMergedBefore = false;
-                }
-
-            }
-
-            return true;
-        });*/
         mergeFab.setOnClickListener(view -> {
             if(chosenEntriesCounter > 2){
                 chosenEntriesCounter--;
@@ -132,11 +88,13 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
             secondMergeEntry.mergedEntryName = firstMergeEntry.entryName;
             secondMergeEntry.mergedEntry = firstMergeEntry;
             secondMergeEntry.mergedEntryPhLoc = firstMergeEntry.entryPhLoc;
-            secondMergeEntry.update();
+            socket.emit("updateEntry",secondMergeEntry);
+            //secondMergeEntry. update();
 
 
             firstMergeEntry.isChildMerged = true;
-            firstMergeEntry.update();
+            socket.emit("updateEntry",firstMergeEntry);
+            //firstMergeEntry.update();
 
             //reset and refresh the grid at the end
             animateDown(mergeFab);
@@ -148,11 +106,12 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
         });
         splitFab.setOnClickListener(view -> {
             firstMergeEntry.isMerged = false;
-            firstMergeEntry.update();
-            firstMergeEntry.mergedEntry.load();
+            //firstMergeEntry.update();
+            socket.emit("updateEntry",firstMergeEntry);
             Entry secondMerge = firstMergeEntry.mergedEntry;
             secondMerge.isChildMerged = false;
-            secondMerge.update();
+            //secondMerge.update();
+            socket.emit("updateEntry",secondMerge);
 
             //reset and refresh the grid at the end
             animateDown(splitFab);

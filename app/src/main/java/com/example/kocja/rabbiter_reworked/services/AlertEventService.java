@@ -10,10 +10,12 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
+import com.example.kocja.rabbiter_reworked.GsonManager;
 import com.example.kocja.rabbiter_reworked.R;
+import com.example.kocja.rabbiter_reworked.SocketIOManager;
 import com.example.kocja.rabbiter_reworked.activities.addEntryActivity;
 import com.example.kocja.rabbiter_reworked.databases.Events;
-import com.example.kocja.rabbiter_reworked.databases.Events_Table;
+import com.google.gson.JsonObject;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import java.util.Random;
@@ -39,13 +41,10 @@ public class AlertEventService extends IntentService {
         PendingIntent noAction = PendingIntent.getService(this, new Random().nextInt(),noIntent,0);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        SQLite.select()
-                .from(Events.class)
-                .where(Events_Table.eventUUID.eq(eventUUID))
-                .and(Events_Table.notificationState.eq(Events.NOT_YET_ALERTED))
-                .async()
-                .querySingleResultCallback((transaction, events) -> {
-            if(events != null) {
+        SocketIOManager.getSocket().emit("seekAlertUUIDReq",eventUUID);
+        SocketIOManager.getSocket().on("seekAlertUUIDRes", args -> {
+            if(args != null) {
+                Events events = GsonManager.getGson().fromJson((JsonObject)args[0],Events.class);
                 int randomCode = new Random().nextInt();
                 //events.id = randomCode;
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
@@ -93,10 +92,19 @@ public class AlertEventService extends IntentService {
                     alertEvent.addAction(0, "No", noAction);
                 }
                 notificationManager.notify(events.id, alertEvent.build());
-                events.update();
+                SocketIOManager.getSocket().emit("updateEvents",events);
             }
-                }).execute();
+        });
+        /*
+        SQLite.select()
+                .from(Events.class)
+                .where(Events_Table.eventUUID.eq(eventUUID))
+                .and(Events_Table.notificationState.eq(Events.NOT_YET_ALERTED))
+                .async()
+                .querySingleResultCallback((transaction, events) -> {
 
+                }).execute();
+        */
 
     }
 }

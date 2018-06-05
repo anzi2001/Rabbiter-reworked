@@ -10,12 +10,13 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+
+import com.example.kocja.rabbiter_reworked.GsonManager;
 import com.example.kocja.rabbiter_reworked.R;
+import com.example.kocja.rabbiter_reworked.SocketIOManager;
 import com.example.kocja.rabbiter_reworked.broadcastrecievers.NotifReciever;
 import com.example.kocja.rabbiter_reworked.databases.Events;
-import com.example.kocja.rabbiter_reworked.databases.Events_Table;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
-
+import com.google.gson.JsonObject;
 /**
  * Created by kocja on 27/02/2018.
  */
@@ -41,24 +42,31 @@ public class onBootService extends IntentService {
 
         this.startForeground(1,builder.build());
 
+        SocketIOManager.getSocket().emit("seekNotAlertedEventsReq");
+        SocketIOManager.getSocket().on("seekNotAlertedEventsRes", args -> {
+            AlarmManager alarmManager =(AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            if(args != null){
+                Intent setNotification = new Intent(this,NotifReciever.class);
+                //Random randomGen = new Random();
+                for(Object eventObj : args){
+                    Events event = GsonManager.getGson().fromJson((JsonObject)eventObj,Events.class);
+                    setNotification.putExtra("eventUUID",event.eventUUID);
+                    PendingIntent setNotifIntent = PendingIntent.getBroadcast(this, event.id,setNotification,0);
+                    //alarmManager.set(AlarmManager.RTC_WAKEUP,event.dateOfEvent.getTime(),setNotifIntent);
 
+                }
+            }
+        });
+        /*
         SQLite.select()
                 .from(Events.class)
                 .where(Events_Table.notificationState.eq(Events.NOT_YET_ALERTED))
                 .async()
                 .queryListResultCallback((transaction, tResult) -> {
-                    AlarmManager alarmManager =(AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                    if(tResult != null){
-                        Intent setNotification = new Intent(this,NotifReciever.class);
-                        //Random randomGen = new Random();
-                        for(Events event : tResult){
-                            setNotification.putExtra("eventUUID",event.eventUUID);
-                            PendingIntent setNotifIntent = PendingIntent.getBroadcast(this, event.id,setNotification,0);
-                            alarmManager.set(AlarmManager.RTC_WAKEUP,event.dateOfEvent.getTime(),setNotifIntent);
 
-                        }
-                    }
                 }).execute();
+
+         */
 
     }
 }
