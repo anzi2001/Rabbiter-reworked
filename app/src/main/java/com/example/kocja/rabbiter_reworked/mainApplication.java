@@ -9,8 +9,9 @@ import android.app.Application;
 
 public class mainApplication extends Application {
     public void onCreate(){
-        SocketIOManager.initSocket();
+        HttpManager.initHttpClient();
         super.onCreate();
 
     }
+
 }

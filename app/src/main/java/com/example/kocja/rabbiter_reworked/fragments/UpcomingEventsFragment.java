@@ -14,8 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.kocja.rabbiter_reworked.GsonManager;
+import com.example.kocja.rabbiter_reworked.HttpManager;
 import com.example.kocja.rabbiter_reworked.R;
-import com.example.kocja.rabbiter_reworked.SocketIOManager;
 import com.example.kocja.rabbiter_reworked.activities.addEntryActivity;
 import com.example.kocja.rabbiter_reworked.adapters.UpcomingEventsAdapter;
 import com.example.kocja.rabbiter_reworked.databases.Events;
@@ -25,9 +25,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import io.socket.client.Socket;
+import okhttp3.Response;
+
 
 /**
  * Created by kocja on 27/02/2018.
@@ -37,26 +39,18 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
     public static final int ADD_ENTRY_EVENT = 5;
     static List<String> noteToDisplay;
     static List<Events> eventList;
-    RecyclerView upcomingAdapter;
-    RecyclerView.LayoutManager manager;
-    UpcomingEventsAdapter adapter;
-    static UpcomingEventsAdapter.onClickListen listener;
-    int lastItemClicked;
-    Socket socket;
-    Gson gson;
+    private RecyclerView upcomingAdapter;
+    private RecyclerView.LayoutManager manager;
+    private UpcomingEventsAdapter adapter;
+    private static UpcomingEventsAdapter.onClickListen listener;
+    private int lastItemClicked;
+    private Gson gson;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View upcomingList = inflater.inflate(R.layout.upcoming_history_fragment_layout,container,false);
-        socket = SocketIOManager.getSocket();
         gson = GsonManager.getGson();
-        socket.emit("seekEventsNotAlertedReq",Events.NOT_YET_ALERTED);
-        socket.on("seekEventsNotAlertedRes", args -> {
-            eventList = new ArrayList<>();
-            eventList.add(gson.fromJson((JsonObject)args[0],Events.class));
-            noteToDisplay = new ArrayList<>(eventList.size());
-            for(Events event : eventList){
-                noteToDisplay.add(event.eventString);
-            }
+        /*HttpManager.getRequest("seekEventsNotAlerted", response -> {
+            updateNotesToDisplay();
             listener =this;
             upcomingAdapter = upcomingList.findViewById(R.id.upcomingAdapter);
             adapter = new UpcomingEventsAdapter(noteToDisplay,true);
@@ -66,7 +60,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
             upcomingAdapter.setHasFixedSize(true);
             upcomingAdapter.setAdapter(adapter);
 
-        });
+        });*/
         /*
         SQLite.select()
                 .from(Events.class)
@@ -81,14 +75,8 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
         return upcomingList;
     }
     public static void refreshFragment(RecyclerView upcomingEvents,Context context){
-        SocketIOManager.getSocket().emit("seekEventsNotAlertedReq",Events.NOT_YET_ALERTED);
-        SocketIOManager.getSocket().on("seekEventsNotAlertedRes", args -> {
-            eventList = new ArrayList<>();
-            eventList.add(GsonManager.getGson().fromJson((JsonObject)args[0],Events.class));
-            List<String> noteToDisplay = new ArrayList<>(eventList.size());
-            for (Events event : eventList) {
-                noteToDisplay.add(event.eventString);
-            }
+        HttpManager.getRequest("seekEventsNotAlerted", response -> {
+            updateNotesToDisplay();
             upcomingEvents.invalidate();
             UpcomingEventsAdapter adapter = new UpcomingEventsAdapter(noteToDisplay, true);
             adapter.setLongClickListener(listener);
@@ -112,15 +100,12 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
     }
 
     public static void updateNotesToDisplay(){
-        SocketIOManager.getSocket().emit("seekEventsNotAlertedReq",Events.NOT_YET_ALERTED);
-        SocketIOManager.getSocket().on("seekEventsNotAlertedRes", args -> {
-            eventList = new ArrayList<>();
-            eventList.add(GsonManager.getGson().fromJson((JsonObject)args[0],Events.class));
-            noteToDisplay = new ArrayList<>(args.length);
+        HttpManager.getRequest("seekEventsNotAlerted", response -> {
+            eventList = new ArrayList<>(Arrays.asList(GsonManager.getGson().fromJson(response.toString(),Events[].class)));
+            noteToDisplay = new ArrayList<>(eventList.size());
             for(Events event : eventList){
                 noteToDisplay.add(event.eventString);
             }
-
         });
         /*
         SQLite.select()

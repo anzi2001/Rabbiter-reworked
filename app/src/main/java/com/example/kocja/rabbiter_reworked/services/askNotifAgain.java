@@ -10,13 +10,13 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 
 import com.example.kocja.rabbiter_reworked.GsonManager;
-import com.example.kocja.rabbiter_reworked.SocketIOManager;
+import com.example.kocja.rabbiter_reworked.HttpManager;
 import com.example.kocja.rabbiter_reworked.broadcastrecievers.NotifReciever;
 import com.example.kocja.rabbiter_reworked.databases.Events;
-import com.google.gson.JsonObject;
 
-import java.util.Date;
 import java.util.UUID;
+
+import okhttp3.Response;
 
 
 /**
@@ -33,30 +33,32 @@ public class askNotifAgain extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        SocketIOManager.getSocket().emit("seekNotifUUID",(UUID)intent.getSerializableExtra("eventUUID"));
-        SocketIOManager.getSocket().on("seekNotifUUID", args -> {
-            NotificationManager notifManager =(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            Events events = GsonManager.getGson().fromJson((JsonObject)args[0],Events.class);
-            notifManager.cancel(events.id);
+        HttpManager.getRequest("seekNotifUUID", new HttpManager.GetReturnBody() {
+            @Override
+            public void GetReturn(Response response) {
+                NotificationManager notifManager =(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                Events events = GsonManager.getGson().fromJson(response.toString(),Events.class);
+                notifManager.cancel(events.id);
 
-            if(events.timesNotified >2){
-                Intent processNoEvent = new Intent(this,processEvents.class);
-                processNoEvent.putExtra("processEventUUID",events.eventUUID);
-                processNoEvent.putExtra("happened",false);
-                startService(processNoEvent);
-            }
-            else {
+                if(events.timesNotified >2){
+                    Intent processNoEvent = new Intent(askNotifAgain.this,processEvents.class);
+                    processNoEvent.putExtra("processEventUUID",events.eventUUID);
+                    processNoEvent.putExtra("happened",false);
+                    startService(processNoEvent);
+                }
+                else {
 
-                events.timesNotified++;
-                //events.dateOfEvent = new Date(events.dateOfEvent.getTime() + (1000L *60*60));
-                SocketIOManager.getSocket().emit("updateEvents",events);
+                    events.timesNotified++;
+                    //events.dateOfEvent = new Date(events.dateOfEvent.getTime() + (1000L *60*60));
+                    HttpManager.postRequest("updateEvents", GsonManager.getGson().toJson(events), response1 -> { });
 
-                Intent alertIntent = new Intent(this, NotifReciever.class);
-                alertIntent.putExtra("eventUUID",events.eventUUID);
+                    Intent alertIntent = new Intent(askNotifAgain.this, NotifReciever.class);
+                    alertIntent.putExtra("eventUUID",events.eventUUID);
 
-                PendingIntent alertPending = PendingIntent.getBroadcast(this, events.id, alertIntent, 0);
-                AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                //manager.set(AlarmManager.RTC_WAKEUP, events.dateOfEvent.getTime(), alertPending);
+                    PendingIntent alertPending = PendingIntent.getBroadcast(askNotifAgain.this, events.id, alertIntent, 0);
+                    AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                    //manager.set(AlarmManager.RTC_WAKEUP, events.dateOfEvent.getTime(), alertPending);
+                }
             }
         });
         /*

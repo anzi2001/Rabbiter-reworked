@@ -27,9 +27,8 @@ import java.util.List;
 import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.socket.client.Socket;
 
-public class rabbitActivity extends AppCompatActivity implements EntriesRecyclerAdapter.onItemClickListener {
+public class rabbitActivity extends AppCompatActivity implements EntriesRecyclerAdapter.onItemClickListener{
     private static final int ADD_ENTRY_START = 0;
     public static final int START_VIEW_ENTRY = 1;
     private static final int START_PERMISSION_REQUEST =2;
@@ -38,11 +37,9 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
     private List<Entry> entriesList;
     private Entry firstMergeEntry = null;
     private Entry secondMergeEntry = null;
-    FloatingActionButton addFab;
-    FloatingActionButton mergeFab;
-    FloatingActionButton splitFab;
-    Socket socket;
-    Gson gson;
+    private FloatingActionButton mergeFab;
+    private FloatingActionButton splitFab;
+    private Gson gson;
     private boolean wasMergedBefore = false;
 
     @Override
@@ -52,8 +49,6 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        SocketIOManager.initSocket();
-        socket = SocketIOManager.getSocket();
         GsonManager.initGson();
         gson = GsonManager.getGson();
 
@@ -65,7 +60,7 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
         Intent checkAlarms = new Intent(this,alertIfNotAlertedService.class);
         startService(checkAlarms);
 
-        addFab =  findViewById(R.id.addFab);
+        FloatingActionButton addFab = findViewById(R.id.addFab);
         mergeFab = findViewById(R.id.mergeFab);
         splitFab = findViewById(R.id.splitFab);
         addFab.setOnClickListener(view -> {
@@ -88,13 +83,9 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
             secondMergeEntry.mergedEntryName = firstMergeEntry.entryName;
             secondMergeEntry.mergedEntry = firstMergeEntry;
             secondMergeEntry.mergedEntryPhLoc = firstMergeEntry.entryPhLoc;
-            socket.emit("updateEntry",secondMergeEntry);
-            //secondMergeEntry. update();
-
-
-            firstMergeEntry.isChildMerged = true;
-            socket.emit("updateEntry",firstMergeEntry);
-            //firstMergeEntry.update();
+            HttpManager.postRequest("updateEntry",gson.toJson(secondMergeEntry), (response) -> { });
+                    firstMergeEntry.isChildMerged = true;
+            HttpManager.postRequest("updateEntry", gson.toJson(firstMergeEntry), (response) -> { });
 
             //reset and refresh the grid at the end
             animateDown(mergeFab);
@@ -106,12 +97,12 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
         });
         splitFab.setOnClickListener(view -> {
             firstMergeEntry.isMerged = false;
-            //firstMergeEntry.update();
-            socket.emit("updateEntry",firstMergeEntry);
+
+            HttpManager.postRequest("updateEntry", gson.toJson(firstMergeEntry), (response) -> { });
             Entry secondMerge = firstMergeEntry.mergedEntry;
             secondMerge.isChildMerged = false;
-            //secondMerge.update();
-            socket.emit("updateEntry",secondMerge);
+
+            HttpManager.postRequest("updateEntry", gson.toJson(secondMerge), (response) -> { });
 
             //reset and refresh the grid at the end
             animateDown(splitFab);
@@ -121,6 +112,7 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
 
             entriesList = fillData.getEntries(rabbitActivity.this,rabbitEntryView,this);
         });
+
     }
 
     private static void animateDown(FloatingActionButton toMove){

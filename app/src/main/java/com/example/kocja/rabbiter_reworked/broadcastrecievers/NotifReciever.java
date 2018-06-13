@@ -10,17 +10,19 @@ import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
 import com.example.kocja.rabbiter_reworked.GsonManager;
+import com.example.kocja.rabbiter_reworked.HttpManager;
 import com.example.kocja.rabbiter_reworked.R;
-import com.example.kocja.rabbiter_reworked.SocketIOManager;
 import com.example.kocja.rabbiter_reworked.activities.addEntryActivity;
 import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.services.AlertEventService;
 import com.example.kocja.rabbiter_reworked.services.askNotifAgain;
 import com.example.kocja.rabbiter_reworked.services.processEvents;
-import com.google.gson.JsonObject;
 
 import java.util.Random;
 import java.util.UUID;
+
+import okhttp3.Response;
+
 
 public class NotifReciever extends BroadcastReceiver {
     @Override
@@ -33,9 +35,8 @@ public class NotifReciever extends BroadcastReceiver {
         PendingIntent noAction = PendingIntent.getService(context, new Random().nextInt(),noIntent,0);
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        SocketIOManager.getSocket().emit("NotifBroadcReq",eventUUID);
-        SocketIOManager.getSocket().on("NotifBroadcRes", args -> {
-            Events events = GsonManager.getGson().fromJson((JsonObject)args[0],Events.class);
+        HttpManager.postRequest("NotifBroadcast", GsonManager.getGson().toJson(eventUUID), response -> {
+            Events events = GsonManager.getGson().fromJson(response.toString(),Events.class);
             if(events != null) {
                 int randomCode = new Random().nextInt();
                 //events.id = randomCode;
@@ -84,7 +85,7 @@ public class NotifReciever extends BroadcastReceiver {
                     alertEvent.addAction(0, "No", noAction);
                 }
                 notificationManager.notify(events.id, alertEvent.build());
-                SocketIOManager.getSocket().emit("updateEvents",events);
+                HttpManager.postRequest("updateEvents", GsonManager.getGson().toJson(events), response1 -> { });
             }
         });
 

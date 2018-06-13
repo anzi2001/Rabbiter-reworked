@@ -7,16 +7,15 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 
 import com.example.kocja.rabbiter_reworked.GsonManager;
-import com.example.kocja.rabbiter_reworked.SocketIOManager;
+import com.example.kocja.rabbiter_reworked.HttpManager;
 import com.example.kocja.rabbiter_reworked.databases.Events;
-import com.google.gson.JsonObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
-import io.socket.client.Socket;
+
 
 /**
  * Created by kocja on 27/02/2018.
@@ -31,10 +30,8 @@ public class processEvents extends IntentService {
         UUID processEventUUID = (UUID) intent.getSerializableExtra("processEventUUID");
         boolean happened = intent.getBooleanExtra("happened",false);
         SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.GERMANY);
-        Socket socket = SocketIOManager.getSocket();
-        socket.emit("seekSingleReq",processEventUUID);
-        socket.on("seekSingleRes", args -> {
-            Events events = GsonManager.getGson().fromJson((JsonObject)args[0],Events.class);
+        HttpManager.postRequest("seekSingle", GsonManager.getGson().toJson(processEventUUID), response -> {
+            Events events = GsonManager.getGson().fromJson(response.toString(),Events.class);
             NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             if(events.typeOfEvent != 1){
                 manager.cancel(events.id);
@@ -71,7 +68,7 @@ public class processEvents extends IntentService {
                 }
             }
 
-            socket.emit("updateEvent",events);
+            HttpManager.postRequest("updateEvent", GsonManager.getGson().toJson(events), response1 -> { });
         });
         /*
         SQLite.select()

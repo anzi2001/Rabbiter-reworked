@@ -3,14 +3,15 @@ package com.example.kocja.rabbiter_reworked;
 
 import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import com.example.kocja.rabbiter_reworked.adapters.EntriesRecyclerAdapter;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
-import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.Response;
 
 
 /**
@@ -20,12 +21,14 @@ import java.util.List;
 class fillData {
     static List<Entry> getEntries(Activity context, RecyclerView view,EntriesRecyclerAdapter.onItemClickListener listener){
         final List<Entry> temporaryList = new ArrayList<>(0);
-        SocketIOManager.getSocket().emit("seekEntryIsChildMergedReq",false);
-        SocketIOManager.getSocket().on("seekEntryIsChildMergedRes", args -> {
-            temporaryList.add(GsonManager.getGson().fromJson((JsonObject)args[0],Entry.class));
+        HttpManager.getRequest("seekChildMergedEntries", response -> {
+            Log.v("seekChildMergedEntries",response.toString());
+
+            temporaryList.add(GsonManager.getGson().fromJson(response.toString(),Entry.class));
             EntriesRecyclerAdapter adapter = new EntriesRecyclerAdapter(context,temporaryList);
             adapter.setLongClickListener(listener);
             view.setAdapter(adapter);
+
         });
         /*SQLite.select()
                 .from(Entry.class)

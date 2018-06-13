@@ -25,17 +25,14 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.kocja.rabbiter_reworked.GsonManager;
+import com.example.kocja.rabbiter_reworked.HttpManager;
 import com.example.kocja.rabbiter_reworked.R;
-import com.example.kocja.rabbiter_reworked.SocketIOManager;
 import com.example.kocja.rabbiter_reworked.broadcastrecievers.NotifReciever;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
 import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.services.AlertEventService;
 import com.example.kocja.rabbiter_reworked.services.processEvents;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +47,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
-import io.socket.client.Socket;
+import okhttp3.Response;
 
 /**
  * Created by kocja on 21/01/2018.
@@ -81,8 +78,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private EditText deadRabbitNum;
     private AlarmManager eventsManager;
     private final  Random randGen = new Random();
-    Socket socket;
-    Gson gson;
+    private Gson gson;
     //NOTE: type 0: birth
     //NOTE: type 1: ready for mating
     //NOTE: type 2: move group
@@ -92,7 +88,6 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_entry);
         setTitle(R.string.title);
-        socket = SocketIOManager.getSocket();
         gson = GsonManager.getGson();
         defaultFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.GERMANY);
         addBirthDate = findViewById(R.id.addBirthDate);
@@ -130,18 +125,20 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
         });
 
-        socket.emit("allEntriesReq");
-        socket.on("allEntriesRes", args -> {
-            List<String> allEntryNames = new ArrayList<>(args.length);
-            allEntryNames.add(getString(R.string.none));
-            for(Object entry : args){
-                JSONObject JSONEntry = (JSONObject) entry;
-                allEntryNames.add(JSONEntry.optString("entryName"));
+        HttpManager.getRequest("allEntries", new HttpManager.GetReturnBody() {
+            @Override
+            public void GetReturn(Response response) {
+                Entry[] allEntries = gson.fromJson(response.toString(),Entry[].class);
+                List<String> allEntryNames = new ArrayList<>(allEntries.length);
+                allEntryNames.add(getString(R.string.none));
+                for(Entry entry : allEntries){
+                    allEntryNames.add(entry.entryName);
+                }
+                matedWithAdapter = new ArrayAdapter<>(addEntryActivity.this,android.R.layout.simple_spinner_dropdown_item,allEntryNames);
+                matedWithSpinner.setAdapter(matedWithAdapter);
+                parentSpinner.setAdapter(matedWithAdapter);
+                setEditableEntryProps(getMode);
             }
-            matedWithAdapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,allEntryNames);
-            matedWithSpinner.setAdapter(matedWithAdapter);
-            parentSpinner.setAdapter(matedWithAdapter);
-            setEditableEntryProps(getMode);
         });
 
 
@@ -246,8 +243,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     createEvents(editable);
                 }
 
-
-                socket.emit("updateEntry",gson.toJson(editable));
+                HttpManager.postRequest("updateEntry", gson.toJson(editable), response -> { });
             }
             else {
                 Entry rabbitEntry = new Entry();
@@ -272,7 +268,8 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
                 createEvents(rabbitEntry);
 
-                socket.emit("createNewEntry",gson.toJson(rabbitEntry));
+                HttpManager.postRequest("createNewEntry", gson.toJson(rabbitEntry), response -> {});
+
                 }
             setResult(RESULT_OK);
             finish();
@@ -425,15 +422,14 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         PendingIntent slaughterEventAlarm = PendingIntent.getBroadcast(this, createEvent.id, alertEventService,PendingIntent.FLAG_CANCEL_CURRENT);
         eventsManager.set(AlarmManager.RTC_WAKEUP, dateOfEvent.getTime(), slaughterEventAlarm);
 
-        socket.emit("createNewEvent",gson.toJson(createEvent));
+        HttpManager.postRequest("createNewEvent", gson.toJson(createEvent), response -> {});
     }
     private void setEditableEntryProps(int getMode){
 
         if(getMode == EDIT_EXISTING_ENTRY){
             UUID entryUUID = (UUID) getIntent().getSerializableExtra("entryEdit");
-            socket.emit("seekSingleReq",entryUUID);
-            socket.on("seekSingleRes", editable -> {
-                this.editable = gson.fromJson((JsonObject)editable[0],Entry.class);
+            HttpManager.postRequest("seekSingle", gson.toJson(entryUUID), response -> {
+                this.editable = gson.fromJson(response.toString(),Entry.class);
                 lastGender = this.editable.chooseGender;
                 addName.setText(this.editable.entryName);
                 matedWithSpinner.setSelection(matedWithAdapter.getPosition(this.editable.matedWithOrParents));
@@ -471,9 +467,8 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         }
         else if(getMode == AlertEventService.ADD_BIRTH_FROM_SERVICE){
             Intent intent = getIntent();
-            socket.emit("getAddBirthReq",(UUID)intent.getSerializableExtra("eventUUID"));
-            socket.on("getAddBirthRes", args -> {
-                Events addBirthEvent = gson.fromJson((JsonObject)args[0],Events.class);
+            HttpManager.postRequest("getAddBirthReq",gson.toJson(intent.getSerializableExtra("eventUUID")), response -> {
+                Events addBirthEvent = gson.fromJson(response.toString(),Events.class);
                 NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
                 manager.cancel(addBirthEvent.id);
                 matedWithSpinner.setSelection(matedWithAdapter.getPosition(addBirthEvent.name));

@@ -14,8 +14,8 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.example.kocja.rabbiter_reworked.GsonManager;
+import com.example.kocja.rabbiter_reworked.HttpManager;
 import com.example.kocja.rabbiter_reworked.R;
-import com.example.kocja.rabbiter_reworked.SocketIOManager;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
 import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.fragments.HistoryFragment;
@@ -25,7 +25,7 @@ import com.google.gson.JsonObject;
 
 import java.util.UUID;
 
-import io.socket.client.Socket;
+import okhttp3.Response;
 
 /**
  * Created by kocja on 27/01/2018.
@@ -37,8 +37,7 @@ public class viewEntry extends AppCompatActivity {
     private UUID mainEntryUUID;
     private boolean dataChanged = false;
     private ImageView mainEntryView;
-    Socket socket;
-    Gson gson;
+    private Gson gson;
 
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -47,7 +46,6 @@ public class viewEntry extends AppCompatActivity {
 
         gson = GsonManager.getGson();
 
-        socket = SocketIOManager.getSocket();
         mainEntryUUID =(UUID) currentIntent.getSerializableExtra("entryID");
         mainEntryView = findViewById(R.id.mainEntryView);
         Intent viewLargerImage = new Intent(this,largerMainImage.class);
@@ -62,49 +60,53 @@ public class viewEntry extends AppCompatActivity {
             }
 
         });
-        socket.emit("seekSingleRes",mainEntryUUID);
-        socket.on("seekSingleReq", args -> {
-            Entry entry = gson.fromJson((JsonObject)args[0],Entry.class);
-            viewLargerImage.putExtra("imageURI",entry.entryPhLoc);
+        HttpManager.postRequest("seekSingleEntry", gson.toJson(mainEntryUUID), new HttpManager.PostReturnBody() {
+            @Override
+            public void PostReturn(Response response) {
+                Entry entry = gson.fromJson(response.toString(),Entry.class);
+                viewLargerImage.putExtra("imageURI",entry.entryPhLoc);
 
-            mainEntry = entry;
-            mainEntryFragment = (viewEntryData) getSupportFragmentManager().findFragmentById(R.id.mainEntryFragment);
+                mainEntry = entry;
+                mainEntryFragment = (viewEntryData) getSupportFragmentManager().findFragmentById(R.id.mainEntryFragment);
 
-            RecyclerView historyView = findViewById(R.id.upcomingAdapter);
+                RecyclerView historyView = findViewById(R.id.upcomingAdapter);
 
-            if(entry.chooseGender.equals(getString(R.string.genderMale))){
-                HistoryFragment.maleParentOf(this, entry.entryName,historyView,viewEntry.this);
-            }
-            else {
-                HistoryFragment.setPastEvents(this,entry.entryName,historyView);
-            }
+                if(entry.chooseGender.equals(getString(R.string.genderMale))){
+                    HistoryFragment.maleParentOf(viewEntry.this, entry.entryName,historyView,viewEntry.this);
+                }
+                else {
+                    HistoryFragment.setPastEvents(viewEntry.this,entry.entryName,historyView);
+                }
 
-            mainEntryFragment.setData(entry);
+                mainEntryFragment.setData(entry);
 
-            Glide.with(this).load(entry.entryPhLoc).into(mainEntryView);
+                Glide.with(viewEntry.this).load(entry.entryPhLoc).into(mainEntryView);
 
-            if(entry.isMerged){
-                ImageView mergedView = findViewById(R.id.mergedView);
-                mergedView.setOnClickListener(view -> {
-                    Intent startMergedMain = new Intent(this,viewEntry.class);
-                    startMergedMain.putExtra("entryID",entry.mergedEntry.entryID);
-                    ActivityOptionsCompat compat = ActivityOptionsCompat.makeSceneTransitionAnimation(this,mainEntryView,"mergedName");
-                    startActivity(startMergedMain,compat.toBundle());
-                });
-                mergedView.setVisibility(View.VISIBLE);
-                Glide.with(this).load(entry.mergedEntryPhLoc).into(mergedView);
+                if(entry.isMerged){
+                    ImageView mergedView = findViewById(R.id.mergedView);
+                    mergedView.setOnClickListener(view -> {
+                        Intent startMergedMain = new Intent(viewEntry.this,viewEntry.class);
+                        startMergedMain.putExtra("entryID",entry.mergedEntry.entryID);
+                        ActivityOptionsCompat compat = ActivityOptionsCompat.makeSceneTransitionAnimation(viewEntry.this,mainEntryView,"mergedName");
+                        startActivity(startMergedMain,compat.toBundle());
+                    });
+                    mergedView.setVisibility(View.VISIBLE);
+                    Glide.with(viewEntry.this).load(entry.mergedEntryPhLoc).into(mergedView);
+                }
             }
         });
     }
     public void onActivityResult(int requestCode,int resultCode,Intent data){
         if(requestCode == addEntryActivity.EDIT_EXISTING_ENTRY && resultCode == RESULT_OK){
-            socket.emit("seekSingleReq",mainEntryUUID);
-            socket.on("seekSingleRes", args -> {
-                Entry entry = gson.fromJson((JsonObject)args[0],Entry.class);
-                mainEntryFragment.setData(entry);
-                Glide.with(this)
-                        .load(entry.entryPhLoc)
-                        .into(mainEntryView);
+            HttpManager.postRequest("seekSingleEntry", gson.toJson(mainEntryUUID), new HttpManager.PostReturnBody() {
+                @Override
+                public void PostReturn(Response response) {
+                    Entry entry = gson.fromJson(response.toString(),Entry.class);
+                    mainEntryFragment.setData(entry);
+                    Glide.with(viewEntry.this)
+                            .load(entry.entryPhLoc)
+                            .into(mainEntryView);
+                }
             });
             dataChanged = true;
         }
@@ -137,15 +139,18 @@ public class viewEntry extends AppCompatActivity {
             AlertDialog.Builder assureDeletion = new AlertDialog.Builder(viewEntry.this)
                     .setTitle(R.string.confirmDeletion)
                     .setPositiveButton(R.string.confirm, (dialogInterface, i) -> {
-                        socket.emit("seekEventsNameReq", mainEntry.entryName);
-                        socket.on("seekEventsNameRes", args -> {
-                            for (Object event : args) {
-                                Events RealEvent = gson.fromJson((JsonObject)event,Events.class);
-                                socket.emit("deleteEvent",RealEvent.eventUUID);
+                        HttpManager.postRequest("seekEventsName", gson.toJson(mainEntry.entryName), new HttpManager.PostReturnBody() {
+                            @Override
+                            public void PostReturn(Response response) {
+                                Events[] events = gson.fromJson(response.toString(),Events[].class);
+                                 for (Object event : events) {
+                                    Events RealEvent = gson.fromJson((JsonObject)event,Events.class);
+                                    HttpManager.postRequest("deleteEvent", gson.toJson(RealEvent.eventUUID), response1 -> {});
+                                }
+                                HttpManager.postRequest("deleteEntry", gson.toJson(mainEntry.entryID), response12 -> {});
+                                setResult(RESULT_OK);
+                                finish();
                             }
-                            socket.emit("deleteEntry",mainEntry.entryID);
-                            setResult(RESULT_OK);
-                            finish();
                         });
                     })
                     .setNegativeButton(R.string.decline, (dialogInterface, i) -> dialogInterface.cancel());
