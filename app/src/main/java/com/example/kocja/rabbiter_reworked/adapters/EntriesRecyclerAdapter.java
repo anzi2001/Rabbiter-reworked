@@ -1,6 +1,7 @@
 package com.example.kocja.rabbiter_reworked.adapters;
 
 import android.app.Activity;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.kocja.rabbiter_reworked.GsonManager;
+import com.example.kocja.rabbiter_reworked.HttpManager;
 import com.example.kocja.rabbiter_reworked.R;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
 
@@ -66,33 +69,58 @@ public class EntriesRecyclerAdapter extends RecyclerView.Adapter<EntriesRecycler
 
     @Override
     public void onBindViewHolder(@NonNull EntriesRecyclerAdapter.viewHolder holder, int position) {
+        Entry entry= allEntries.get(position);
+        if(entry.entryBitmap == null){
+            HttpManager.postRequest("searchForImage", GsonManager.getGson().toJson(entry.entryPhLoc), (response1, bytes) -> {
+                entry.entryBitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
+                c.runOnUiThread(() -> Glide.with(c)
+                        .load(entry.entryBitmap)
+                        .into(holder.entryImage));
 
-        Glide.with(c)
-                .load(allEntries.get(position).entryPhLoc)
-                .into(holder.entryImage);
+            });
+        }
+        else{
+            Glide.with(c)
+                    .load(entry.entryBitmap)
+                    .into(holder.entryImage);
+        }
+
+        if(entry.isMerged){
+            if(entry.mergedEntryBitmap == null){
+                HttpManager.postRequest("searchForImage", GsonManager.getGson().toJson(entry.mergedEntryPhLoc), (response2, bytes1) -> {
+                    entry.mergedEntryBitmap = BitmapFactory.decodeByteArray(bytes1,0,bytes1.length);
+                    c.runOnUiThread(() -> Glide.with(c)
+                            .load(entry.mergedEntryBitmap)
+                            .into(holder.mergedImage));
+                });
+            }
+            else{
+                Glide.with(c)
+                        .load(entry.mergedEntryBitmap)
+                        .into(holder.mergedImage);
+            }
+        }
 
         holder.entryImage.setBorderWidth(6);
-        if (allEntries.get(position).chooseGender.equals("Female")) {
+        if (entry.chooseGender.equals("Female")) {
             holder.entryImage.setBorderColor(Color.parseColor("#EC407A"));
         }
-        else if (allEntries.get(position).chooseGender.equals("Male")) {
+        else if (entry.chooseGender.equals("Male")) {
             holder.entryImage.setBorderColor(Color.BLUE);
         }
         else {
             holder.entryImage.setBorderColor(Color.WHITE);
         }
 
-        if(allEntries.get(position).isMerged){
+        if(entry.isMerged){
             holder.mergedImage.setVisibility(View.VISIBLE);
             holder.mergedImage.setBorderWidth(4);
             holder.mergedImage.setBorderColor(Color.WHITE);
-            Glide.with(c)
-                    .load(allEntries.get(position).mergedEntryPhLoc)
-                    .into(holder.mergedImage);
-            holder.textName.setText(c.getString(R.string.mergedStrings,allEntries.get(position).entryName,allEntries.get(position).mergedEntryName));
+
+            holder.textName.setText(c.getString(R.string.mergedStrings,entry.entryName,entry.mergedEntryName));
         }
         else{
-            holder.textName.setText(allEntries.get(position).entryName);
+            holder.textName.setText(entry.entryName);
         }
 
     }

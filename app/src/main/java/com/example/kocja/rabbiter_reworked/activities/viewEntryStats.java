@@ -41,8 +41,8 @@ public class viewEntryStats extends AppCompatActivity {
         UUID entryID =(UUID) getIntent().getSerializableExtra("entryUUID");
 
         formatter = new SimpleDateFormat("dd/MM/yyyy", Locale.GERMAN);
-        HttpManager.postRequest("seekSingle", GsonManager.getGson().toJson(entryID), response -> {
-            Entry entry = GsonManager.getGson().fromJson(response.toString(),Entry.class);
+        HttpManager.postRequest("seekSingle", GsonManager.getGson().toJson(entryID), (response,bytes) -> {
+            Entry entry = GsonManager.getGson().fromJson(response,Entry.class);
             final GraphView birthGraph = findViewById(R.id.BirthChart);
             final GraphView deadRabbitsGraph = findViewById(R.id.deadChart);
             final TextView successfulBirths = findViewById(R.id.successBirths);
@@ -53,10 +53,10 @@ public class viewEntryStats extends AppCompatActivity {
             final LineGraphSeries<DataPoint> numDeathSeries = new LineGraphSeries<>();
             final LineGraphSeries<DataPoint> avgDeadRabbits = new LineGraphSeries<>();
 
-            HttpManager.postRequest("seekEventsByNameType", GsonManager.getGson().toJson(entry.entryName), response1 -> new AsyncTask<Void, Void, Void>() {
+            HttpManager.postRequest("seekEventsByNameType", GsonManager.getGson().toJson(entry.entryName), (response1,bytes1) -> new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... voids) {
-                    ArrayList<Events> result = new ArrayList<>(Arrays.asList(GsonManager.getGson().fromJson(response1.toString(),Events[].class)));
+                    ArrayList<Events> result = new ArrayList<>(Arrays.asList(GsonManager.getGson().fromJson(response1,Events[].class)));
                     float avgRabbitsNum = 0;
                     float deadRabbitsNum = 0;
 

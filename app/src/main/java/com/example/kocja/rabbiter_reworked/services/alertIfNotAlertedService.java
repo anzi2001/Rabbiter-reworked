@@ -26,18 +26,14 @@ public class alertIfNotAlertedService extends IntentService {
     }
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        HttpManager.getRequest("seekNotAlertedEvents", new HttpManager.GetReturnBody() {
-            @Override
-            public void GetReturn(Response response) {
-                Intent startNotificationIntent = new Intent(alertIfNotAlertedService.this, NotifReciever.class);
-                AlarmManager manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-                for(Object eventObj : response.challenges()){
-                    Events event = GsonManager.getGson().fromJson((JsonObject)eventObj,Events.class);
-                    Log.v("Oops","This guy was not started");
-                    startNotificationIntent.putExtra("eventUUID",event.eventUUID);
-                    PendingIntent startNotification = PendingIntent.getBroadcast(alertIfNotAlertedService.this,event.id,startNotificationIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-                    //manager.set(AlarmManager.RTC_WAKEUP,event.dateOfEvent.getTime(),startNotification);
-                }
+        HttpManager.getRequest("seekNotAlertedEvents", response -> {
+            Intent startNotificationIntent = new Intent(alertIfNotAlertedService.this, NotifReciever.class);
+            AlarmManager manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+            for(Events event : GsonManager.getGson().fromJson(response,Events[].class)){
+                Log.v("Oops","This guy was not started");
+                startNotificationIntent.putExtra("eventUUID",event.eventUUID);
+                PendingIntent startNotification = PendingIntent.getBroadcast(alertIfNotAlertedService.this,event.id,startNotificationIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+                //manager.set(AlarmManager.RTC_WAKEUP,event.dateOfEvent.getTime(),startNotification);
             }
         });
         /*

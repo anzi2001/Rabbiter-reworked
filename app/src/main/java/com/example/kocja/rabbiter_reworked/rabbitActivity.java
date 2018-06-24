@@ -28,7 +28,7 @@ import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class rabbitActivity extends AppCompatActivity implements EntriesRecyclerAdapter.onItemClickListener{
+public class rabbitActivity extends AppCompatActivity implements EntriesRecyclerAdapter.onItemClickListener,fillData.onPost{
     private static final int ADD_ENTRY_START = 0;
     public static final int START_VIEW_ENTRY = 1;
     private static final int START_PERMISSION_REQUEST =2;
@@ -41,6 +41,7 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
     private FloatingActionButton splitFab;
     private Gson gson;
     private boolean wasMergedBefore = false;
+    Entry secondMerge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +72,7 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
         rabbitEntryView.setHasFixedSize(true);
         RecyclerView.LayoutManager rabbitEntryManager = new GridLayoutManager(this, 3);
         rabbitEntryView.setLayoutManager(rabbitEntryManager);
-        entriesList = fillData.getEntries(this,rabbitEntryView,this);
+        fillData.getEntries(this, rabbitEntryView, this,this);
 
         mergeFab.setOnClickListener(view -> {
             if(chosenEntriesCounter > 2){
@@ -81,11 +82,11 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
             }
             secondMergeEntry.isMerged = true;
             secondMergeEntry.mergedEntryName = firstMergeEntry.entryName;
-            secondMergeEntry.mergedEntry = firstMergeEntry;
+            secondMergeEntry.mergedEntry = firstMergeEntry.entryID.toString();
             secondMergeEntry.mergedEntryPhLoc = firstMergeEntry.entryPhLoc;
-            HttpManager.postRequest("updateEntry",gson.toJson(secondMergeEntry), (response) -> { });
+            HttpManager.postRequest("updateEntry",gson.toJson(secondMergeEntry), (response,bytes) -> { });
                     firstMergeEntry.isChildMerged = true;
-            HttpManager.postRequest("updateEntry", gson.toJson(firstMergeEntry), (response) -> { });
+            HttpManager.postRequest("updateEntry", gson.toJson(firstMergeEntry), (response,bytes) -> { });
 
             //reset and refresh the grid at the end
             animateDown(mergeFab);
@@ -93,16 +94,17 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
             firstMergeEntry = null;
             secondMergeEntry = null;
 
-            entriesList = fillData.getEntries(rabbitActivity.this,rabbitEntryView,this);
+            fillData.getEntries(rabbitActivity.this, rabbitEntryView, this, this);
         });
         splitFab.setOnClickListener(view -> {
             firstMergeEntry.isMerged = false;
 
-            HttpManager.postRequest("updateEntry", gson.toJson(firstMergeEntry), (response) -> { });
-            Entry secondMerge = firstMergeEntry.mergedEntry;
+            HttpManager.postRequest("updateEntry", gson.toJson(firstMergeEntry), (response,bytes) -> { });
+
+            HttpManager.postRequest("findMergedEntry", gson.toJson(firstMergeEntry.mergedEntry), (response,bytes) -> secondMerge = gson.fromJson(response,Entry[].class)[0]);
             secondMerge.isChildMerged = false;
 
-            HttpManager.postRequest("updateEntry", gson.toJson(secondMerge), (response) -> { });
+            HttpManager.postRequest("updateEntry", gson.toJson(secondMerge), (response,bytes) -> { });
 
             //reset and refresh the grid at the end
             animateDown(splitFab);
@@ -110,7 +112,7 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
             firstMergeEntry = null;
             secondMergeEntry = null;
 
-            entriesList = fillData.getEntries(rabbitActivity.this,rabbitEntryView,this);
+            fillData.getEntries(rabbitActivity.this, rabbitEntryView, this,this);
         });
 
     }
@@ -126,13 +128,13 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
     public void onActivityResult(int requestCode,int resultcode, Intent data){
         super.onActivityResult(requestCode,resultcode,data);
         if(requestCode == ADD_ENTRY_START && resultcode == RESULT_OK){
-            entriesList = fillData.getEntries(this,rabbitEntryView,this);
+            fillData.getEntries(this, rabbitEntryView, this,this);
             RecyclerView upcomingEvents = findViewById(R.id.upcomingAdapter);
             UpcomingEventsFragment.refreshFragment(upcomingEvents,this);
             UpcomingEventsFragment.updateNotesToDisplay();
         }
         else if(requestCode == START_VIEW_ENTRY){
-            entriesList = fillData.getEntries(this,rabbitEntryView,this);
+            fillData.getEntries(this, rabbitEntryView, this,this);
             UpcomingEventsFragment.updateNotesToDisplay();
         }
     }
@@ -189,5 +191,10 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
 
         }
 
+    }
+
+    @Override
+    public void onPostProcess(List<Entry> temporaryList) {
+        entriesList = temporaryList;
     }
 }

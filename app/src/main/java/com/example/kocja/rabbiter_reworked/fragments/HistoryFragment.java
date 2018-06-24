@@ -35,9 +35,9 @@ public class HistoryFragment extends Fragment {
         return inflater.inflate(R.layout.upcoming_history_fragment_layout, container, false);
     }
     public static void setPastEvents(Context context, String entryName,RecyclerView view){
-        HttpManager.postRequest("seekPastEvents", GsonManager.getGson().toJson(entryName), response -> {
+        HttpManager.postRequest("seekPastEvents", GsonManager.getGson().toJson(entryName), (response,bytes) -> {
             //historyList = context.findViewById(R.id.upcomingList);
-            Events[] events = GsonManager.getGson().fromJson(response.toString(),Events[].class);
+            Events[] events = GsonManager.getGson().fromJson(response,Events[].class);
             List<String> eventStrings = new ArrayList<>(events.length);
             for(Events event : events){
                 eventStrings.add(event.eventString);
@@ -61,8 +61,8 @@ public class HistoryFragment extends Fragment {
     }
 
     public static void maleParentOf(Context context, String parent, RecyclerView view, Activity activity){
-        HttpManager.postRequest("seekParentOf", GsonManager.getGson().toJson(parent), response -> {
-            Entry[] entries = GsonManager.getGson().fromJson(response.toString(),Entry[].class);
+        HttpManager.postRequest("seekParentOf", GsonManager.getGson().toJson(parent), (response,bytes) -> {
+            Entry[] entries = GsonManager.getGson().fromJson(response,Entry[].class);
             List<String> parentOfList = new ArrayList<>(entries.length);
             for(Entry entry : entries){
                 parentOfList.add(activity.getString(R.string.parentOf,entry.entryName));

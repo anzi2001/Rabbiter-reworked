@@ -33,32 +33,28 @@ public class askNotifAgain extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        HttpManager.getRequest("seekNotifUUID", new HttpManager.GetReturnBody() {
-            @Override
-            public void GetReturn(Response response) {
-                NotificationManager notifManager =(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                Events events = GsonManager.getGson().fromJson(response.toString(),Events.class);
-                notifManager.cancel(events.id);
+        HttpManager.getRequest("seekNotifUUID", response -> {
+            NotificationManager notifManager =(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            Events events = GsonManager.getGson().fromJson(response,Events.class);
+            notifManager.cancel(events.id);
 
-                if(events.timesNotified >2){
-                    Intent processNoEvent = new Intent(askNotifAgain.this,processEvents.class);
-                    processNoEvent.putExtra("processEventUUID",events.eventUUID);
-                    processNoEvent.putExtra("happened",false);
-                    startService(processNoEvent);
-                }
-                else {
+            if(events.timesNotified >2){
+                Intent processNoEvent = new Intent(askNotifAgain.this,processEvents.class);
+                processNoEvent.putExtra("processEventUUID",events.eventUUID);
+                processNoEvent.putExtra("happened",false);
+                startService(processNoEvent);
+            }
+            else {
 
-                    events.timesNotified++;
-                    //events.dateOfEvent = new Date(events.dateOfEvent.getTime() + (1000L *60*60));
-                    HttpManager.postRequest("updateEvents", GsonManager.getGson().toJson(events), response1 -> { });
+                events.timesNotified++;
+                //events.dateOfEvent = new Date(events.dateOfEvent.getTime() + (1000L *60*60));
+                HttpManager.postRequest("updateEvents", GsonManager.getGson().toJson(events), (response1,bytes) -> { });
 
-                    Intent alertIntent = new Intent(askNotifAgain.this, NotifReciever.class);
-                    alertIntent.putExtra("eventUUID",events.eventUUID);
-
-                    PendingIntent alertPending = PendingIntent.getBroadcast(askNotifAgain.this, events.id, alertIntent, 0);
-                    AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                    //manager.set(AlarmManager.RTC_WAKEUP, events.dateOfEvent.getTime(), alertPending);
-                }
+                Intent alertIntent = new Intent(askNotifAgain.this, NotifReciever.class);
+                alertIntent.putExtra("eventUUID",events.eventUUID);
+                PendingIntent alertPending = PendingIntent.getBroadcast(askNotifAgain.this, events.id, alertIntent, 0);
+                AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                //manager.set(AlarmManager.RTC_WAKEUP, events.dateOfEvent.getTime(), alertPending);
             }
         });
         /*

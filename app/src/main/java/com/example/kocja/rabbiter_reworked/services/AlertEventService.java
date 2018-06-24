@@ -40,9 +40,9 @@ public class AlertEventService extends IntentService {
         PendingIntent noAction = PendingIntent.getService(this, new Random().nextInt(),noIntent,0);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        HttpManager.postRequest("seekAlertUUID", GsonManager.getGson().toJson(eventUUID), response -> {
+        HttpManager.postRequest("seekAlertUUID", GsonManager.getGson().toJson(eventUUID), (response,bytes) -> {
             if(response != null) {
-                Events events = GsonManager.getGson().fromJson(response.toString(),Events.class);
+                Events events = GsonManager.getGson().fromJson(response,Events.class);
                 int randomCode = new Random().nextInt();
                 //events.id = randomCode;
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
@@ -90,7 +90,9 @@ public class AlertEventService extends IntentService {
                     alertEvent.addAction(0, "No", noAction);
                 }
                 notificationManager.notify(events.id, alertEvent.build());
-                HttpManager.postRequest("updateEvents", GsonManager.getGson().toJson(events), response1 -> { });
+                HttpManager.postRequest("updateEvents", GsonManager.getGson().toJson(events), (response1, bytes1) -> {
+
+                });
             }
         });
         /*

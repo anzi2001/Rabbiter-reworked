@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -47,8 +48,6 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
-import okhttp3.Response;
-
 /**
  * Created by kocja on 21/01/2018.
  */
@@ -79,6 +78,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private AlarmManager eventsManager;
     private final  Random randGen = new Random();
     private Gson gson;
+    private File latestImage;
     //NOTE: type 0: birth
     //NOTE: type 1: ready for mating
     //NOTE: type 2: move group
@@ -125,20 +125,18 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
         });
 
-        HttpManager.getRequest("allEntries", new HttpManager.GetReturnBody() {
-            @Override
-            public void GetReturn(Response response) {
-                Entry[] allEntries = gson.fromJson(response.toString(),Entry[].class);
-                List<String> allEntryNames = new ArrayList<>(allEntries.length);
-                allEntryNames.add(getString(R.string.none));
-                for(Entry entry : allEntries){
-                    allEntryNames.add(entry.entryName);
-                }
-                matedWithAdapter = new ArrayAdapter<>(addEntryActivity.this,android.R.layout.simple_spinner_dropdown_item,allEntryNames);
-                matedWithSpinner.setAdapter(matedWithAdapter);
-                parentSpinner.setAdapter(matedWithAdapter);
-                setEditableEntryProps(getMode);
+        HttpManager.getRequest("allEntries", response -> {
+            Log.d("response",response);
+            Entry[] allEntries = gson.fromJson(response,Entry[].class);
+            List<String> allEntryNames = new ArrayList<>(allEntries.length);
+            allEntryNames.add(getString(R.string.none));
+            for(Entry entry : allEntries){
+                allEntryNames.add(entry.entryName);
             }
+            matedWithAdapter = new ArrayAdapter<>(addEntryActivity.this,android.R.layout.simple_spinner_dropdown_item,allEntryNames);
+            matedWithSpinner.setAdapter(matedWithAdapter);
+            parentSpinner.setAdapter(matedWithAdapter);
+            setEditableEntryProps(getMode);
         });
 
 
@@ -243,7 +241,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     createEvents(editable);
                 }
 
-                HttpManager.postRequest("updateEntry", gson.toJson(editable), response -> { });
+                HttpManager.postRequest("updateEntry", gson.toJson(editable), (response,bytes) -> { });
             }
             else {
                 Entry rabbitEntry = new Entry();
@@ -268,7 +266,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
                 createEvents(rabbitEntry);
 
-                HttpManager.postRequest("createNewEntry", gson.toJson(rabbitEntry), response -> {});
+                HttpManager.postRequest("createNewEntry", gson.toJson(rabbitEntry), latestImage, (response,bytes) -> { });
 
                 }
             setResult(RESULT_OK);
@@ -321,12 +319,11 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             try {
                 photoFile = createImageFile(this);
             } catch (IOException ex) {
-                android.support.v7.app.AlertDialog.Builder dialog = new android.support.v7.app.AlertDialog.Builder(this);
-                dialog.setTitle("Error occurred");
-                dialog.show();
+                ex.printStackTrace();
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
+                latestImage = photoFile;
                 photoURI = FileProvider.getUriForFile(this,
                         "com.example.android.photoprovider",
                         photoFile);
@@ -422,14 +419,14 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         PendingIntent slaughterEventAlarm = PendingIntent.getBroadcast(this, createEvent.id, alertEventService,PendingIntent.FLAG_CANCEL_CURRENT);
         eventsManager.set(AlarmManager.RTC_WAKEUP, dateOfEvent.getTime(), slaughterEventAlarm);
 
-        HttpManager.postRequest("createNewEvent", gson.toJson(createEvent), response -> {});
+        HttpManager.postRequest("createNewEvent", gson.toJson(createEvent), (response,bytes) -> {});
     }
     private void setEditableEntryProps(int getMode){
 
         if(getMode == EDIT_EXISTING_ENTRY){
             UUID entryUUID = (UUID) getIntent().getSerializableExtra("entryEdit");
-            HttpManager.postRequest("seekSingle", gson.toJson(entryUUID), response -> {
-                this.editable = gson.fromJson(response.toString(),Entry.class);
+            HttpManager.postRequest("seekSingle", gson.toJson(entryUUID), (response,bytes) -> {
+                this.editable = gson.fromJson(response,Entry.class);
                 lastGender = this.editable.chooseGender;
                 addName.setText(this.editable.entryName);
                 matedWithSpinner.setSelection(matedWithAdapter.getPosition(this.editable.matedWithOrParents));
@@ -467,8 +464,8 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         }
         else if(getMode == AlertEventService.ADD_BIRTH_FROM_SERVICE){
             Intent intent = getIntent();
-            HttpManager.postRequest("getAddBirthReq",gson.toJson(intent.getSerializableExtra("eventUUID")), response -> {
-                Events addBirthEvent = gson.fromJson(response.toString(),Events.class);
+            HttpManager.postRequest("getAddBirthReq",gson.toJson(intent.getSerializableExtra("eventUUID")), (response,bytes) -> {
+                Events addBirthEvent = gson.fromJson(response,Events.class);
                 NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
                 manager.cancel(addBirthEvent.id);
                 matedWithSpinner.setSelection(matedWithAdapter.getPosition(addBirthEvent.name));

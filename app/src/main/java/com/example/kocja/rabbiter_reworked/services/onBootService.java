@@ -46,7 +46,7 @@ public class onBootService extends IntentService {
             if(response != null){
                 Intent setNotification = new Intent(this,NotifReciever.class);
                 //Random randomGen = new Random();
-                Events[] events = GsonManager.getGson().fromJson(response.toString(),Events[].class);
+                Events[] events = GsonManager.getGson().fromJson(response,Events[].class);
                 for(Events event : events){
                     setNotification.putExtra("eventUUID",event.eventUUID);
                     PendingIntent setNotifIntent = PendingIntent.getBroadcast(this, event.id,setNotification,0);

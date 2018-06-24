@@ -30,8 +30,8 @@ public class processEvents extends IntentService {
         UUID processEventUUID = (UUID) intent.getSerializableExtra("processEventUUID");
         boolean happened = intent.getBooleanExtra("happened",false);
         SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.GERMANY);
-        HttpManager.postRequest("seekSingle", GsonManager.getGson().toJson(processEventUUID), response -> {
-            Events events = GsonManager.getGson().fromJson(response.toString(),Events.class);
+        HttpManager.postRequest("seekSingle", GsonManager.getGson().toJson(processEventUUID), (response,bytes) -> {
+            Events events = GsonManager.getGson().fromJson(response,Events.class);
             NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             if(events.typeOfEvent != 1){
                 manager.cancel(events.id);
@@ -68,7 +68,7 @@ public class processEvents extends IntentService {
                 }
             }
 
-            HttpManager.postRequest("updateEvent", GsonManager.getGson().toJson(events), response1 -> { });
+            HttpManager.postRequest("updateEvent", GsonManager.getGson().toJson(events), (response1,bytes1) -> { });
         });
         /*
         SQLite.select()

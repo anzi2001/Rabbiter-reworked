@@ -49,7 +49,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View upcomingList = inflater.inflate(R.layout.upcoming_history_fragment_layout,container,false);
         gson = GsonManager.getGson();
-        /*HttpManager.getRequest("seekEventsNotAlerted", response -> {
+        HttpManager.getRequest("seekEventsNotAlerted", response -> {
             updateNotesToDisplay();
             listener =this;
             upcomingAdapter = upcomingList.findViewById(R.id.upcomingAdapter);
@@ -60,7 +60,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
             upcomingAdapter.setHasFixedSize(true);
             upcomingAdapter.setAdapter(adapter);
 
-        });*/
+        });
         /*
         SQLite.select()
                 .from(Events.class)
@@ -101,7 +101,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
 
     public static void updateNotesToDisplay(){
         HttpManager.getRequest("seekEventsNotAlerted", response -> {
-            eventList = new ArrayList<>(Arrays.asList(GsonManager.getGson().fromJson(response.toString(),Events[].class)));
+            eventList = new ArrayList<>(Arrays.asList(GsonManager.getGson().fromJson(response,Events[].class)));
             noteToDisplay = new ArrayList<>(eventList.size());
             for(Events event : eventList){
                 noteToDisplay.add(event.eventString);

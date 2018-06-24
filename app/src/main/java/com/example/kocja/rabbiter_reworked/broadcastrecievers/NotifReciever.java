@@ -35,8 +35,8 @@ public class NotifReciever extends BroadcastReceiver {
         PendingIntent noAction = PendingIntent.getService(context, new Random().nextInt(),noIntent,0);
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        HttpManager.postRequest("NotifBroadcast", GsonManager.getGson().toJson(eventUUID), response -> {
-            Events events = GsonManager.getGson().fromJson(response.toString(),Events.class);
+        HttpManager.postRequest("NotifBroadcast", GsonManager.getGson().toJson(eventUUID), (response,bytes) -> {
+            Events events = GsonManager.getGson().fromJson(response,Events.class);
             if(events != null) {
                 int randomCode = new Random().nextInt();
                 //events.id = randomCode;
@@ -85,7 +85,7 @@ public class NotifReciever extends BroadcastReceiver {
                     alertEvent.addAction(0, "No", noAction);
                 }
                 notificationManager.notify(events.id, alertEvent.build());
-                HttpManager.postRequest("updateEvents", GsonManager.getGson().toJson(events), response1 -> { });
+                HttpManager.postRequest("updateEvents", GsonManager.getGson().toJson(events), (response1,bytes1) -> { });
             }
         });
 

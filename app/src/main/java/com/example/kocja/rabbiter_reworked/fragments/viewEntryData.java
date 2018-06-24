@@ -50,7 +50,7 @@ public class viewEntryData extends Fragment {
         entryName.setText(entry.entryName);
         entryGender.setText(entry.chooseGender);
         if(entry.birthDate != null) {
-            entryBirthDate.setText(fragmentFormat.format(entry.birthDate));
+            entryBirthDate.setText(entry.birthDate);
         }
         entryMatedWith.setText(entry.matedWithOrParents);
 
@@ -66,7 +66,7 @@ public class viewEntryData extends Fragment {
         }
 
         else if(entry.matedDate != null) {
-            matedDateText.setText(fragmentFormat.format(entry.matedDate));
+            matedDateText.setText(entry.matedDate);
         }
         if(entry.birthDate != null) {
             long ageDate = 0;

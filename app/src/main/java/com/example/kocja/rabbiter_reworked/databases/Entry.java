@@ -1,5 +1,7 @@
 package com.example.kocja.rabbiter_reworked.databases;
 
+import android.graphics.Bitmap;
+
 import java.util.UUID;
 
 /**
@@ -11,6 +13,7 @@ public class Entry{
 
     public String entryName;
     public String entryPhLoc;
+    public Bitmap entryBitmap;
     public String matedWithOrParents;
     public String secondParent;
 
@@ -22,8 +25,9 @@ public class Entry{
     public boolean isChildMerged;
 
     public String mergedEntryPhLoc;
+    public Bitmap mergedEntryBitmap;
     public String mergedEntryName;
-    public Entry mergedEntry;
+    public String mergedEntry;
 
     public int rabbitNumber;
     public int rabbitDeadNumber;
