@@ -4,8 +4,6 @@
       <root url="jar://$USER_HOME$/AppData/Local/Android/sdk/platforms/android-27/android.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES>
-      <root url="file://$USER_HOME$/AppData/Local/Android/sdk/platforms/android-27" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>

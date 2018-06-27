@@ -19,4 +19,20 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--keep class * extends com.raizlabs.android.dbflow.config.DatabaseHolder { *; }
+-dontwarn javax.annotation.**
+
+# A resource is loaded with a relative path so the package of this class must be preserved.
+
+# Animal Sniffer compileOnly dependency to ensure APIs are compatible with older versions of Java.
+
+-dontwarn okhttp3.internal.platform.ConscryptPlatform
+
+-keep class com.squareup.okhttp3.** {
+*;
+}
+
+# Application classes that will be serialized/deserialized over Gson
+-keep class com.example.kocja.rabbiter_online.** { *; }
+
+-keep class okio.** { *; }
+-dontwarn okio.**

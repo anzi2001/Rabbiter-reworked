@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.kocja.rabbiter_reworked.rabbitActivity">
+    tools:context="com.example.kocja.rabbiter_online.rabbitActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -80,7 +80,7 @@
 
     <fragment
         android:id="@+id/fragment"
-        android:name="com.example.kocja.rabbiter_reworked.fragments.UpcomingEventsFragment"
+        android:name="com.example.kocja.rabbiter_online.fragments.UpcomingEventsFragment"
         android:layout_width="357dp"
         android:layout_height="138dp"
         app:layout_constraintBottom_toBottomOf="parent"

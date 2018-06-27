@@ -32,7 +32,7 @@
 
         <fragment
             android:id="@+id/historyEvents"
-            android:name="com.example.kocja.rabbiter_reworked.fragments.HistoryFragment"
+            android:name="com.example.kocja.rabbiter_online.fragments.HistoryFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -72,7 +72,7 @@
 
         <fragment
             android:id="@+id/mainEntryFragment"
-            android:name="com.example.kocja.rabbiter_reworked.fragments.viewEntryData"
+            android:name="com.example.kocja.rabbiter_online.fragments.viewEntryData"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toTopOf="@+id/historyEvents"

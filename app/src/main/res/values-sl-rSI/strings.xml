@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Rabbiter</string>
+    <string name="app_name">Rabbiter Online</string>
     <array name="DecideOnPhType">
         <item>Izberi iz galerije</item>
         <item>Fotografiraj</item>

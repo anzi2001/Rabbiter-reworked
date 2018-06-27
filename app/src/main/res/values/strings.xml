@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Rabbiter</string>
+    <string name="app_name">Rabbiter Online</string>
     <array name="DecideOnPhType">
         <item>Choose from gallery</item>
         <item>Take a photo</item>
@@ -16,10 +16,6 @@
         <item>@string/genderGroup</item>
     </string-array>
 
-    <string-array name="chooseLanguage">
-        <item>English</item>
-        <item>Slovenščina</item>
-    </string-array>
     <!--ADD ENTRY ACTIVITY-->
         <string name="title">Add entry</string>
         <!--IMAGE DESCRIPTIONS-->

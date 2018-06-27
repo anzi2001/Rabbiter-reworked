@@ -3,11 +3,11 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "com.example.kocja.rabbiter_reworked_online"
-        minSdkVersion 19
+        applicationId "com.example.kocja.rabbiter_online"
+        minSdkVersion 20
         targetSdkVersion 27
         versionCode 15
-        versionName "1.6.0"
+        versionName "2.0.0"
         //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -24,20 +24,16 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
-def dbflow_version = "4.2.4"
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
 
-    implementation "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
-    implementation "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
-    annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
 
     implementation 'com.github.chrisbanes:PhotoView:2.0.0'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
