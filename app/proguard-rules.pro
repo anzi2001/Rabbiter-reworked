@@ -20,3 +20,12 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -keep class * extends com.raizlabs.android.dbflow.config.DatabaseHolder { *; }
+
+-keep class com.squareup.okhttp3.** {
+*;
+}
+-keep class com.example.kocja.rabbiter_reworked.** { *; }
+-dontwarn okhttp3.internal.platform.ConscryptPlatform
+-dontwarn javax.annotation.**
+-keep class okio.** { *; }
+-dontwarn okio.**

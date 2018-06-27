@@ -3,7 +3,12 @@ package com.example.kocja.rabbiter_reworked;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -11,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,13 +29,34 @@ import com.example.kocja.rabbiter_reworked.activities.viewEntry;
 import com.example.kocja.rabbiter_reworked.adapters.EntriesRecyclerAdapter;
 import com.example.kocja.rabbiter_reworked.adapters.UpcomingEventsAdapter;
 import com.example.kocja.rabbiter_reworked.databases.Entry;
+import com.example.kocja.rabbiter_reworked.databases.Events;
 import com.example.kocja.rabbiter_reworked.fragments.UpcomingEventsFragment;
 import com.example.kocja.rabbiter_reworked.services.alertIfNotAlertedService;
+import com.google.gson.Gson;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class rabbitActivity extends AppCompatActivity implements EntriesRecyclerAdapter.onItemClickListener {
     private static final int ADD_ENTRY_START = 0;
@@ -169,6 +196,101 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
     }
     private static void animateUp(FloatingActionButton toMove){
         toMove.animate().translationY(-100);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_rabbit_acitivty,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+         if(item.getItemId() == R.id.moveOnline){
+            MediaType json = MediaType.parse("application/json; charset=utf-8");
+            OkHttpClient client = new OkHttpClient();
+            Gson gson = new Gson();
+            SQLite.select()
+                    .from(Entry.class)
+                    .async()
+                    .queryListResultCallback((transaction, tResult) -> {
+                        for(Entry entry : tResult){
+
+                            if(entry.entryPhLoc != null) {
+                                File imgFile;
+                                RequestBody reqBody;
+                                imgFile = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES),Uri.parse(entry.entryPhLoc).getPath().substring(11));
+                                Log.d("imgFileName",imgFile.getName());
+                                Log.d("uri path",Uri.parse(entry.entryPhLoc).getPath().substring(11));
+                                MultipartBody.Builder multipartBody = new MultipartBody.Builder()
+                                        .setType(MultipartBody.FORM)
+                                        .addFormDataPart("entry", gson.toJson(entry))
+                                        .addFormDataPart("entryImage", imgFile.getName(), RequestBody.create(MediaType.parse("image/jpg"), imgFile));
+                                if(entry.mergedEntryPhLoc != null){
+                                    entry.mergedEntryPhLoc = Uri.parse(entry.mergedEntryPhLoc).getPath().substring(11);
+                                }
+                                reqBody = multipartBody.build();
+                                Request req = new Request.Builder()
+                                        .url("http://192.168.0.130:8081/moveOnlineEntry")
+                                        .post(reqBody)
+                                        .build();
+                                client.newCall(req).enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) {
+
+                                    }
+                                });
+                            }
+                            else{
+                                Request req = new Request.Builder()
+                                        .url("http://192.168.0.130:8081/moveOnlineEntryNoFile")
+                                        .post(RequestBody.create(json,gson.toJson(entry)))
+                                        .build();
+                                client.newCall(req).enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+
+                                    }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response){
+
+                                    }
+                                });
+                            }
+
+                        }
+
+                    }).execute();
+
+            SQLite.select()
+                    .from(Events.class)
+                    .async()
+                    .queryListResultCallback((transaction, tResult) -> {
+                        for(Events event : tResult){
+                            Request req = new Request.Builder()
+                                    .url("http://192.168.0.130:8081/moveOnlineEvent")
+                                    .post(RequestBody.create(json,gson.toJson(event)))
+                                    .build();
+                            client.newCall(req).enqueue(new Callback() {
+                                @Override
+                                public void onFailure(Call call, IOException e) {
+
+                                }
+
+                                @Override
+                                public void onResponse(Call call, Response response) throws IOException {
+
+                                }
+                            });
+                        }
+                    }).execute();
+        }
+        return true;
     }
 
     @Override
