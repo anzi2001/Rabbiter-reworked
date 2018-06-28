@@ -512,7 +512,9 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         Cursor cursor = getContentResolver().query(contentUri,Projs,null,null,null);
         cursor.moveToFirst();
         int columnIndex = cursor.getColumnIndex(Projs[0]);
-        return cursor.getString(columnIndex);
+        String path = cursor.getString(columnIndex);
+        cursor.close();
+        return path;
 
     }
 }

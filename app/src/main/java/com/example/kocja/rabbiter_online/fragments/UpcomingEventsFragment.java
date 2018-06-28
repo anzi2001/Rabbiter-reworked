@@ -131,7 +131,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                         Intent processEvents = new Intent(getContext(), com.example.kocja.rabbiter_online.services.processEvents.class);
                         processEvents.putExtra("happened", true);
                         processEvents.putExtra("processEventUUID", eventList.get(position).eventUUID);
-                        getContext().startService(processEvents);
+                        requireContext().startService(processEvents);
 
                         refreshFragment(upcomingAdapter,getContext());
 
@@ -143,7 +143,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                     Intent noIntent = new Intent(getContext(),processEvents.class);
                     noIntent.putExtra("processEventUUID",eventList.get(position).eventUUID);
                     noIntent.putExtra("happened",false);
-                    getContext().startService(noIntent);
+                    requireContext().startService(noIntent);
 
                     //updateNotesToDisplay();
                     //adapter.notifyDataSetChanged();
@@ -163,7 +163,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                 processEvent.putExtra("processEventUUID",eventList.get(lastItemClicked).eventUUID);
                 processEvent.putExtra("getMode",AlertEventService.ADD_BIRTH_FROM_SERVICE);
                 processEvent.putExtra("happened",true);
-                getContext().startService(processEvent);
+                requireContext().startService(processEvent);
                 refreshFragment(upcomingAdapter,getContext());
             });
 
