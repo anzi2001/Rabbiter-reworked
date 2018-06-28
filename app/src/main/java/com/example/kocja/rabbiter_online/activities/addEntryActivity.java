@@ -7,6 +7,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -36,7 +39,10 @@ import com.example.kocja.rabbiter_online.services.processEvents;
 import com.google.gson.Gson;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -133,10 +139,14 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             for(Entry entry : allEntries){
                 allEntryNames.add(entry.entryName);
             }
-            matedWithAdapter = new ArrayAdapter<>(addEntryActivity.this,android.R.layout.simple_spinner_dropdown_item,allEntryNames);
-            matedWithSpinner.setAdapter(matedWithAdapter);
-            parentSpinner.setAdapter(matedWithAdapter);
-            setEditableEntryProps(getMode);
+
+            this.runOnUiThread(() -> {
+                matedWithAdapter = new ArrayAdapter<>(addEntryActivity.this,android.R.layout.simple_spinner_dropdown_item,allEntryNames);
+                matedWithSpinner.setAdapter(matedWithAdapter);
+                parentSpinner.setAdapter(matedWithAdapter);
+                setEditableEntryProps(getMode);
+            });
+
         });
 
 
@@ -298,6 +308,8 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         super.onActivityResult(requestCode,resultCode,data);
         if(requestCode == SELECT_PHOTO && resultCode == RESULT_OK && data != null){
             baseImageUri = data.getData();
+            String realPath = getRealPathContentUri(baseImageUri);
+            latestImage = new File(realPath);
             Glide.with(this).load(baseImageUri).into(baseImage);
 
         }
@@ -435,29 +447,33 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             HttpManager.postRequest("seekSingleEntry", gson.toJson(entryUUID), (response,bytes) -> {
                 this.editable = gson.fromJson(response,Entry.class);
                 lastGender = this.editable.chooseGender;
-                addName.setText(this.editable.entryName);
-                matedWithSpinner.setSelection(matedWithAdapter.getPosition(this.editable.matedWithOrParents));
-                genderSpinner.setSelection(genderAdapter.getPosition(this.editable.chooseGender));
-                parentSpinner.setSelection(matedWithAdapter.getPosition(this.editable.secondParent));
-                //i believe i can just set rabbitsNum and deadRabbits since it hides anyway
-                rabbitsNum.setText(String.valueOf(this.editable.rabbitNumber));
-                deadRabbitNum.setText(String.valueOf(this.editable.rabbitDeadNumber));
-                try{
-                    if (this.editable.birthDate != null) {
-                        birthDate = defaultFormatter.parse(this.editable.birthDate);
-                        addBirthDate.setText(defaultFormatter.format(this.editable.birthDate));
-                    }
-                    if(this.editable.matedDate != null){
-                        matingDate = defaultFormatter.parse(this.editable.matedDate);
-                        lastDate = defaultFormatter.parse(this.editable.matedDate);
-                        addMatingDate.setText(defaultFormatter.format(this.editable.matedDate));
-                    }
-                }
-                catch(ParseException e){
-                    e.printStackTrace();
-                }
 
-                Glide.with(addEntryActivity.this).load(this.editable.mergedEntryPhLoc).into(baseImage);
+                this.runOnUiThread(() -> {
+                    matedWithSpinner.setSelection(matedWithAdapter.getPosition(this.editable.matedWithOrParents));
+                    genderSpinner.setSelection(genderAdapter.getPosition(this.editable.chooseGender));
+                    parentSpinner.setSelection(matedWithAdapter.getPosition(this.editable.secondParent));
+                    //i believe i can just set rabbitsNum and deadRabbits since it hides anyway
+                    rabbitsNum.setText(String.valueOf(this.editable.rabbitNumber));
+                    deadRabbitNum.setText(String.valueOf(this.editable.rabbitDeadNumber));
+                    addName.setText(this.editable.entryName);
+                    Glide.with(addEntryActivity.this).load(this.editable.mergedEntryPhLoc).into(baseImage);
+                    try{
+                        if (this.editable.birthDate != null) {
+                            birthDate = defaultFormatter.parse(this.editable.birthDate);
+                            addBirthDate.setText(defaultFormatter.format(this.editable.birthDate));
+                        }
+                        if(this.editable.matedDate != null){
+                            matingDate = defaultFormatter.parse(this.editable.matedDate);
+                            lastDate = defaultFormatter.parse(this.editable.matedDate);
+                            addMatingDate.setText(defaultFormatter.format(this.editable.matedDate));
+                        }
+                    }
+                    catch(ParseException e){
+                        e.printStackTrace();
+                    }
+                });
+
+
             });
             /*
             SQLite.select()
@@ -475,15 +491,27 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                 Events addBirthEvent = gson.fromJson(response,Events[].class)[0];
                 NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
                 manager.cancel(addBirthEvent.id);
-                matedWithSpinner.setSelection(matedWithAdapter.getPosition(addBirthEvent.name));
-                parentSpinner.setSelection(matedWithAdapter.getPosition(addBirthEvent.secondParent));
 
-                Intent processEventsIntent = new Intent(this,processEvents.class);
-                processEventsIntent.putExtra("processEventUUID",addBirthEvent.eventUUID);
-                processEventsIntent.putExtra("happened",intent.getBooleanExtra("happened",false));
-                startService(processEventsIntent);
+                this.runOnUiThread(() -> {
+                    matedWithSpinner.setSelection(matedWithAdapter.getPosition(addBirthEvent.name));
+                    parentSpinner.setSelection(matedWithAdapter.getPosition(addBirthEvent.secondParent));
+
+                    Intent processEventsIntent = new Intent(this,processEvents.class);
+                    processEventsIntent.putExtra("processEventUUID",addBirthEvent.eventUUID);
+                    processEventsIntent.putExtra("happened",intent.getBooleanExtra("happened",false));
+                    startService(processEventsIntent);
+                });
+
             });
         }
         //public void setAdaptersToSpinners()
+    }
+    String getRealPathContentUri(Uri contentUri){
+        String Projs[] = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(contentUri,Projs,null,null,null);
+        cursor.moveToFirst();
+        int columnIndex = cursor.getColumnIndex(Projs[0]);
+        return cursor.getString(columnIndex);
+
     }
 }
