@@ -90,7 +90,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
 
     public static void updateNotesToDisplay(onUpdate onUpdate){
         HttpManager.getRequest("seekEventsNotAlerted", response -> {
-                eventList = new ArrayList<>(Arrays.asList(GsonManager.getGson().fromJson(response,Events[].class)));
+                eventList = Arrays.asList(GsonManager.getGson().fromJson(response,Events[].class));
                 noteToDisplay = new ArrayList<>(eventList.size());
                 for(Events event : eventList){
                     noteToDisplay.add(event.eventString);

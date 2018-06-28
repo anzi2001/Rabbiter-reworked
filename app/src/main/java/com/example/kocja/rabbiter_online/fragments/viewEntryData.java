@@ -12,11 +12,8 @@ import android.widget.TextView;
 import com.example.kocja.rabbiter_online.R;
 import com.example.kocja.rabbiter_online.databases.Entry;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -68,7 +65,7 @@ public class viewEntryData extends Fragment {
         else if(entry.matedDate != null) {
             matedDateText.setText(entry.matedDate);
         }
-        if(entry.birthDate != null) {
+        /*if(!entry.birthDate.equals("")) {
             long ageDate = 0;
 
             try {
@@ -82,7 +79,7 @@ public class viewEntryData extends Fragment {
             long months = ageDate / 30;
             ageDate = ageDate %30;
             rabbitAge.setText(getString(R.string.setAge, years, months, ageDate));
-        }
+        }*/
         if(entry.chooseGender.equals("Group")) {
             /*rabbitNumText.setVisibility(View.VISIBLE);
             rabbitNum.setVisibility(View.VISIBLE);

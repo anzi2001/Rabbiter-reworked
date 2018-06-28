@@ -95,11 +95,14 @@ public class HttpManager {
 
 
     public static void postRequest(String path, String data, File image, PostReturnBody body){
-        RequestBody mulReq = new MultipartBody.Builder()
+        MultipartBody.Builder mulPart = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("postEntry",data)
-                .addFormDataPart("entryImage",image.getName(),RequestBody.create(MediaType.parse("multipart/form-data"),image))
-                .build();
+                .addFormDataPart("postEntry",data);
+        if(image != null){
+            mulPart.addFormDataPart("entryImage",image.getName(),RequestBody.create(MediaType.parse("multipart/form-data"),image));
+        }
+        RequestBody mulReq = mulPart.build();
+
 
         client.newCall(createRequest(mulReq,path)).enqueue(new Callback() {
             @Override

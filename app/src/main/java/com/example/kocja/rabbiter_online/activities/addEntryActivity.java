@@ -8,8 +8,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -39,10 +37,7 @@ import com.example.kocja.rabbiter_online.services.processEvents;
 import com.google.gson.Gson;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -268,8 +263,13 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                 rabbitEntry.chooseGender = genderSpinner.getSelectedItem().toString();
                 rabbitEntry.matedWithOrParents = matedWithSpinner.getSelectedItem().toString();
 
-                rabbitEntry.birthDate = defaultFormatter.format(birthDate);
-                rabbitEntry.matedDate = defaultFormatter.format(matingDate);
+                if(birthDate != null){
+                    rabbitEntry.birthDate = defaultFormatter.format(birthDate);
+                }
+                if(matingDate != null){
+                    rabbitEntry.matedDate = defaultFormatter.format(matingDate);
+                }
+
 
                 if(!rabbitsNum.getText().toString().isEmpty()){
                     rabbitEntry.rabbitNumber = Integer.parseInt(rabbitsNum.getText().toString());
@@ -287,6 +287,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                         finish();
                     }
                 });
+
             }
         });
 

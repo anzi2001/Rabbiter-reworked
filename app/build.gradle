@@ -6,8 +6,8 @@ android {
         applicationId "com.example.kocja.rabbiter_online"
         minSdkVersion 20
         targetSdkVersion 27
-        versionCode 18
-        versionName "2.0.1"
+        versionCode 19
+        versionName "2.1.0"
         //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }

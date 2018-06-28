@@ -1,7 +1,6 @@
 package com.example.kocja.rabbiter_online.activities;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
@@ -61,11 +60,11 @@ public class viewEntry extends AppCompatActivity {
         });
         HttpManager.postRequest("seekSingleEntry",gson.toJson(mainEntryUUID), (response, bytes) -> {
             Log.d("res",response);
-            Entry entry = gson.fromJson(response,Entry[].class)[0];
-            viewLargerImage.putExtra("imageURI", entry.entryPhLoc);
-            mainEntry = entry;
 
             this.runOnUiThread(() -> {
+                Entry entry = gson.fromJson(response,Entry[].class)[0];
+                viewLargerImage.putExtra("imageURI", entry.entryPhLoc);
+                mainEntry = entry;
                 mainEntryFragment = (viewEntryData) getSupportFragmentManager().findFragmentById(R.id.mainEntryFragment);
 
                 RecyclerView historyView = findViewById(R.id.upcomingAdapter);
@@ -175,7 +174,7 @@ public class viewEntry extends AppCompatActivity {
         else if(id == R.id.showMerged){
             if(mainEntry.isMerged){
                 Intent showMerged = new Intent(getApplicationContext(),viewEntry.class);
-                showMerged.putExtra("entryID",mainEntry.mergedEntry);
+                showMerged.putExtra("entryID",UUID.fromString(mainEntry.mergedEntry));
                 startActivity(showMerged);
             }
             else{

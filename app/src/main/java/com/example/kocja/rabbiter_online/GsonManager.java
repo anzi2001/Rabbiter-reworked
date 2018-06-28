@@ -14,6 +14,11 @@ public class GsonManager {
     }
 
     public static Gson getGson(){
+        if(gson == null){
+            initGson();
+            return gson;
+        }
         return gson;
+
     }
 }

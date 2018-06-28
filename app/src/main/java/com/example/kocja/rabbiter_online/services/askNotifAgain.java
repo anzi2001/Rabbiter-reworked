@@ -14,7 +14,6 @@ import com.example.kocja.rabbiter_online.HttpManager;
 import com.example.kocja.rabbiter_online.broadcastrecievers.NotifReciever;
 import com.example.kocja.rabbiter_online.databases.Events;
 
-import java.util.UUID;
 
 
 /**
