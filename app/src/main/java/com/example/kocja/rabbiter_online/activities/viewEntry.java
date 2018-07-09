@@ -15,8 +15,8 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.example.kocja.rabbiter_online.GsonManager;
-import com.example.kocja.rabbiter_online.HttpManager;
+import com.example.kocja.rabbiter_online.managers.GsonManager;
+import com.example.kocja.rabbiter_online.managers.HttpManager;
 import com.example.kocja.rabbiter_online.R;
 import com.example.kocja.rabbiter_online.databases.Entry;
 import com.example.kocja.rabbiter_online.databases.Events;
@@ -63,40 +63,40 @@ public class viewEntry extends AppCompatActivity {
 
             this.runOnUiThread(() -> {
                 Entry entry = gson.fromJson(response,Entry[].class)[0];
-                viewLargerImage.putExtra("imageURI", entry.entryPhLoc);
+                viewLargerImage.putExtra("imageURI", entry.getEntryPhLoc());
                 mainEntry = entry;
                 mainEntryFragment = (viewEntryData) getSupportFragmentManager().findFragmentById(R.id.mainEntryFragment);
 
                 RecyclerView historyView = findViewById(R.id.upcomingAdapter);
 
-                if(entry.chooseGender.equals(getString(R.string.genderMale))){
-                    HistoryFragment.maleParentOf(this, entry.entryName,historyView,viewEntry.this);
+                if(entry.getChooseGender().equals(getString(R.string.genderMale))){
+                    HistoryFragment.maleParentOf(this, entry.getEntryName(),historyView,viewEntry.this);
                 }
                 else {
-                    HistoryFragment.setPastEvents(this,entry.entryName,historyView);
+                    HistoryFragment.setPastEvents(this,entry.getEntryName(),historyView);
                 }
 
                 mainEntryFragment.setData(entry);
 
-                HttpManager.postRequest("searchForImage", gson.toJson(entry.entryPhLoc), (response1, bytes1) -> {
-                    entry.entryBitmap = BitmapFactory.decodeByteArray(bytes1,0, bytes1.length);
-                    this.runOnUiThread(() -> Glide.with(viewEntry.this).load(entry.entryBitmap).into(mainEntryView));
+                HttpManager.postRequest("searchForImage", gson.toJson(entry.getEntryPhLoc()), (response1, bytes1) -> {
+                    entry.setEntryBitmap(BitmapFactory.decodeByteArray(bytes1,0, bytes1.length));
+                    this.runOnUiThread(() -> Glide.with(viewEntry.this).load(entry.getEntryBitmap()).into(mainEntryView));
 
                 });
 
 
-                if(entry.isMerged){
+                if(entry.isMerged()){
                     ImageView mergedView = findViewById(R.id.mergedView);
                     mergedView.setOnClickListener(view -> {
                         Intent startMergedMain = new Intent(this,viewEntry.class);
-                        startMergedMain.putExtra("entryID",entry.mergedEntry);
+                        startMergedMain.putExtra("entryID",entry.getMergedEntry());
                         ActivityOptionsCompat compat = ActivityOptionsCompat.makeSceneTransitionAnimation(viewEntry.this,mainEntryView,"mergedName");
                         startActivity(startMergedMain,compat.toBundle());
                     });
                     mergedView.setVisibility(View.VISIBLE);
-                    HttpManager.postRequest("searchForImage", gson.toJson(entry.mergedEntryPhLoc), (response1, bytes1) -> {
-                        entry.mergedEntryBitmap = BitmapFactory.decodeByteArray(bytes1,0, bytes1.length);
-                        this.runOnUiThread(()->Glide.with(viewEntry.this).load(entry.mergedEntryBitmap).into(mergedView));
+                    HttpManager.postRequest("searchForImage", gson.toJson(entry.getMergedEntryPhLoc()), (response1, bytes1) -> {
+                        entry.setMergedEntryBitmap(BitmapFactory.decodeByteArray(bytes1,0, bytes1.length));
+                        this.runOnUiThread(()->Glide.with(viewEntry.this).load(entry.getMergedEntryBitmap()).into(mergedView));
                     });
 
                 }
@@ -111,7 +111,7 @@ public class viewEntry extends AppCompatActivity {
                 this.runOnUiThread(() -> {
                     mainEntryFragment.setData(entry);
                     Glide.with(viewEntry.this)
-                            .load(entry.entryPhLoc)
+                            .load(entry.getEntryPhLoc())
                             .into(mainEntryView);
                 });
 
@@ -140,20 +140,20 @@ public class viewEntry extends AppCompatActivity {
         if (id == R.id.editEntry) {
             Intent startEditProc = new Intent(viewEntry.this, addEntryActivity.class);
             startEditProc.putExtra("getMode", addEntryActivity.EDIT_EXISTING_ENTRY);
-            startEditProc.putExtra("entryEdit", mainEntry.entryID);
+            startEditProc.putExtra("entryEdit", mainEntry.getEntryID());
             startActivityForResult(startEditProc, addEntryActivity.EDIT_EXISTING_ENTRY);
 
         } else if (id == R.id.deleteEntry) {
             AlertDialog.Builder assureDeletion = new AlertDialog.Builder(viewEntry.this)
                     .setTitle(R.string.confirmDeletion)
-                    .setPositiveButton(R.string.confirm, (dialogInterface, i) -> HttpManager.postRequest("seekEventsName", gson.toJson(mainEntry.entryName), (response, bytes) -> {
+                    .setPositiveButton(R.string.confirm, (dialogInterface, i) -> HttpManager.postRequest("seekEventsName", gson.toJson(mainEntry.getEntryName()), (response, bytes) -> {
                         Events[] events = gson.fromJson(response,Events[].class);
                         this.runOnUiThread(() -> {
                             for (Events event : events) {
-                                HttpManager.postRequest("deleteEvent", gson.toJson(event.eventUUID), (response1,bytes1) -> {
+                                HttpManager.postRequest("deleteEvent", gson.toJson(event.getEventUUID()), (response1,bytes1) -> {
                                 });
                             }
-                            HttpManager.postRequest("deleteEntry", gson.toJson(mainEntry.entryID), (response1,bytes1) -> {
+                            HttpManager.postRequest("deleteEntry", gson.toJson(mainEntry.getEntryID()), (response1,bytes1) -> {
                                 setResult(RESULT_OK);
                                 finish();
                             });
@@ -167,14 +167,14 @@ public class viewEntry extends AppCompatActivity {
         }
         else if (id == R.id.entryStats) {
             Intent startStatActivity = new Intent(getApplicationContext(), viewEntryStats.class);
-            startStatActivity.putExtra("entryUUID", mainEntry.entryID);
+            startStatActivity.putExtra("entryUUID", mainEntry.getEntryID());
             startActivity(startStatActivity);
 
         }
         else if(id == R.id.showMerged){
-            if(mainEntry.isMerged){
+            if(mainEntry.isMerged()){
                 Intent showMerged = new Intent(getApplicationContext(),viewEntry.class);
-                showMerged.putExtra("entryID",UUID.fromString(mainEntry.mergedEntry));
+                showMerged.putExtra("entryID",UUID.fromString(mainEntry.getMergedEntry()));
                 startActivity(showMerged);
             }
             else{

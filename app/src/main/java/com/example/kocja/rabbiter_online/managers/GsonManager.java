@@ -1,4 +1,4 @@
-package com.example.kocja.rabbiter_online;
+package com.example.kocja.rabbiter_online.managers;
 
 import com.example.kocja.rabbiter_online.adapters.BooleanConvertAdapter;
 import com.google.gson.Gson;
@@ -16,7 +16,6 @@ public class GsonManager {
     public static Gson getGson(){
         if(gson == null){
             initGson();
-            return gson;
         }
         return gson;
 

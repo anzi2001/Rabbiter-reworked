@@ -9,8 +9,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
-import com.example.kocja.rabbiter_online.GsonManager;
-import com.example.kocja.rabbiter_online.HttpManager;
+import com.example.kocja.rabbiter_online.managers.GsonManager;
+import com.example.kocja.rabbiter_online.managers.HttpManager;
 import com.example.kocja.rabbiter_online.R;
 import com.example.kocja.rabbiter_online.activities.addEntryActivity;
 import com.example.kocja.rabbiter_online.databases.Events;
@@ -46,9 +46,9 @@ public class NotifReciever extends BroadcastReceiver {
                 NotificationCompat.Builder alertEvent  = new NotificationCompat.Builder(context,"NotifyEvent");
                 alertEvent.setSmallIcon(R.mipmap.dokoncana_ikona_zajec_round_lowres);
                 alertEvent.setContentTitle("Event!");
-                alertEvent.setContentText(events.eventString);
+                alertEvent.setContentText(events.getEventString());
 
-                if (events.typeOfEvent == 0) {
+                if (events.getTypeOfEvent() == 0) {
                     Intent yesIntent = new Intent(context, addEntryActivity.class);
                     yesIntent.putExtra("eventUUID", eventUUID);
                     yesIntent.putExtra("getMode", AlertEventService.ADD_BIRTH_FROM_SERVICE);
@@ -61,7 +61,7 @@ public class NotifReciever extends BroadcastReceiver {
                     alertEvent.addAction(0, "No", noAction);
                     //notificationManager.notify(events.id, alertEvent.build());
 
-                } else if (events.typeOfEvent == 1) {
+                } else if (events.getTypeOfEvent() == 1) {
                     Intent processEvents = new Intent(context, com.example.kocja.rabbiter_online.services.processEvents.class);
                     processEvents.putExtra("happened", true);
                     processEvents.putExtra("processEventUUID", eventUUID);
@@ -74,7 +74,7 @@ public class NotifReciever extends BroadcastReceiver {
 
                 } else {
                     Intent yesProcessEvent = new Intent(context, processEvents.class);
-                    yesProcessEvent.putExtra("processEventUUID", events.eventUUID);
+                    yesProcessEvent.putExtra("processEventUUID", events.getEventUUID());
                     yesProcessEvent.putExtra("happened", true);
                     PendingIntent yesProcessPending = PendingIntent.getService(context, randomCode, yesProcessEvent, 0);
 
@@ -83,7 +83,7 @@ public class NotifReciever extends BroadcastReceiver {
                     alertEvent.addAction(0, "Yes", yesProcessPending);
                     alertEvent.addAction(0, "No", noAction);
                 }
-                notificationManager.notify(events.id, alertEvent.build());
+                notificationManager.notify(events.getId(), alertEvent.build());
                 HttpManager.postRequest("updateEvents", GsonManager.getGson().toJson(events), (response1,bytes1) -> { });
             }
         });

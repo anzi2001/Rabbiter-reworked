@@ -1,6 +1,7 @@
 package com.example.kocja.rabbiter_online.adapters;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
@@ -11,8 +12,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.kocja.rabbiter_online.GsonManager;
-import com.example.kocja.rabbiter_online.HttpManager;
+import com.example.kocja.rabbiter_online.managers.GsonManager;
+import com.example.kocja.rabbiter_online.managers.HttpManager;
 import com.example.kocja.rabbiter_online.R;
 import com.example.kocja.rabbiter_online.databases.Entry;
 
@@ -38,23 +39,21 @@ public class EntriesRecyclerAdapter extends RecyclerView.Adapter<EntriesRecycler
             super(itemView);
             textName = itemView.findViewById(R.id.textName);
             entryImage = itemView.findViewById(R.id.entryImage);
+            mergedImage = itemView.findViewById(R.id.mergedImage);
 
-            //if(allEntries.get(getAdapterPosition()).isMerged){
-                mergedImage = itemView.findViewById(R.id.mergedImage);
-            //}
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
         }
         @Override
         public void onClick(View view){
-            view.setTag(allEntries.get(getAdapterPosition()).entryID);
+            view.setTag(allEntries.get(getAdapterPosition()).getEntryID());
             listener.onItemClick(view,getAdapterPosition());
 
         }
 
         @Override
         public boolean onLongClick(View view) {
-            view.setTag(allEntries.get(getAdapterPosition()).entryID);
+            view.setTag(allEntries.get(getAdapterPosition()).getEntryID());
             listener.onLongItemClick(view,getAdapterPosition());
             return true;
         }
@@ -69,58 +68,55 @@ public class EntriesRecyclerAdapter extends RecyclerView.Adapter<EntriesRecycler
 
     @Override
     public void onBindViewHolder(@NonNull EntriesRecyclerAdapter.viewHolder holder, int position) {
-        Entry entry= allEntries.get(position);
-        if(entry.entryBitmap == null){
-            HttpManager.postRequest("searchForImage", GsonManager.getGson().toJson(entry.entryPhLoc), (response1, bytes) -> {
-                entry.entryBitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
-                c.runOnUiThread(() -> Glide.with(c)
-                        .load(entry.entryBitmap)
-                        .into(holder.entryImage));
+        Entry entry = allEntries.get(position);
+        if(entry.getEntryBitmap() == null){
+            HttpManager.postRequest("searchForImage", GsonManager.getGson().toJson(entry.getEntryPhLoc()), (response1, bytes) -> {
+                entry.setEntryBitmap(BitmapFactory.decodeByteArray(bytes,0,bytes.length));
+                loadDefaultIfNull(entry.getEntryBitmap(),c,holder.entryImage);
 
             });
         }
         else{
             Glide.with(c)
-                    .load(entry.entryBitmap)
+                    .load(entry.getEntryBitmap())
                     .into(holder.entryImage);
         }
 
-        if(entry.isMerged){
-            if(entry.mergedEntryBitmap == null){
-                HttpManager.postRequest("searchForImage", GsonManager.getGson().toJson(entry.mergedEntryPhLoc), (response2, bytes1) -> {
-                    entry.mergedEntryBitmap = BitmapFactory.decodeByteArray(bytes1,0,bytes1.length);
-                    c.runOnUiThread(() -> Glide.with(c)
-                            .load(entry.mergedEntryBitmap)
-                            .into(holder.mergedImage));
+        if(entry.isMerged()){
+            if(entry.getMergedEntryBitmap() == null){
+                HttpManager.postRequest("searchForImage", GsonManager.getGson().toJson(entry.getMergedEntryPhLoc()), (response2, bytes1) -> {
+                    entry.setMergedEntryBitmap(BitmapFactory.decodeByteArray(bytes1,0,bytes1.length));
+                    loadDefaultIfNull(entry.getMergedEntryBitmap(),c,holder.mergedImage);
+
                 });
             }
             else{
                 Glide.with(c)
-                        .load(entry.mergedEntryBitmap)
+                        .load(entry.getMergedEntryBitmap())
                         .into(holder.mergedImage);
             }
         }
 
         holder.entryImage.setBorderWidth(6);
-        if (entry.chooseGender.equals("Female")) {
+        if (entry.getChooseGender().equals("Female")) {
             holder.entryImage.setBorderColor(Color.parseColor("#EC407A"));
         }
-        else if (entry.chooseGender.equals("Male")) {
+        else if (entry.getChooseGender().equals("Male")) {
             holder.entryImage.setBorderColor(Color.BLUE);
         }
         else {
             holder.entryImage.setBorderColor(Color.WHITE);
         }
 
-        if(entry.isMerged){
+        if(entry.isMerged()){
             holder.mergedImage.setVisibility(View.VISIBLE);
             holder.mergedImage.setBorderWidth(4);
             holder.mergedImage.setBorderColor(Color.WHITE);
 
-            holder.textName.setText(c.getString(R.string.mergedStrings,entry.entryName,entry.mergedEntryName));
+            holder.textName.setText(c.getString(R.string.mergedStrings,entry.getEntryName(),entry.getMergedEntryName()));
         }
         else{
-            holder.textName.setText(entry.entryName);
+            holder.textName.setText(entry.getEntryName());
         }
 
     }
@@ -136,5 +132,18 @@ public class EntriesRecyclerAdapter extends RecyclerView.Adapter<EntriesRecycler
     public interface onItemClickListener{
         void onLongItemClick(View view, int position);
         void onItemClick(View view,int position);
+    }
+
+    private void loadDefaultIfNull(Bitmap bitmap, Activity c,CircleImageView imageView){
+        if(bitmap == null){
+            c.runOnUiThread(() -> Glide.with(c)
+                    .load(R.mipmap.dokoncana_ikona_zajec_round)
+                    .into(imageView));
+        }
+        else {
+            c.runOnUiThread(() -> Glide.with(c)
+                    .load(bitmap)
+                    .into(imageView));
+        }
     }
 }

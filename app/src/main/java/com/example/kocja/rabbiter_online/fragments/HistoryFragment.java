@@ -12,8 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.kocja.rabbiter_online.GsonManager;
-import com.example.kocja.rabbiter_online.HttpManager;
+import com.example.kocja.rabbiter_online.managers.GsonManager;
+import com.example.kocja.rabbiter_online.managers.HttpManager;
 import com.example.kocja.rabbiter_online.R;
 import com.example.kocja.rabbiter_online.adapters.UpcomingEventsAdapter;
 import com.example.kocja.rabbiter_online.databases.Entry;
@@ -40,7 +40,7 @@ public class HistoryFragment extends Fragment {
             Events[] events = GsonManager.getGson().fromJson(response,Events[].class);
             List<String> eventStrings = new ArrayList<>(events.length);
             for(Events event : events){
-                eventStrings.add(event.eventString);
+                eventStrings.add(event.getEventString());
             }
             setFragmentAdapter(eventStrings,context,view);
 
@@ -62,7 +62,7 @@ public class HistoryFragment extends Fragment {
             Entry[] entries = GsonManager.getGson().fromJson(response,Entry[].class);
             List<String> parentOfList = new ArrayList<>(entries.length);
             for(Entry entry : entries){
-                parentOfList.add(activity.getString(R.string.parentOf,entry.entryName));
+                parentOfList.add(activity.getString(R.string.parentOf,entry.getEntryName()));
             }
             setFragmentAdapter(parentOfList,context,view);
 

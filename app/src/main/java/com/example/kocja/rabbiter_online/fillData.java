@@ -8,6 +8,8 @@ import android.util.Log;
 
 import com.example.kocja.rabbiter_online.adapters.EntriesRecyclerAdapter;
 import com.example.kocja.rabbiter_online.databases.Entry;
+import com.example.kocja.rabbiter_online.managers.GsonManager;
+import com.example.kocja.rabbiter_online.managers.HttpManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,10 +29,10 @@ class fillData {
             Entry[] multiples = GsonManager.getGson().fromJson(response, Entry[].class);
             temporaryList = Arrays.asList(multiples);
             for(Entry entry : temporaryList){
-                HttpManager.postRequest("searchForImage", GsonManager.getGson().toJson(entry.entryPhLoc), (response1, bytes) -> {
-                    entry.entryBitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
-                    if(entry.isMerged){
-                        HttpManager.postRequest("searchForImage", GsonManager.getGson().toJson(entry.mergedEntryPhLoc), (response2, bytes1) -> entry.mergedEntryBitmap = BitmapFactory.decodeByteArray(bytes1,0,bytes1.length));
+                HttpManager.postRequest("searchForImage", GsonManager.getGson().toJson(entry.getEntryPhLoc()), (response1, bytes) -> {
+                    entry.setEntryBitmap(BitmapFactory.decodeByteArray(bytes,0,bytes.length));
+                    if(entry.isMerged()){
+                        HttpManager.postRequest("searchForImage", GsonManager.getGson().toJson(entry.getMergedEntryPhLoc()), (response2, bytes1) -> entry.setMergedEntryBitmap(BitmapFactory.decodeByteArray(bytes1,0,bytes1.length)));
                     }
                 });
             }

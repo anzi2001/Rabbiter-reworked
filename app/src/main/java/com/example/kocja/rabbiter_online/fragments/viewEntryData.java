@@ -44,26 +44,26 @@ public class viewEntryData extends Fragment {
         return mainView;
     }
     public void setData(Entry entry){
-        entryName.setText(entry.entryName);
-        entryGender.setText(entry.chooseGender);
-        if(entry.birthDate != null) {
-            entryBirthDate.setText(entry.birthDate);
+        entryName.setText(entry.getEntryName());
+        entryGender.setText(entry.getChooseGender());
+        if(entry.getBirthDate() != null) {
+            entryBirthDate.setText(entry.getBirthDate());
         }
-        entryMatedWith.setText(entry.matedWithOrParents);
+        entryMatedWith.setText(entry.getMatedWithOrParents());
 
         TextView matedWithText = mainView.findViewById(R.id.matedWith);
 
 
-        if(entry.matedDate != null && entry.chooseGender.equals("Group")){
+        if(entry.getMatedDate() != null && entry.getChooseGender().equals("Group")){
             TextView parents = mainView.findViewById(R.id.MatedDateOrParents);
             parents.setText(getString(R.string.setParents));
-            matedDateText.setText(getString(R.string.Parents,entry.matedWithOrParents, entry.secondParent));
+            matedDateText.setText(getString(R.string.Parents,entry.getMatedWithOrParents(), entry.getSecondParent()));
             //entryMatedWith.setVisibility(View.GONE);
 
         }
 
-        else if(entry.matedDate != null) {
-            matedDateText.setText(entry.matedDate);
+        else if(entry.getMatedDate() != null) {
+            matedDateText.setText(entry.getMatedDate());
         }
         /*if(!entry.birthDate.equals("")) {
             long ageDate = 0;
@@ -80,11 +80,11 @@ public class viewEntryData extends Fragment {
             ageDate = ageDate %30;
             rabbitAge.setText(getString(R.string.setAge, years, months, ageDate));
         }*/
-        if(entry.chooseGender.equals("Group")) {
+        if(entry.getChooseGender().equals("Group")) {
             /*rabbitNumText.setVisibility(View.VISIBLE);
             rabbitNum.setVisibility(View.VISIBLE);
             rabbitNum.setText(Integer.toString(entry.rabbitNumber));*/
-            entryMatedWith.setText(String.valueOf(entry.rabbitNumber));
+            entryMatedWith.setText(String.valueOf(entry.getRabbitNumber()));
             matedWithText.setText(getString(R.string.entryRabbitNum));
         }
     }

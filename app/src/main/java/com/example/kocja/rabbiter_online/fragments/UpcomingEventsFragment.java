@@ -13,8 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.kocja.rabbiter_online.GsonManager;
-import com.example.kocja.rabbiter_online.HttpManager;
+import com.example.kocja.rabbiter_online.managers.GsonManager;
+import com.example.kocja.rabbiter_online.managers.HttpManager;
 import com.example.kocja.rabbiter_online.R;
 import com.example.kocja.rabbiter_online.activities.addEntryActivity;
 import com.example.kocja.rabbiter_online.adapters.UpcomingEventsAdapter;
@@ -93,7 +93,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                 eventList = Arrays.asList(GsonManager.getGson().fromJson(response,Events[].class));
                 noteToDisplay = new ArrayList<>(eventList.size());
                 for(Events event : eventList){
-                    noteToDisplay.add(event.eventString);
+                    noteToDisplay.add(event.getEventString());
                 }
                 HttpManager.handler.post(onUpdate::onNotesUpdate);
 
@@ -118,9 +118,9 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                 .setTitle("Event")
                 .setMessage(noteToDisplay.get(position))
                 .setPositiveButton("yes", (dialogInterface, i1) -> {
-                    if(eventList.get(position).typeOfEvent == 0){
+                    if(eventList.get(position).getTypeOfEvent() == 0){
                         Intent yesIntent = new Intent(getContext(), addEntryActivity.class);
-                        yesIntent.putExtra("eventUUID", eventList.get(position).eventUUID);
+                        yesIntent.putExtra("eventUUID", eventList.get(position).getEventUUID());
                         yesIntent.putExtra("getMode", AlertEventService.ADD_BIRTH_FROM_SERVICE);
                         yesIntent.putExtra("happened", true);
                         startActivityForResult(yesIntent,ADD_ENTRY_EVENT);
@@ -130,7 +130,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                     else{
                         Intent processEvents = new Intent(getContext(), com.example.kocja.rabbiter_online.services.processEvents.class);
                         processEvents.putExtra("happened", true);
-                        processEvents.putExtra("processEventUUID", eventList.get(position).eventUUID);
+                        processEvents.putExtra("processEventUUID", eventList.get(position).getEventUUID());
                         requireContext().startService(processEvents);
 
                         refreshFragment(upcomingAdapter,getContext());
@@ -141,7 +141,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                 })
                 .setNegativeButton("no", (dialogInterface, i12) -> {
                     Intent noIntent = new Intent(getContext(),processEvents.class);
-                    noIntent.putExtra("processEventUUID",eventList.get(position).eventUUID);
+                    noIntent.putExtra("processEventUUID",eventList.get(position).getEventUUID());
                     noIntent.putExtra("happened",false);
                     requireContext().startService(noIntent);
 
@@ -160,7 +160,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
             refreshFragment(upcomingAdapter,getContext());
             updateNotesToDisplay(() -> {
                 Intent processEvent = new Intent(getContext(),processEvents.class);
-                processEvent.putExtra("processEventUUID",eventList.get(lastItemClicked).eventUUID);
+                processEvent.putExtra("processEventUUID",eventList.get(lastItemClicked).getEventUUID());
                 processEvent.putExtra("getMode",AlertEventService.ADD_BIRTH_FROM_SERVICE);
                 processEvent.putExtra("happened",true);
                 requireContext().startService(processEvent);

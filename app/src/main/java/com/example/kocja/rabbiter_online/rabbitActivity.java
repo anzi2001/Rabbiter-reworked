@@ -20,6 +20,8 @@ import com.example.kocja.rabbiter_online.activities.viewEntry;
 import com.example.kocja.rabbiter_online.adapters.EntriesRecyclerAdapter;
 import com.example.kocja.rabbiter_online.databases.Entry;
 import com.example.kocja.rabbiter_online.fragments.UpcomingEventsFragment;
+import com.example.kocja.rabbiter_online.managers.GsonManager;
+import com.example.kocja.rabbiter_online.managers.HttpManager;
 import com.example.kocja.rabbiter_online.services.alertIfNotAlertedService;
 import com.google.gson.Gson;
 
@@ -80,12 +82,12 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
                 Toast.makeText(rabbitActivity.this,R.string.alertMoreThan2Chosen,Toast.LENGTH_LONG).show();
                 return;
             }
-            secondMergeEntry.isMerged = true;
-            secondMergeEntry.mergedEntryName = firstMergeEntry.entryName;
-            secondMergeEntry.mergedEntry = firstMergeEntry.entryID.toString();
-            secondMergeEntry.mergedEntryPhLoc = firstMergeEntry.entryPhLoc;
-            HttpManager.postRequest("updateEntry",gson.toJson(secondMergeEntry), (response,bytes) -> { });
-            firstMergeEntry.isChildMerged = true;
+            secondMergeEntry.setMerged(true);
+            secondMergeEntry.setMergedEntryName(firstMergeEntry.getEntryName());
+            secondMergeEntry.setMergedEntry(firstMergeEntry.getEntryID().toString());
+            secondMergeEntry.setMergedEntryPhLoc(firstMergeEntry.getEntryPhLoc());
+            HttpManager.postRequest("updateEntry",gson.toJson(secondMergeEntry), (response, bytes) -> { });
+            firstMergeEntry.setChildMerged(true);
             HttpManager.postRequest("updateEntry", gson.toJson(firstMergeEntry), (response,bytes) -> { });
 
             //reset and refresh the grid at the end
@@ -97,13 +99,13 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
             fillData.getEntries(rabbitActivity.this, rabbitEntryView, this, this);
         });
         splitFab.setOnClickListener(view -> {
-            firstMergeEntry.isMerged = false;
+            firstMergeEntry.setMerged(false);
 
             HttpManager.postRequest("updateEntry", gson.toJson(firstMergeEntry), (response,bytes) -> { });
 
-            HttpManager.postRequest("seekSingleEntry", gson.toJson(firstMergeEntry.mergedEntry), (response,bytes) -> {
+            HttpManager.postRequest("seekSingleEntry", gson.toJson(firstMergeEntry.getMergedEntry()), (response,bytes) -> {
                 secondMerge = gson.fromJson(response, Entry[].class)[0];
-                secondMerge.isChildMerged = false;
+                secondMerge.setChildMerged(false);
                 HttpManager.postRequest("updateEntry", gson.toJson(secondMerge), (response1,bytes1) -> {
                     chosenEntriesCounter =0;
                     firstMergeEntry = null;
@@ -166,7 +168,7 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
             secondMergeEntry = firstMergeEntry;
             firstMergeEntry = entriesList.get(position);
 
-            if(firstMergeEntry.isMerged && chosenEntriesCounter < 2){
+            if(firstMergeEntry.isMerged() && chosenEntriesCounter < 2){
                 animateUp(splitFab);
             }
 
@@ -180,7 +182,7 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
         else{
             chosenEntriesCounter--;
             markedOrNot.setVisibility(View.GONE);
-            if(firstMergeEntry.isMerged){
+            if(firstMergeEntry.isMerged()){
                 animateDown(splitFab);
             }
 

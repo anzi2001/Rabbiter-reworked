@@ -11,8 +11,8 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
-import com.example.kocja.rabbiter_online.GsonManager;
-import com.example.kocja.rabbiter_online.HttpManager;
+import com.example.kocja.rabbiter_online.managers.GsonManager;
+import com.example.kocja.rabbiter_online.managers.HttpManager;
 import com.example.kocja.rabbiter_online.R;
 import com.example.kocja.rabbiter_online.broadcastrecievers.NotifReciever;
 import com.example.kocja.rabbiter_online.databases.Events;
@@ -48,8 +48,8 @@ public class onBootService extends IntentService {
                 //Random randomGen = new Random();
                 Events[] events = GsonManager.getGson().fromJson(response,Events[].class);
                 for(Events event : events){
-                    setNotification.putExtra("eventUUID",event.eventUUID);
-                    PendingIntent setNotifIntent = PendingIntent.getBroadcast(this, event.id,setNotification,0);
+                    setNotification.putExtra("eventUUID",event.getEventUUID());
+                    PendingIntent setNotifIntent = PendingIntent.getBroadcast(this, event.getId(),setNotification,0);
                     //alarmManager.set(AlarmManager.RTC_WAKEUP,event.dateOfEvent.getTime(),setNotifIntent);
 
                 }

@@ -2,6 +2,7 @@ package com.example.kocja.rabbiter_online.databases;
 
 import android.graphics.Bitmap;
 
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -9,27 +10,181 @@ import java.util.UUID;
  */
 public class Entry{
 
-    public UUID entryID;
+    private UUID entryID;
+    private String entryName;
+    private String entryPhLoc;
+    private Bitmap entryBitmap;
+    private String matedWithOrParents;
+    private String secondParent;
+    private String birthDate;
+    private String matedDate;
+    private String chooseGender;
+    private boolean isMerged;
+    private boolean isChildMerged;
+    private String mergedEntryPhLoc;
+    private Bitmap mergedEntryBitmap;
+    private String mergedEntryName;
+    private String mergedEntry;
 
-    public String entryName;
-    public String entryPhLoc;
-    public Bitmap entryBitmap;
-    public String matedWithOrParents;
-    public String secondParent;
+    private  int rabbitNumber;
+    private  int rabbitDeadNumber;
 
-    public String birthDate;
-    public String matedDate;
-    public String chooseGender;
+    private boolean isNotNull(Object object){
+        return object != null;
+    }
+    private boolean isNotEmpty(Object object){
+        return !object.toString().isEmpty();
+    }
 
-    public boolean isMerged;
-    public boolean isChildMerged;
+    public void setEntryID(UUID entryID) {
+        if(entryID != null){
+            this.entryID = entryID;
+        }
 
-    public String mergedEntryPhLoc;
-    public Bitmap mergedEntryBitmap;
-    public String mergedEntryName;
-    public String mergedEntry;
+    }
 
-    public int rabbitNumber;
-    public int rabbitDeadNumber;
+    public void setEntryName(String entryName) {
+        this.entryName = entryName;
+    }
+
+    public void setEntryPhLoc(String entryPhLoc) {
+        if(isNotNull(entryPhLoc)){
+            this.entryPhLoc = entryPhLoc;
+        }
+    }
+
+    public void setEntryBitmap(Bitmap entryBitmap) {
+        this.entryBitmap = entryBitmap;
+    }
+
+    public void setMatedWithOrParents(String matedWithOrParents) {
+        this.matedWithOrParents = matedWithOrParents;
+    }
+
+    public void setSecondParent(String secondParent) {
+        this.secondParent = secondParent;
+    }
+
+    public void setBirthDate(String birthDate) {
+        if(isNotNull(birthDate)){
+            this.birthDate = birthDate;
+        }
+
+    }
+
+    public void setMatedDate(String matedDate) {
+        if(isNotNull(matedDate)){
+            this.matedDate = matedDate;
+        }
+
+    }
+
+    public void setChooseGender(String chooseGender) {
+        this.chooseGender = chooseGender;
+    }
+
+    public void setMerged(boolean merged) {
+        isMerged = merged;
+    }
+
+    public void setChildMerged(boolean childMerged) {
+        isChildMerged = childMerged;
+    }
+
+    public void setMergedEntryPhLoc(String mergedEntryPhLoc) {
+        this.mergedEntryPhLoc = mergedEntryPhLoc;
+    }
+
+    public void setMergedEntryBitmap(Bitmap mergedEntryBitmap) {
+        this.mergedEntryBitmap = mergedEntryBitmap;
+    }
+
+    public void setMergedEntryName(String mergedEntryName) {
+        this.mergedEntryName = mergedEntryName;
+    }
+
+    public void setMergedEntry(String mergedEntry) {
+        this.mergedEntry = mergedEntry;
+    }
+
+    public void setRabbitNumber(String rabbitNumberText) {
+        if(isNotEmpty(rabbitNumberText)){
+            this.rabbitNumber = Integer.parseInt(rabbitNumberText);
+        }
+    }
+
+    public void setRabbitDeadNumber(String rabbitDeadNumber) {
+        if(isNotEmpty(rabbitDeadNumber)){
+            this.rabbitDeadNumber = Integer.parseInt(rabbitDeadNumber);
+        }
+    }
+
+    public UUID getEntryID() {
+        return entryID;
+    }
+
+    public String getEntryName() {
+        return entryName;
+    }
+
+    public String getEntryPhLoc() {
+        return entryPhLoc;
+    }
+
+    public Bitmap getEntryBitmap() {
+        return entryBitmap;
+    }
+
+    public String getMatedWithOrParents() {
+        return matedWithOrParents;
+    }
+
+    public String getSecondParent() {
+        return secondParent;
+    }
+
+    public String getBirthDate() {
+        return birthDate;
+    }
+
+    public String getMatedDate() {
+        return matedDate;
+    }
+
+    public String getChooseGender() {
+        return chooseGender;
+    }
+
+    public boolean isMerged() {
+        return isMerged;
+    }
+
+    public boolean isChildMerged() {
+        return isChildMerged;
+    }
+
+    public String getMergedEntryPhLoc() {
+        return mergedEntryPhLoc;
+    }
+
+    public Bitmap getMergedEntryBitmap() {
+        return mergedEntryBitmap;
+    }
+
+    public String getMergedEntryName() {
+        return mergedEntryName;
+    }
+
+    public String getMergedEntry() {
+        return mergedEntry;
+    }
+
+    public int getRabbitNumber() {
+        return rabbitNumber;
+    }
+
+    public int getRabbitDeadNumber() {
+        return rabbitDeadNumber;
+    }
 }
 

@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
-import com.example.kocja.rabbiter_online.GsonManager;
-import com.example.kocja.rabbiter_online.HttpManager;
+import com.example.kocja.rabbiter_online.managers.GsonManager;
+import com.example.kocja.rabbiter_online.managers.HttpManager;
 import com.example.kocja.rabbiter_online.R;
 import com.example.kocja.rabbiter_online.databases.Entry;
 import com.example.kocja.rabbiter_online.databases.Events;
@@ -53,7 +53,7 @@ public class viewEntryStats extends AppCompatActivity {
             final LineGraphSeries<DataPoint> numDeathSeries = new LineGraphSeries<>();
             final LineGraphSeries<DataPoint> avgDeadRabbits = new LineGraphSeries<>();
 
-            HttpManager.postRequest("seekEventsByNameType", GsonManager.getGson().toJson(entry.entryName), (response1,bytes1) -> new AsyncTask<Void, Void, Void>() {
+            HttpManager.postRequest("seekEventsByNameType", GsonManager.getGson().toJson(entry.getEntryName()), (response1,bytes1) -> new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... voids) {
                     ArrayList<Events> result = new ArrayList<>(Arrays.asList(GsonManager.getGson().fromJson(response1,Events[].class)));
@@ -61,16 +61,16 @@ public class viewEntryStats extends AppCompatActivity {
                     float deadRabbitsNum = 0;
 
                     for (Events singleEvent : result) {
-                        if (singleEvent.notificationState == Events.EVENT_SUCCESSFUL) {
+                        if (singleEvent.getNotificationState() == Events.EVENT_SUCCESSFUL) {
                             successBirths++;
                         } else {
                             failedBirths++;
                         }
-                        avgRabbitsNum += singleEvent.rabbitsNum;
-                        deadRabbitsNum += singleEvent.numDead;
+                        avgRabbitsNum += singleEvent.getRabbitsNum();
+                        deadRabbitsNum += singleEvent.getNumDead();
 
                         try {
-                            numBirthsSeries.appendData(new DataPoint(formatter.parse(singleEvent.dateOfEvent).getTime(), singleEvent.rabbitsNum), true, 50);
+                            numBirthsSeries.appendData(new DataPoint(formatter.parse(singleEvent.getDateOfEvent()).getTime(), singleEvent.getRabbitsNum()), true, 50);
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
@@ -80,7 +80,7 @@ public class viewEntryStats extends AppCompatActivity {
 
                     for (Events singleEvent : result) {
                         try {
-                            averageBirthSeries.appendData(new DataPoint(formatter.parse(singleEvent.dateOfEvent).getTime(), avgRabbitsNum), true, 50);
+                            averageBirthSeries.appendData(new DataPoint(formatter.parse(singleEvent.getDateOfEvent()).getTime(), avgRabbitsNum), true, 50);
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
@@ -89,8 +89,8 @@ public class viewEntryStats extends AppCompatActivity {
 
                     for (Events deadNumEvent : result) {
                         try {
-                            numDeathSeries.appendData(new DataPoint(formatter.parse(deadNumEvent.dateOfEvent).getTime(), deadNumEvent.numDead), true, 50);
-                            avgDeadRabbits.appendData(new DataPoint(formatter.parse(deadNumEvent.dateOfEvent).getTime(), deadRabbitsNum), true, 50);
+                            numDeathSeries.appendData(new DataPoint(formatter.parse(deadNumEvent.getDateOfEvent()).getTime(), deadNumEvent.getNumDead()), true, 50);
+                            avgDeadRabbits.appendData(new DataPoint(formatter.parse(deadNumEvent.getDateOfEvent()).getTime(), deadRabbitsNum), true, 50);
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }

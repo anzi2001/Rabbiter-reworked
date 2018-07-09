@@ -6,8 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 
-import com.example.kocja.rabbiter_online.GsonManager;
-import com.example.kocja.rabbiter_online.HttpManager;
+import com.example.kocja.rabbiter_online.managers.GsonManager;
+import com.example.kocja.rabbiter_online.managers.HttpManager;
 import com.example.kocja.rabbiter_online.databases.Events;
 
 import java.text.SimpleDateFormat;
@@ -32,38 +32,39 @@ public class processEvents extends IntentService {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.GERMANY);
         HttpManager.postRequest("seekSingleEntry", GsonManager.getGson().toJson(processEventUUID), (response,bytes) -> {
             Events events = GsonManager.getGson().fromJson(response,Events.class);
+
             NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            if(events.typeOfEvent != 1){
-                manager.cancel(events.id);
+            if(events.getTypeOfEvent() != 1){
+                manager.cancel(events.getId());
             }
             if(happened) {
                 Date currentDate = new Date();
-                events.notificationState = Events.EVENT_SUCCESSFUL;
-                switch (events.typeOfEvent) {
+                events.setNotificationState(Events.EVENT_SUCCESSFUL);
+                switch (events.getTypeOfEvent()) {
                     case 0:
-                        events.eventString = dateFormatter.format(currentDate) + ": " + events.name + " gave birth";
+                        events.setEventString(dateFormatter.format(currentDate) + ": " + events.getName() + " gave birth");
                         break;
                     case 2:
-                        events.eventString = dateFormatter.format(currentDate) + ": " + events.name + " was moved into another cage";
+                        events.setEventString(dateFormatter.format(currentDate) + ": " + events.getName() + " was moved into another cage");
                         break;
                     case 3:
-                        events.eventString = dateFormatter.format(currentDate) + ": The group " + events.name + "was slaughtered";
+                        events.setEventString(dateFormatter.format(currentDate) + ": The group " + events.getName() + "was slaughtered");
                         break;
                 }
             }
             else{
                 //since we process a no event we can set the notificationState to EVENT_FAILED, so it counts
                 //as notified and doesn't annoy the user
-                events.notificationState = Events.EVENT_FAILED;
-                switch (events.typeOfEvent) {
+                events.setNotificationState(Events.EVENT_FAILED);
+                switch (events.getTypeOfEvent()) {
                     case 0:
-                        events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " did not give birth";
+                        events.setEventString(dateFormatter.format(events.getDateOfEvent()) + ": " + events.getName() + " did not give birth");
                         break;
                     case 2:
-                        events.eventString = dateFormatter.format(events.dateOfEvent) + ": " + events.name + " wasn't moved into another cage";
+                        events.setEventString(dateFormatter.format(events.getDateOfEvent()) + ": " + events.getName() + " wasn't moved into another cage");
                         break;
                     case 3:
-                        events.eventString = dateFormatter.format(events.dateOfEvent) + ": The group " + events.name + "wasn't slaughtered";
+                        events.setEventString(dateFormatter.format(events.getDateOfEvent()) + ": The group " + events.getName() + "wasn't slaughtered");
                         break;
                 }
             }

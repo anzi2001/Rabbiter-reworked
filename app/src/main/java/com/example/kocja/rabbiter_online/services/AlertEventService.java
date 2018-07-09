@@ -10,8 +10,8 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
-import com.example.kocja.rabbiter_online.GsonManager;
-import com.example.kocja.rabbiter_online.HttpManager;
+import com.example.kocja.rabbiter_online.managers.GsonManager;
+import com.example.kocja.rabbiter_online.managers.HttpManager;
 import com.example.kocja.rabbiter_online.R;
 import com.example.kocja.rabbiter_online.activities.addEntryActivity;
 import com.example.kocja.rabbiter_online.databases.Events;
@@ -49,16 +49,17 @@ public class AlertEventService extends IntentService {
                     NotificationChannel chanel = new NotificationChannel("NotifyEvent","Event",NotificationManager.IMPORTANCE_DEFAULT);
                     notificationManager.createNotificationChannel(chanel);
                 }
+
                 NotificationCompat.Builder alertEvent  = new NotificationCompat.Builder(this,"NotifyEvent");
                 alertEvent.setSmallIcon(R.mipmap.dokoncana_ikona_zajec_round_lowres);
                 alertEvent.setContentTitle("Event!");
-                alertEvent.setContentText(events.eventString);
+                alertEvent.setContentText(events.getEventString());
 
-                if (events.typeOfEvent == 0) {
-                    Intent yesIntent = new Intent(this, addEntryActivity.class);
-                    yesIntent.putExtra("eventUUID", eventUUID);
-                    yesIntent.putExtra("getMode", ADD_BIRTH_FROM_SERVICE);
-                    yesIntent.putExtra("happened", true);
+                if (events.getTypeOfEvent() == 0) {
+                    Intent yesIntent = new Intent(this, addEntryActivity.class)
+                            .putExtra("eventUUID", eventUUID)
+                            .putExtra("getMode", ADD_BIRTH_FROM_SERVICE)
+                            .putExtra("happened", true);
                     PendingIntent yesAction = PendingIntent.getActivity(this, randomCode, yesIntent, 0);
 
                     alertEvent.setOngoing(true);
@@ -67,10 +68,10 @@ public class AlertEventService extends IntentService {
                     alertEvent.addAction(0, "No", noAction);
                     //notificationManager.notify(events.id, alertEvent.build());
 
-                } else if (events.typeOfEvent == 1) {
-                    Intent processEvents = new Intent(this, com.example.kocja.rabbiter_online.services.processEvents.class);
-                    processEvents.putExtra("happened", true);
-                    processEvents.putExtra("processEventUUID", eventUUID);
+                } else if (events.getTypeOfEvent() == 1) {
+                    Intent processEvents = new Intent(this, com.example.kocja.rabbiter_online.services.processEvents.class)
+                            .putExtra("happened", true)
+                            .putExtra("processEventUUID", eventUUID);
                     PendingIntent processEventsOnDelete = PendingIntent.getService(this, randomCode, processEvents, 0);
 
                     alertEvent.setDeleteIntent(processEventsOnDelete);
@@ -79,9 +80,9 @@ public class AlertEventService extends IntentService {
 
 
                 } else {
-                    Intent yesProcessEvent = new Intent(this, processEvents.class);
-                    yesProcessEvent.putExtra("processEventUUID", events.eventUUID);
-                    yesProcessEvent.putExtra("happened", true);
+                    Intent yesProcessEvent = new Intent(this, processEvents.class)
+                            .putExtra("processEventUUID", events.getEventUUID())
+                            .putExtra("happened", true);
                     PendingIntent yesProcessPending = PendingIntent.getService(this, randomCode, yesProcessEvent, 0);
 
                     alertEvent.setOngoing(true);
@@ -89,7 +90,7 @@ public class AlertEventService extends IntentService {
                     alertEvent.addAction(0, "Yes", yesProcessPending);
                     alertEvent.addAction(0, "No", noAction);
                 }
-                notificationManager.notify(events.id, alertEvent.build());
+                notificationManager.notify(events.getId(), alertEvent.build());
                 HttpManager.postRequest("updateEvents", GsonManager.getGson().toJson(events), (response1, bytes1) -> {
 
                 });

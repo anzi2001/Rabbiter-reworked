@@ -58,6 +58,7 @@ public class UpcomingEventsAdapter extends RecyclerView.Adapter<UpcomingEventsAd
     public void setLongClickListener(onClickListen listen){
         listener = listen;
     }
+
     public interface onClickListen{
         void onItemClick(View view, int position);
     }

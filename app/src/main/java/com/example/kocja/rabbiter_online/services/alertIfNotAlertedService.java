@@ -8,8 +8,8 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.example.kocja.rabbiter_online.GsonManager;
-import com.example.kocja.rabbiter_online.HttpManager;
+import com.example.kocja.rabbiter_online.managers.GsonManager;
+import com.example.kocja.rabbiter_online.managers.HttpManager;
 import com.example.kocja.rabbiter_online.broadcastrecievers.NotifReciever;
 import com.example.kocja.rabbiter_online.databases.Events;
 
@@ -28,8 +28,8 @@ public class alertIfNotAlertedService extends IntentService {
             AlarmManager manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
             for(Events event : GsonManager.getGson().fromJson(response,Events[].class)){
                 Log.v("Oops","This guy was not started");
-                startNotificationIntent.putExtra("eventUUID",event.eventUUID);
-                PendingIntent startNotification = PendingIntent.getBroadcast(alertIfNotAlertedService.this,event.id,startNotificationIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+                startNotificationIntent.putExtra("eventUUID",event.getEventUUID());
+                PendingIntent startNotification = PendingIntent.getBroadcast(alertIfNotAlertedService.this,event.getId(),startNotificationIntent,PendingIntent.FLAG_UPDATE_CURRENT);
                 //manager.set(AlarmManager.RTC_WAKEUP,event.dateOfEvent.getTime(),startNotification);
             }
         });

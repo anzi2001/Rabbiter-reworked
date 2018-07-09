@@ -1,4 +1,4 @@
-package com.example.kocja.rabbiter_online;
+package com.example.kocja.rabbiter_online.managers;
 
 import android.os.Handler;
 import android.os.Looper;
