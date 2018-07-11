@@ -34,9 +34,12 @@ public class processEvents extends IntentService {
             Events events = GsonManager.getGson().fromJson(response,Events.class);
 
             NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            //event is not swipeable therefore i have to cancel it to delete it
+            //type 1 event is swipeable, so no need to cancel
             if(events.getTypeOfEvent() != 1){
                 manager.cancel(events.getId());
             }
+
             if(happened) {
                 Date currentDate = new Date();
                 events.setNotificationState(Events.EVENT_SUCCESSFUL);

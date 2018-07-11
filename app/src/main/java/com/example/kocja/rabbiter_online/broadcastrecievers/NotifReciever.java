@@ -35,7 +35,7 @@ public class NotifReciever extends BroadcastReceiver {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         HttpManager.postRequest("NotifBroadcast", GsonManager.getGson().toJson(eventUUID), (response,bytes) -> {
-            Events events = GsonManager.getGson().fromJson(response,Events.class);
+            Events events = GsonManager.getGson().fromJson(response,Events[].class)[0];
             if(events != null) {
                 int randomCode = new Random().nextInt();
                 //events.id = randomCode;

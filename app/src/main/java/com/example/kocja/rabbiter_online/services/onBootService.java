@@ -50,7 +50,7 @@ public class onBootService extends IntentService {
                 for(Events event : events){
                     setNotification.putExtra("eventUUID",event.getEventUUID());
                     PendingIntent setNotifIntent = PendingIntent.getBroadcast(this, event.getId(),setNotification,0);
-                    //alarmManager.set(AlarmManager.RTC_WAKEUP,event.dateOfEvent.getTime(),setNotifIntent);
+                    alarmManager.set(AlarmManager.RTC_WAKEUP,event.getDateOfEventMilis(),setNotifIntent);
 
                 }
             }

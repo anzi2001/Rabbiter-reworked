@@ -118,7 +118,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                 .setTitle("Event")
                 .setMessage(noteToDisplay.get(position))
                 .setPositiveButton("yes", (dialogInterface, i1) -> {
-                    if(eventList.get(position).getTypeOfEvent() == 0){
+                    if(eventList.get(position).getTypeOfEvent() == Events.BIRTH_EVENT){
                         Intent yesIntent = new Intent(getContext(), addEntryActivity.class);
                         yesIntent.putExtra("eventUUID", eventList.get(position).getEventUUID());
                         yesIntent.putExtra("getMode", AlertEventService.ADD_BIRTH_FROM_SERVICE);
@@ -128,7 +128,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                         refreshFragment(upcomingAdapter,getContext());
                     }
                     else{
-                        Intent processEvents = new Intent(getContext(), com.example.kocja.rabbiter_online.services.processEvents.class);
+                        Intent processEvents = new Intent(getContext(), processEvents.class);
                         processEvents.putExtra("happened", true);
                         processEvents.putExtra("processEventUUID", eventList.get(position).getEventUUID());
                         requireContext().startService(processEvents);

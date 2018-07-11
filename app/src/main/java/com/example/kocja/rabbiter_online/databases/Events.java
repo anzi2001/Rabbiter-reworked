@@ -9,11 +9,16 @@ public class Events {
     public static final int EVENT_FAILED = -1;
     public static final int NOT_YET_ALERTED = 0;
     public static final int EVENT_SUCCESSFUL = 1;
+    public static final int BIRTH_EVENT = 0;
+    public static final int READY_MATING_EVENT = 1;
+    public static final int MOVE_GROUP_EVENT = 2;
+    public static final int SLAUGHTER_EVENT = 3;
     private UUID eventUUID;
     private String name;
     private String secondParent;
     private String eventString;
     private String dateOfEvent;
+    private long dateOfEventMilis;
     private int rabbitsNum;
     private int numDead;
     private int id;
@@ -45,6 +50,10 @@ public class Events {
 
     public void setDateOfEvent(String dateOfEvent) {
         this.dateOfEvent = dateOfEvent;
+    }
+
+    public void setDateOfEventMilis(long dateOfEventMilis){
+        this.dateOfEventMilis = dateOfEventMilis;
     }
 
     public void setRabbitsNum(String rabbitsString,int type) {
@@ -95,6 +104,10 @@ public class Events {
 
     public String getDateOfEvent() {
         return dateOfEvent;
+    }
+
+    public long getDateOfEventMilis(){
+        return dateOfEventMilis;
     }
 
     public int getRabbitsNum() {

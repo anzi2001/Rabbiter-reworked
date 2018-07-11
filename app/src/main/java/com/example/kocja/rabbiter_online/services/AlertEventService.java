@@ -40,7 +40,7 @@ public class AlertEventService extends IntentService {
         PendingIntent noAction = PendingIntent.getService(this, new Random().nextInt(),noIntent,0);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        HttpManager.postRequest("seekAlertUUID", GsonManager.getGson().toJson(eventUUID), (response,bytes) -> {
+        HttpManager.postRequest("findNotAlertedEvent", GsonManager.getGson().toJson(eventUUID), (response,bytes) -> {
             if(response != null) {
                 Events events = GsonManager.getGson().fromJson(response,Events[].class)[0];
                 int randomCode = new Random().nextInt();
@@ -55,7 +55,7 @@ public class AlertEventService extends IntentService {
                 alertEvent.setContentTitle("Event!");
                 alertEvent.setContentText(events.getEventString());
 
-                if (events.getTypeOfEvent() == 0) {
+                if (events.getTypeOfEvent() == Events.BIRTH_EVENT) {
                     Intent yesIntent = new Intent(this, addEntryActivity.class)
                             .putExtra("eventUUID", eventUUID)
                             .putExtra("getMode", ADD_BIRTH_FROM_SERVICE)
@@ -67,9 +67,9 @@ public class AlertEventService extends IntentService {
                     alertEvent.addAction(0, "Yes", yesAction);
                     alertEvent.addAction(0, "No", noAction);
                     //notificationManager.notify(events.id, alertEvent.build());
-
-                } else if (events.getTypeOfEvent() == 1) {
-                    Intent processEvents = new Intent(this, com.example.kocja.rabbiter_online.services.processEvents.class)
+                }
+                else if (events.getTypeOfEvent() == Events.READY_MATING_EVENT) {
+                    Intent processEvents = new Intent(this, processEvents.class)
                             .putExtra("happened", true)
                             .putExtra("processEventUUID", eventUUID);
                     PendingIntent processEventsOnDelete = PendingIntent.getService(this, randomCode, processEvents, 0);
@@ -77,9 +77,8 @@ public class AlertEventService extends IntentService {
                     alertEvent.setDeleteIntent(processEventsOnDelete);
                     alertEvent.setPriority(NotificationCompat.PRIORITY_DEFAULT);
                     //notificationManager.notify(events.id, alertEvent.build());
-
-
-                } else {
+                }
+                else {
                     Intent yesProcessEvent = new Intent(this, processEvents.class)
                             .putExtra("processEventUUID", events.getEventUUID())
                             .putExtra("happened", true);

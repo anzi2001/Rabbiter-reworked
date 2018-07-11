@@ -174,17 +174,17 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if(genderSpinner.getSelectedItem().toString().equals(getString(R.string.genderMale))){
-                    setGenderSpecifVisib(View.GONE,getString(R.string.entryMatedWith));
+                    setGenderSpecificVisibility(View.GONE,getString(R.string.entryMatedWith));
                     //Temporary fix, would have to reconstraint views. will see.
                     /*addMatingDate.setVisibility(View.INVISIBLE);
                     addMatingDateCal.setVisibility(View.INVISIBLE);
                     matingDateText.setVisibility(View.INVISIBLE);*/
                 }
                 else if(genderSpinner.getSelectedItem().toString().equals("Group")){
-                    setGenderSpecifVisib(View.VISIBLE,getString(R.string.setParents));
+                    setGenderSpecificVisibility(View.VISIBLE,getString(R.string.setParents));
                 }
                 else{
-                    setGenderSpecifVisib(View.GONE,getString(R.string.entryMatedWith));
+                    setGenderSpecificVisibility(View.GONE,getString(R.string.entryMatedWith));
                     /*addMatingDateCal.setVisibility(View.VISIBLE);
                     addMatingDate.setVisibility(View.VISIBLE);
                     matingDateText.setVisibility(View.VISIBLE);*/
@@ -395,8 +395,8 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         createEvent.setEventString(eventString);
         createEvent.setDateOfEvent(parseFormatter.format(dateOfEvent));
         createEvent.setTypeOfEvent(type);
-        createEvent.setNumDead(deadRabbitNum.getText().toString(),0);
-        createEvent.setRabbitsNum(rabbitsNum.getText().toString(),0);
+        createEvent.setNumDead(deadRabbitNum.getText().toString(),Events.BIRTH_EVENT);
+        createEvent.setRabbitsNum(rabbitsNum.getText().toString(),Events.BIRTH_EVENT);
         /*if(type == 0 && !deadRabbitNum.getText().toString().isEmpty()){
             createEvent.numDead = Integer.parseInt(deadRabbitNum.getText().toString());
 
@@ -406,7 +406,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         }*/
 
 
-        Intent alertEventService = new Intent(this, NotifReciever.class);
+        Intent alertEventService = new Intent(this, AlertEventService.class);
         alertEventService.putExtra("eventUUID", createEvent.getEventUUID());
         createEvent.setId(randGen.nextInt());
         PendingIntent slaughterEventAlarm = PendingIntent.getBroadcast(this, createEvent.getId(), alertEventService,PendingIntent.FLAG_CANCEL_CURRENT);
@@ -486,7 +486,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private boolean isNotNull(Object obj){
         return obj != null;
     }
-    private void setGenderSpecifVisib(int visibility,String text){
+    private void setGenderSpecificVisibility(int visibility, String text){
         matedWith.setText(text);
         parentSpinner.setVisibility(visibility);
         rabbitsNum.setVisibility(visibility);

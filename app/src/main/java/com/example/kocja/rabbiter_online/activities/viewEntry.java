@@ -59,7 +59,6 @@ public class viewEntry extends AppCompatActivity {
 
         });
         HttpManager.postRequest("seekSingleEntry",gson.toJson(mainEntryUUID), (response, bytes) -> {
-            Log.d("res",response);
 
             this.runOnUiThread(() -> {
                 Entry entry = gson.fromJson(response,Entry[].class)[0];
