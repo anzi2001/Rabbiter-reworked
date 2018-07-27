@@ -61,7 +61,6 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".broadcastrecievers.AlarmReciever"/>
-        <receiver android:name=".broadcastrecievers.onBootReceiver"/>
         <receiver android:name=".broadcastrecievers.ProcessReciever"/>
 
     </application>

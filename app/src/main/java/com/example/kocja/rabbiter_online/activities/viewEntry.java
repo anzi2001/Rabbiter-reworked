@@ -106,7 +106,7 @@ public class viewEntry extends AppCompatActivity {
     public void onActivityResult(int requestCode,int resultCode,Intent data){
         if(requestCode == addEntryActivity.EDIT_EXISTING_ENTRY && resultCode == RESULT_OK){
             HttpManager.postRequest("seekSingleEntry", gson.toJson(mainEntry), (response,bytes) -> {
-                Entry entry = gson.fromJson(response,Entry[].class)[0];
+                Entry entry = gson.fromJson(response,Entry.class);
                 this.runOnUiThread(() -> {
                     mainEntryFragment.setData(entry);
                     Glide.with(viewEntry.this)

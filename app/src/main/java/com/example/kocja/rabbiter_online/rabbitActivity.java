@@ -104,7 +104,7 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
             HttpManager.postRequest("updateEntry", gson.toJson(firstMergeEntry), (response,bytes) -> { });
 
             HttpManager.postRequest("seekSingleEntry", gson.toJson(firstMergeEntry.getMergedEntry()), (response,bytes) -> {
-                secondMerge = gson.fromJson(response, Entry[].class)[0];
+                secondMerge = gson.fromJson(response, Entry.class);
                 secondMerge.setChildMerged(false);
                 HttpManager.postRequest("updateEntry", gson.toJson(secondMerge), (response1,bytes1) -> {
                     chosenEntriesCounter =0;

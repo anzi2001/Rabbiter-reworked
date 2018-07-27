@@ -416,7 +416,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         if(getMode == EDIT_EXISTING_ENTRY){
             UUID entryUUID = (UUID) getIntent().getSerializableExtra("entryEdit");
             HttpManager.postRequest("seekSingleEntry", gson.toJson(entryUUID), (response,bytes) -> {
-                editable = gson.fromJson(response,Entry[].class)[0];
+                editable = gson.fromJson(response,Entry.class);
                 lastGender = editable.getChooseGender();
 
                 this.runOnUiThread(() -> {
