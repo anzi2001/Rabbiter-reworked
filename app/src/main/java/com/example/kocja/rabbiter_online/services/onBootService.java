@@ -1,10 +1,8 @@
 package com.example.kocja.rabbiter_online.services;
 
-import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -14,7 +12,6 @@ import android.support.v4.app.NotificationCompat;
 import com.example.kocja.rabbiter_online.managers.GsonManager;
 import com.example.kocja.rabbiter_online.managers.HttpManager;
 import com.example.kocja.rabbiter_online.R;
-import com.example.kocja.rabbiter_online.broadcastrecievers.NotifReciever;
 import com.example.kocja.rabbiter_online.databases.Events;
 
 /**
@@ -26,8 +23,7 @@ public class onBootService extends IntentService {
         super("This is onBootService");
     }
 
-    @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
+    public void onCreate(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationChannel chanel = new NotificationChannel("checkBoot","Boot", NotificationManager.IMPORTANCE_DEFAULT);
             NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
@@ -37,20 +33,21 @@ public class onBootService extends IntentService {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this,"checkBoot")
                 .setSmallIcon(R.mipmap.dokoncana_ikona_zajec_round_lowres)
                 .setContentTitle("Configuring alarms")
-                .setContentText("Configuring")
-                .setTicker("tick");
-
+                .setContentText("Configuring");
         this.startForeground(1,builder.build());
+
+        super.onCreate();
+    }
+
+    @Override
+    protected void onHandleIntent(@Nullable Intent intent) {
+
         HttpManager.getRequest("seekEventsNotAlerted", response -> {
-            AlarmManager alarmManager =(AlarmManager) getSystemService(Context.ALARM_SERVICE);
             if(response != null){
-                Intent setNotification = new Intent(this,NotifReciever.class);
                 //Random randomGen = new Random();
                 Events[] events = GsonManager.getGson().fromJson(response,Events[].class);
                 for(Events event : events){
-                    setNotification.putExtra("eventUUID",event.getEventUUID());
-                    PendingIntent setNotifIntent = PendingIntent.getBroadcast(this, event.getId(),setNotification,0);
-                    alarmManager.set(AlarmManager.RTC_WAKEUP,event.getDateOfEventMilis(),setNotifIntent);
+                    NotifyUser.schedule(this,event.getDateOfEventMilis(),event.getEventUUID().toString());
 
                 }
             }

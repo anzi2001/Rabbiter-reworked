@@ -4,7 +4,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.example.kocja.rabbiter_online"
-        minSdkVersion 20
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode 19
         versionName "2.1.0"

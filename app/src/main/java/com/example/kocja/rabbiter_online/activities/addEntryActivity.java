@@ -1,10 +1,8 @@
 package com.example.kocja.rabbiter_online.activities;
 
-import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -29,11 +27,10 @@ import com.bumptech.glide.Glide;
 import com.example.kocja.rabbiter_online.managers.GsonManager;
 import com.example.kocja.rabbiter_online.managers.HttpManager;
 import com.example.kocja.rabbiter_online.R;
-import com.example.kocja.rabbiter_online.broadcastrecievers.NotifReciever;
 import com.example.kocja.rabbiter_online.databases.Entry;
 import com.example.kocja.rabbiter_online.databases.Events;
-import com.example.kocja.rabbiter_online.services.AlertEventService;
-import com.example.kocja.rabbiter_online.services.processEvents;
+import com.example.kocja.rabbiter_online.services.NotifyUser;
+import com.example.kocja.rabbiter_online.services.ProcessService;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -57,6 +54,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private static final int REQUEST_TAKE_PHOTO = 0;
     private static final int SELECT_PHOTO = 1;
     public static final int EDIT_EXISTING_ENTRY = 2;
+    private static final long ONE_DAY = 1000L * 60* 60 *24;
 
     private boolean takeBirthDateCal = false;
     private SimpleDateFormat parseFormatter;
@@ -78,7 +76,6 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     private Spinner parentSpinner;
     private EditText rabbitsNum;
     private EditText deadRabbitNum;
-    private AlarmManager eventsManager;
     private final  Random randGen = new Random();
     private Gson gson;
     private File latestImage;
@@ -242,7 +239,10 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                 Entry rabbitEntry = new Entry();
                 rabbitEntry.setEntryID(UUID.randomUUID());
                 rabbitEntry.setEntryName(addName.getText().toString());
-                rabbitEntry.setEntryPhLoc(baseImageUri.toString());
+                if(isNotNull(baseImageUri)){
+                    rabbitEntry.setEntryPhLoc(baseImageUri.toString());
+                }
+
 
                 rabbitEntry.setChooseGender(genderSpinner.getSelectedItem().toString());
                 rabbitEntry.setMatedWithOrParents(matedWithSpinner.getSelectedItem().toString());
@@ -330,7 +330,6 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
     }
     private void createEvents(Entry rabbitEntry){
 
-        eventsManager =(AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Calendar cal = Calendar.getInstance();
 
         if (rabbitEntry.getChooseGender().equals(getString(R.string.genderFemale))) {
@@ -354,10 +353,10 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     e.printStackTrace();
                 }
 
-                newEvent(rabbitEntry,getString(R.string.femaleGaveBirth,parseFormatter.format(UpcomingBirth),rabbitEntry.getEntryName()),UpcomingBirth,0);
+                newEvent(rabbitEntry,getString(R.string.femaleGaveBirth,parseFormatter.format(UpcomingBirth),rabbitEntry.getEntryName()),UpcomingBirth,Events.BIRTH_EVENT);
 
 
-                newEvent(rabbitEntry,getString(R.string.femaleReadyForMating,parseFormatter.format(readyMateDate),rabbitEntry.getEntryName()),readyMateDate,1);
+                newEvent(rabbitEntry,getString(R.string.femaleReadyForMating,parseFormatter.format(readyMateDate),rabbitEntry.getEntryName()),readyMateDate,Events.READY_MATING_EVENT);
             }
         } else if (rabbitEntry.getChooseGender().equals(getString(R.string.genderGroup))) {
             if(rabbitEntry.getBirthDate() != null) {
@@ -377,13 +376,13 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                newEvent(rabbitEntry,getString(R.string.groupMovedIntoCage,parseFormatter.format(moveDate),rabbitEntry.getEntryName()),moveDate,2);
+                newEvent(rabbitEntry,getString(R.string.groupMovedIntoCage,parseFormatter.format(moveDate),rabbitEntry.getEntryName()),moveDate,Events.MOVE_GROUP_EVENT);
 
                 rabbitEntry.setSecondParent(parentSpinner.getSelectedItem().toString());
 
 
 
-                newEvent(rabbitEntry,getString(R.string.groupSlauhtered,parseFormatter.format(slaughterDate),rabbitEntry.getEntryName()),slaughterDate,3);
+                newEvent(rabbitEntry,getString(R.string.groupSlauhtered,parseFormatter.format(slaughterDate),rabbitEntry.getEntryName()),slaughterDate,Events.SLAUGHTER_EVENT);
 
             }
         }
@@ -406,11 +405,9 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
         }*/
 
 
-        Intent alertEventService = new Intent(this, AlertEventService.class);
-        alertEventService.putExtra("eventUUID", createEvent.getEventUUID());
-        createEvent.setId(randGen.nextInt());
-        PendingIntent slaughterEventAlarm = PendingIntent.getBroadcast(this, createEvent.getId(), alertEventService,PendingIntent.FLAG_CANCEL_CURRENT);
-        eventsManager.set(AlarmManager.RTC_WAKEUP, dateOfEvent.getTime(), slaughterEventAlarm);
+        NotifyUser.schedule(this,dateOfEvent.getTime(),createEvent.getEventUUID().toString());
+        //PendingIntent slaughterEventAlarm = PendingIntent.getBroadcast(this, createEvent.getId(), alertEventService,PendingIntent.FLAG_CANCEL_CURRENT);
+        //eventsManager.set(AlarmManager.RTC_WAKEUP, dateOfEvent.getTime(), slaughterEventAlarm);
 
         HttpManager.postRequest("createNewEvent", gson.toJson(createEvent), (response,bytes) -> {});
     }
@@ -452,7 +449,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
 
             });
         }
-        else if(getMode == AlertEventService.ADD_BIRTH_FROM_SERVICE){
+        else if(getMode == NotifyUser.ADD_ENTRY_FROM_BIRTH){
             Intent intent = getIntent();
             HttpManager.postRequest("getAddBirthReq",gson.toJson(intent.getSerializableExtra("eventUUID")), (response,bytes) -> {
                 Events addBirthEvent = gson.fromJson(response,Events[].class)[0];
@@ -463,7 +460,7 @@ public class addEntryActivity extends AppCompatActivity implements DatePickerDia
                     matedWithSpinner.setSelection(matedWithAdapter.getPosition(addBirthEvent.getName()));
                     parentSpinner.setSelection(matedWithAdapter.getPosition(addBirthEvent.getSecondParent()));
 
-                    Intent processEventsIntent = new Intent(this,processEvents.class)
+                    Intent processEventsIntent = new Intent(this,ProcessService.class)
                             .putExtra("processEventUUID",addBirthEvent.getEventUUID())
                             .putExtra("happened",intent.getBooleanExtra("happened",false));
                     startService(processEventsIntent);

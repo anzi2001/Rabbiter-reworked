@@ -19,8 +19,8 @@ import com.example.kocja.rabbiter_online.R;
 import com.example.kocja.rabbiter_online.activities.addEntryActivity;
 import com.example.kocja.rabbiter_online.adapters.UpcomingEventsAdapter;
 import com.example.kocja.rabbiter_online.databases.Events;
-import com.example.kocja.rabbiter_online.services.AlertEventService;
-import com.example.kocja.rabbiter_online.services.processEvents;
+import com.example.kocja.rabbiter_online.services.NotifyUser;
+import com.example.kocja.rabbiter_online.services.ProcessService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -121,14 +121,14 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
                     if(eventList.get(position).getTypeOfEvent() == Events.BIRTH_EVENT){
                         Intent yesIntent = new Intent(getContext(), addEntryActivity.class);
                         yesIntent.putExtra("eventUUID", eventList.get(position).getEventUUID());
-                        yesIntent.putExtra("getMode", AlertEventService.ADD_BIRTH_FROM_SERVICE);
+                        yesIntent.putExtra("getMode", NotifyUser.ADD_ENTRY_FROM_BIRTH);
                         yesIntent.putExtra("happened", true);
                         startActivityForResult(yesIntent,ADD_ENTRY_EVENT);
 
                         refreshFragment(upcomingAdapter,getContext());
                     }
                     else{
-                        Intent processEvents = new Intent(getContext(), processEvents.class);
+                        Intent processEvents = new Intent(getContext(), ProcessService.class);
                         processEvents.putExtra("happened", true);
                         processEvents.putExtra("processEventUUID", eventList.get(position).getEventUUID());
                         requireContext().startService(processEvents);
@@ -140,7 +140,7 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
 
                 })
                 .setNegativeButton("no", (dialogInterface, i12) -> {
-                    Intent noIntent = new Intent(getContext(),processEvents.class);
+                    Intent noIntent = new Intent(getContext(),ProcessService.class);
                     noIntent.putExtra("processEventUUID",eventList.get(position).getEventUUID());
                     noIntent.putExtra("happened",false);
                     requireContext().startService(noIntent);
@@ -159,9 +159,9 @@ public class UpcomingEventsFragment extends Fragment implements UpcomingEventsAd
         if(requestCode == ADD_ENTRY_EVENT) {
             refreshFragment(upcomingAdapter,getContext());
             updateNotesToDisplay(() -> {
-                Intent processEvent = new Intent(getContext(),processEvents.class);
+                Intent processEvent = new Intent(getContext(),ProcessService.class);
                 processEvent.putExtra("processEventUUID",eventList.get(lastItemClicked).getEventUUID());
-                processEvent.putExtra("getMode",AlertEventService.ADD_BIRTH_FROM_SERVICE);
+                processEvent.putExtra("getMode",NotifyUser.ADD_ENTRY_FROM_BIRTH);
                 processEvent.putExtra("happened",true);
                 requireContext().startService(processEvent);
                 refreshFragment(upcomingAdapter,getContext());

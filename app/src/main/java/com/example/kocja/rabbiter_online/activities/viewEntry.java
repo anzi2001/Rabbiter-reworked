@@ -61,7 +61,7 @@ public class viewEntry extends AppCompatActivity {
         HttpManager.postRequest("seekSingleEntry",gson.toJson(mainEntryUUID), (response, bytes) -> {
 
             this.runOnUiThread(() -> {
-                Entry entry = gson.fromJson(response,Entry[].class)[0];
+                Entry entry = gson.fromJson(response,Entry.class);
                 viewLargerImage.putExtra("imageURI", entry.getEntryPhLoc());
                 mainEntry = entry;
                 mainEntryFragment = (viewEntryData) getSupportFragmentManager().findFragmentById(R.id.mainEntryFragment);
