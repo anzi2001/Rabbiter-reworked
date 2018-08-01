@@ -28,12 +28,12 @@ public class HttpManager {
 
     private static Request createRequest(String path) {
         return new Request.Builder()
-                .url("http://nodejs-mongo-persistent-rabbiter.a3c1.starter-us-west-1.openshiftapps.com/" + path)
+                .url("http://nodejs-mongo-persistent-rabbit.a3c1.starter-us-west-1.openshiftapps.com/" + path)
                 .build();
     }
     private static Request createRequest(RequestBody body, String path){
         return new Request.Builder()
-                .url("http://nodejs-mongo-persistent-rabbiter.a3c1.starter-us-west-1.openshiftapps.com/"+path)
+                .url("http://nodejs-mongo-persistent-rabbit.a3c1.starter-us-west-1.openshiftapps.com/"+path)
                 .post(body)
                 .build();
     }
