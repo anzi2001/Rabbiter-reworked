@@ -268,7 +268,7 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
                     .queryListResultCallback((transaction, tResult) -> {
                         for(Events event : tResult){
                             Request req = new Request.Builder()
-                                    .url("http://192.168.0.130:8081/moveOnlineEvent")
+                                    .url("http://nodejs-mongo-persistent-rabbit.a3c1.starter-us-west-1.openshiftapps.com/moveOnlineEvent")
                                     .post(RequestBody.create(json,gson.toJson(event)))
                                     .build();
                             client.newCall(req).enqueue(new Callback() {
