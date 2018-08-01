@@ -214,7 +214,6 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
                     .async()
                     .queryListResultCallback((transaction, tResult) -> {
                         for(Entry entry : tResult){
-
                             if(entry.entryPhLoc != null) {
                                 File imgFile;
                                 RequestBody reqBody;
@@ -230,7 +229,7 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
                                 }
                                 reqBody = multipartBody.build();
                                 Request req = new Request.Builder()
-                                        .url("http://192.168.0.130:8081/moveOnlineEntry")
+                                        .url("http://nodejs-mongo-persistent-rabbit.a3c1.starter-us-west-1.openshiftapps.com/moveOnlineEntry")
                                         .post(reqBody)
                                         .build();
                                 client.newCall(req).enqueue(new Callback() {
@@ -247,24 +246,20 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
                             }
                             else{
                                 Request req = new Request.Builder()
-                                        .url("http://192.168.0.130:8081/moveOnlineEntryNoFile")
+                                        .url("http://nodejs-mongo-persistent-rabbit.a3c1.starter-us-west-1.openshiftapps.com/moveOnlineEntryNoFile")
                                         .post(RequestBody.create(json,gson.toJson(entry)))
                                         .build();
                                 client.newCall(req).enqueue(new Callback() {
                                     @Override
                                     public void onFailure(Call call, IOException e) {
-
                                     }
 
                                     @Override
                                     public void onResponse(Call call, Response response){
-
                                     }
                                 });
                             }
-
                         }
-
                     }).execute();
 
             SQLite.select()
