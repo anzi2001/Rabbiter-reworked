@@ -3,6 +3,7 @@ package com.example.kocja.rabbiter_reworked;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
@@ -217,7 +218,8 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
                             if(entry.entryPhLoc != null) {
                                 File imgFile;
                                 RequestBody reqBody;
-                                imgFile = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES),Uri.parse(entry.entryPhLoc).getPath().substring(11));
+                                String realPath = getRealPathContentUri(Uri.parse(entry.entryPhLoc));
+                                imgFile = new File(realPath);
                                 Log.d("imgFileName",imgFile.getName());
                                 Log.d("uri path",Uri.parse(entry.entryPhLoc).getPath().substring(11));
                                 MultipartBody.Builder multipartBody = new MultipartBody.Builder()
@@ -355,5 +357,14 @@ public class rabbitActivity extends AppCompatActivity implements EntriesRecycler
 
         }
 
+    }
+    private String getRealPathContentUri(Uri contentUri){
+        String images[] = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(contentUri,images,null,null,null);
+        cursor.moveToFirst();
+        int columnIndex = cursor.getColumnIndex(images[0]);
+        String path = cursor.getString(columnIndex);
+        cursor.close();
+        return path;
     }
 }
