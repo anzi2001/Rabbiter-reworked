@@ -60,6 +60,7 @@ public class NotifyUser extends IntentService {
             builder.setContentTitle("Event!");
             builder.setContentText(event.getEventString());
             builder.setSmallIcon(R.mipmap.dokoncana_ikona_zajec_round_lowres);
+
             if(event.getTypeOfEvent() != Events.READY_MATING_EVENT){
                 builder.setOngoing(true);
                 Intent processYesInput = new Intent(getApplicationContext(),ProcessReciever.class);
