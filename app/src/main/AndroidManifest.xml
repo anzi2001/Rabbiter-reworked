@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.kocja.rabbiter_reworked">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <uses-feature android:name="android.hardware.camera"
         android:required="false"/>
@@ -18,8 +21,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/dokoncana_ikona_zajec_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-
+        android:theme="@style/AppTheme"
+        android:fullBackupContent="true"
+        tools:ignore="GoogleAppIndexingWarning">
 
 
 
@@ -34,7 +38,7 @@
         </provider>
 
         <activity
-            android:name=".rabbitActivity"
+            android:name=".RabbitActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -44,11 +48,12 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.addEntryActivity"/>
+        <activity android:name=".activities.AddEntryActivity"/>
         <activity android:name=".activities.viewEntry" />
         <activity android:name=".activities.viewEntryStats"/>
         <activity android:name=".activities.largerMainImage"
             android:theme="@style/Theme.Transparent"/>
+        <activity android:name=".activities.AddEvent"/>
 
         <service android:name=".services.AlertEventService"/>
         <service android:name=".services.askNotifAgain"/>
@@ -56,11 +61,15 @@
         <service android:name=".services.processEvents"/>
         <service android:name=".services.alertIfNotAlertedService"/>
 
-        <receiver android:name=".broadcastrecievers.onBootReceiver">
+        <receiver android:name=".broadcastrecievers.onBootReceiver"
+            android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
+        <receiver android:name=".broadcastrecievers.NotifReciever"
+            android:enabled="true"/>
+
 
     </application>
 
