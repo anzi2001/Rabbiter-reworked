@@ -8,7 +8,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.support.v4.app.NotificationCompat
+import androidx.core.app.NotificationCompat
 import com.example.kocja.rabbiter_reworked.R
 import com.example.kocja.rabbiter_reworked.broadcastrecievers.NotifReciever
 import com.example.kocja.rabbiter_reworked.databases.Events

@@ -4,18 +4,17 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.AsyncTask
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 
 import com.example.kocja.rabbiter_reworked.R
 import com.example.kocja.rabbiter_reworked.databases.Entry_Table
 import com.example.kocja.rabbiter_reworked.databases.Events
 import com.example.kocja.rabbiter_reworked.databases.Events_Table
-import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import com.raizlabs.android.dbflow.sql.language.SQLite
+import kotlinx.android.synthetic.main.stats_birth_fragment.*
 
 import java.util.UUID
 
@@ -25,7 +24,7 @@ import java.util.UUID
 
 class viewEntryStats : AppCompatActivity() {
     private var failedBirths = 0
-    private var successBirths = 0
+    private var successBirthsNum = 0
 
     @SuppressLint("StaticFieldLeak")
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,10 +36,6 @@ class viewEntryStats : AppCompatActivity() {
                 .where(Entry_Table.entryID.eq(entryID))
                 .async()
                 .querySingleResultCallback { _, entry ->
-                    val birthGraph = findViewById<GraphView>(R.id.BirthChart)
-                    val deadRabbitsGraph = findViewById<GraphView>(R.id.deadChart)
-                    val successfulBirths = findViewById<TextView>(R.id.successBirths)
-                    val failedBirthsText = findViewById<TextView>(R.id.failedBirthsText)
 
                     val numBirthsSeries = LineGraphSeries<DataPoint>()
                     val averageBirthSeries = LineGraphSeries<DataPoint>()
@@ -50,9 +45,9 @@ class viewEntryStats : AppCompatActivity() {
                     SQLite.select()
                             .from(Events::class.java)
                             .where(Events_Table.name.eq(entry?.entryName))
-                            .and(Events_Table.typeOfEvent.eq(0))
+                            .and(Events_Table.typeOfEvent.eq(Events.BIRTH_EVENT))
                             .or(Events_Table.secondParent.eq(entry?.entryName))
-                            .and(Events_Table.typeOfEvent.eq(0))
+                            .and(Events_Table.typeOfEvent.eq(Events.BIRTH_EVENT))
                             .orderBy(Events_Table.dateOfEvent, true)
                             .async()
                             .queryListResultCallback { _, tResult ->
@@ -64,7 +59,7 @@ class viewEntryStats : AppCompatActivity() {
 
                                         for (singleEvent in tResult) {
                                             if (singleEvent.notificationState == Events.EVENT_SUCCESSFUL) {
-                                                successBirths++
+                                                successBirthsNum++
                                             } else {
                                                 failedBirths++
                                             }
@@ -98,18 +93,18 @@ class viewEntryStats : AppCompatActivity() {
                                     }
 
                                     override fun onPostExecute(aVoid: Void) {
-                                        deadRabbitsGraph.addSeries(numDeathSeries)
-                                        deadRabbitsGraph.addSeries(avgDeadRabbits)
+                                        deadChart.addSeries(numDeathSeries)
+                                        deadChart.addSeries(avgDeadRabbits)
 
-                                        birthGraph.addSeries(averageBirthSeries)
-                                        birthGraph.addSeries(numBirthsSeries)
+                                        BirthChart.addSeries(averageBirthSeries)
+                                        BirthChart.addSeries(numBirthsSeries)
 
-                                        birthGraph.gridLabelRenderer.labelFormatter = DateAsXAxisLabelFormatter(this@viewEntryStats)
-                                        birthGraph.gridLabelRenderer.numHorizontalLabels = 3
-                                        deadRabbitsGraph.gridLabelRenderer.labelFormatter = DateAsXAxisLabelFormatter(this@viewEntryStats)
-                                        deadRabbitsGraph.gridLabelRenderer.numHorizontalLabels = 3
+                                        BirthChart.gridLabelRenderer.labelFormatter = DateAsXAxisLabelFormatter(this@viewEntryStats)
+                                        BirthChart.gridLabelRenderer.numHorizontalLabels = 3
+                                        deadChart.gridLabelRenderer.labelFormatter = DateAsXAxisLabelFormatter(this@viewEntryStats)
+                                        deadChart.gridLabelRenderer.numHorizontalLabels = 3
                                         failedBirthsText.text = failedBirths.toString()
-                                        successfulBirths.text = successBirths.toString()
+                                        successBirths.text = successBirths.toString()
                                         super.onPostExecute(aVoid)
                                     }
                                 }.execute()

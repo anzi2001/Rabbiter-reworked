@@ -17,10 +17,6 @@
         <item>@string/genderGroup</item>
     </string-array>
 
-    <string-array name="chooseLanguage">
-        <item>English</item>
-        <item>Slovenščina</item>
-    </string-array>
     <!--ADD ENTRY ACTIVITY-->
     <string name="title">Dodaj vnos</string>
     <!--IMAGE DESCRIPTIONS-->
@@ -31,11 +27,6 @@
     <string name="addEntryDesc">Confirms the entry content and saves it.</string>
     <string name="mainEntryViewDesc">Views the image that was added to an entry.</string>
     <string name="mergedViewDesc">Image to see the merged rabbit.</string>
-    <!--MENU ITEMS-->
-    <string name="menuEditEntry">Uredi</string>
-    <string name="menuDeleteEntry">Izbriši</string>
-    <string name="menuShowMerged">Prikaži pridruženi vnos</string>
-    <string name="menuEntryStatistics">Statistika vnosa</string>
 
     <!--TEXT VIEWS-->
     <string name="entryName">Ime</string>
@@ -57,7 +48,7 @@
     <string name="femaleGaveBirth">%1$s: Ali je %2$s imela mladiče?</string>
     <string name="femaleReadyForMating">%1$s: %2$s je pripravljena na paritev</string>
     <string name="groupMovedIntoCage">%1$s: Je bila skupina %2$s ločena od mame?</string>
-    <string name="groupSlauhtered">%1$s: Ali je bil pri skupini %2$s izveden zakol?</string>
+    <string name="groupSlaughtered">%1$s: Ali je bil pri skupini %2$s izveden zakol?</string>
     <!--BIRTH FRAGMENT STATS-->
     <string name="successNumBirths">Število uspešnih rojstev: </string>
     <string name="successBirthsData">Uspešna rojstva</string>
@@ -66,27 +57,27 @@
     <string name="totalNumBirths">Skupaj rojstev(uspešnih in neuspešnih): </string>
     <string name="totalBirthsData">Skupaj rojstev</string>
     <!--VIEW ENTRY DATA-->
-    <string name="OK">OK</string>
     <string name="RabbitAgeText">Starost: </string>
-    <string name="rabbitAgeData">Starost</string>
-    <string name="confirm">da</string>
-    <string name="decline">ne</string>
-    <string name="confirmDeletion">Ste preprični, da želite izbrisati vnos?</string>
     <!--VARIABLE STRINGS-->
     <string name="mergedStrings">%1$s , %2$s</string>
     <string name="setParents">Starša: </string>
     <string name="Parents">%1$s %2$s</string>
     <string name="setAge">%1$d let, %2$d mesecev in %3$d dni</string>
 
-    <string name="chooseLanguage">Izberi jezik</string>
-    <string-array name="chooseLanguageValues">
-        <item>en-GB</item>
-        <item>sl-rSI</item>
-    </string-array>
     <!--RABBIT ACTIVITY-->
     <string name="alertMoreThan2Chosen">Izbrali ste več kot dva vnosa kar ni dovoljeno</string>
 
     <!--HISTORY FRAGMENT-->
     <string name="parentOf">Potomci: %1$s</string>
+    <string name="appImage">Glavna slika programa</string>
+    <string name="splitEntry">Razdeli vnose ki so bili združeni</string>
+    <string name="mergeEntry">Združi vnose</string>
+    <string name="entryGenderColon">Spol:</string>
+    <string name="entryBirthDateColon">Rojstvo:</string>
+    <string name="entryMatedDateColon">Datum paritve:</string>
+    <string name="newMating">Novo parjenje</string>
+    <string name="settings">Nastavitve</string>
+    <string name="goOnline">Na splet!</string>
+    <string name="slash">/</string>
 
 </resources>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+<menu
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/settings"
-        android:title="Settings" />
+        android:title="@string/settings" />
     <item
         android:id="@+id/moveOnline"
-        android:title="Move Online" />
+        android:title="@string/goOnline"/>
 </menu>

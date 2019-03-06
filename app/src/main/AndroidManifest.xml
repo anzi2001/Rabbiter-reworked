@@ -28,7 +28,7 @@
 
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.android.photoprovider"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -53,10 +53,9 @@
         <activity android:name=".activities.viewEntryStats"/>
         <activity android:name=".activities.largerMainImage"
             android:theme="@style/Theme.Transparent"/>
-        <activity android:name=".activities.AddEvent"/>
+        <activity android:name=".activities.ViewAllMatings"/>
 
         <service android:name=".services.AlertEventService"/>
-        <service android:name=".services.askNotifAgain"/>
         <service android:name=".services.onBootService"/>
         <service android:name=".services.processEvents"/>
         <service android:name=".services.alertIfNotAlertedService"/>

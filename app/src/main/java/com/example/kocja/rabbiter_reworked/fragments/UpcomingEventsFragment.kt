@@ -4,12 +4,12 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 import com.example.kocja.rabbiter_reworked.R
 import com.example.kocja.rabbiter_reworked.activities.AddEntryActivity
@@ -19,6 +19,7 @@ import com.example.kocja.rabbiter_reworked.databases.Events_Table
 import com.example.kocja.rabbiter_reworked.services.AlertEventService
 import com.example.kocja.rabbiter_reworked.services.processEvents
 import com.raizlabs.android.dbflow.sql.language.SQLite
+import kotlinx.android.synthetic.main.upcoming_history_fragment_layout.*
 
 import java.util.ArrayList
 
@@ -27,7 +28,6 @@ import java.util.ArrayList
  */
 
 class UpcomingEventsFragment : Fragment(), UpcomingEventsAdapter.onClickListen {
-    private var upcomingAdapter: RecyclerView? = null
     private var manager: RecyclerView.LayoutManager? = null
     private var adapter: UpcomingEventsAdapter? = null
     private var lastItemClicked: Int = 0
@@ -36,7 +36,7 @@ class UpcomingEventsFragment : Fragment(), UpcomingEventsAdapter.onClickListen {
         SQLite.select()
                 .from(Events::class.java)
                 .where(Events_Table.notificationState.eq(Events.NOT_YET_ALERTED))
-                //.or(Events_Table.yesClicked.eq(Events.EVENT_SUCCESSFUL))
+                //.or(Events_Table.yesClicked.eq(makeEvents.EVENT_SUCCESSFUL))
                 .orderBy(Events_Table.dateOfEvent, true)
                 .async()
                 .queryListResultCallback { _, events ->
@@ -46,7 +46,6 @@ class UpcomingEventsFragment : Fragment(), UpcomingEventsAdapter.onClickListen {
                         noteToDisplay!!.add(event.eventString)
                     }
                     listener = this
-                    upcomingAdapter = upcomingList.findViewById(R.id.upcomingAdapter)
                     adapter = UpcomingEventsAdapter(noteToDisplay!!, true)
                     adapter!!.setLongClickListener(this)
                     manager = LinearLayoutManager(context)
@@ -67,7 +66,7 @@ class UpcomingEventsFragment : Fragment(), UpcomingEventsAdapter.onClickListen {
                 .setTitle("Event")
                 .setMessage(noteToDisplay!![position])
                 .setPositiveButton("yes") { _, _ ->
-                    if (eventList!![position].typeOfEvent == 0) {
+                    if (eventList!![position].typeOfEvent == Events.BIRTH_EVENT) {
                         val yesIntent = Intent(context, AddEntryActivity::class.java)
                         yesIntent.putExtra("eventUUID", eventList!![position].eventUUID)
                         yesIntent.putExtra("getMode", AlertEventService.ADD_BIRTH_FROM_SERVICE)

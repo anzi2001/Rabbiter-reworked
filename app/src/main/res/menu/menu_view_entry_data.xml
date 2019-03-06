@@ -18,5 +18,5 @@
     <item
         android:id="@+id/showMerged"
         android:orderInCategory="104"
-        android:title="Show merged entry" />
+        android:title="@string/menuShowMerged" />
 </menu>

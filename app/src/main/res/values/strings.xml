@@ -16,10 +16,6 @@
         <item>@string/genderGroup</item>
     </string-array>
 
-    <string-array name="chooseLanguage">
-        <item>English</item>
-        <item>Slovenščina</item>
-    </string-array>
     <!--ADD ENTRY ACTIVITY-->
         <string name="title">Add entry</string>
         <!--IMAGE DESCRIPTIONS-->
@@ -30,6 +26,12 @@
         <string name="addEntryDesc">Confirms the entry content and saves it.</string>
         <string name="mainEntryViewDesc">Views the image that was added to an entry.</string>
         <string name="mergedViewDesc">Image to see the merged rabbit.</string>
+
+        <!--RABBIT ACTIVITY-->
+        <string name="appImage">Main image of the app</string>
+        <string name="splitEntry">Split entries that were merged</string>
+        <string name="mergeEntry">Merge entries</string>
+
         <!--MENU ITEMS-->
         <string name="menuEditEntry">Edit entry</string>
         <string name="menuDeleteEntry">Delete entry</string>
@@ -39,8 +41,11 @@
         <!--TEXT VIEWS-->
         <string name="entryName">Name</string>
         <string name="entryGender">Gender</string>
-        <string name="entryBirthDate">Birth date</string>
+        <string name="entryGenderColon">Gender: </string>
+        <string name="entryBirthDate">Birth date</string>+
+        <string name="entryBirthDateColon">Birth date: </string>
         <string name="entryMatingDate">Mating date</string>
+        <string name="entryMatedDateColon">Mated date: </string>
         <string name="entryMatedWith">Mated with </string>
         <string name="photoOption">How do you want to get your photo?</string>
         <string name="none">none</string>
@@ -56,7 +61,7 @@
         <string name="femaleGaveBirth">%1$s: Did %2$s give birth?</string>
         <string name="femaleReadyForMating">%1$s: %2$s is ready for mating</string>
         <string name="groupMovedIntoCage">%1$s: Was the group %2$s moved into another cage?</string>
-        <string name="groupSlauhtered">%1$s: Was the group %2$s slaughtered?</string>
+        <string name="groupSlaughtered">%1$s: Was the group %2$s slaughtered?</string>
     <!--BIRTH FRAGMENT STATS-->
         <string name="successNumBirths">Number of successful births: </string>
         <string name="successBirthsData">Successful births</string>
@@ -71,6 +76,7 @@
         <string name="confirm">yes</string>
         <string name="decline">no</string>
         <string name="confirmDeletion">Are you sure you want to delete the entry?</string>
+        <string name="newMating">New Mating</string>
     <!--VARIABLE STRINGS-->
     <string name="mergedStrings">%1$s , %2$s</string>
     <string name="setParents">Parents: </string>
@@ -87,5 +93,10 @@
 
     <!--HISTORY FRAGMENT-->
     <string name="parentOf">Parent of: %1$s</string>
+    <!--MENU_RABIT_ACTIVITY-->
+    <string name="settings">Settings</string>
+    <string name="goOnline">Move Online</string>
+    <!--CHARACTERS-->
+    <string name="slash">/</string>
 
 </resources>

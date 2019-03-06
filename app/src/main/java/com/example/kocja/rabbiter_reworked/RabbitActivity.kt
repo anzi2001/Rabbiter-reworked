@@ -8,19 +8,15 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.support.design.widget.FloatingActionButton
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.Toolbar
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import android.util.Log
 import android.util.SparseIntArray
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageButton
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 
 import com.example.kocja.rabbiter_reworked.activities.AddEntryActivity
 import com.example.kocja.rabbiter_reworked.activities.viewEntry
@@ -31,6 +27,9 @@ import com.example.kocja.rabbiter_reworked.fragments.UpcomingEventsFragment
 import com.example.kocja.rabbiter_reworked.services.alertIfNotAlertedService
 import com.google.gson.Gson
 import com.raizlabs.android.dbflow.sql.language.SQLite
+import kotlinx.android.synthetic.main.activity_rabbit.*
+import kotlinx.android.synthetic.main.content_rabbit.*
+import kotlinx.android.synthetic.main.upcoming_history_fragment_layout.*
 
 import java.io.File
 import java.io.IOException
@@ -47,10 +46,8 @@ import okhttp3.Response
 
 class RabbitActivity : AppCompatActivity(), EntriesRecyclerAdapter.OnItemClickListener {
     private var chosenEntriesCounter = 0
-    private var rabbitEntryView: RecyclerView? = null
     private var entriesList: List<Entry>? = null
-    private var mergeButton: ImageButton? = null
-    private var splitButton: ImageButton? = null
+
     private val chosenPositions = SparseIntArray()
     private var secondMergeEntry: Entry? = null
     private var firstMergeEntry: Entry? = null
@@ -58,7 +55,6 @@ class RabbitActivity : AppCompatActivity(), EntriesRecyclerAdapter.OnItemClickLi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rabbit)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
 
@@ -70,23 +66,19 @@ class RabbitActivity : AppCompatActivity(), EntriesRecyclerAdapter.OnItemClickLi
         val checkAlarms = Intent(this, alertIfNotAlertedService::class.java)
         startService(checkAlarms)
 
-        val addFab = findViewById<FloatingActionButton>(R.id.addFab)
-        mergeButton = findViewById(R.id.merge)
-        splitButton = findViewById(R.id.split)
 
         addFab.setOnClickListener {
             val addEntryIntent = Intent(this, AddEntryActivity::class.java)
             startActivityForResult(addEntryIntent, ADD_ENTRY_START)
         }
-        rabbitEntryView = findViewById(R.id.rabbitEntryView)
-        rabbitEntryView!!.setHasFixedSize(true)
+        rabbitEntryView.setHasFixedSize(true)
         val rabbitEntryManager = LinearLayoutManager(this)
         rabbitEntryView!!.layoutManager = rabbitEntryManager
         entriesList = fillData.getEntries(this, rabbitEntryView!!, this)
 
 
 
-        mergeButton!!.setOnClickListener {
+        merge.setOnClickListener {
             secondMergeEntry = entriesList!![chosenPositions.keyAt(1)]
             firstMergeEntry = entriesList!![chosenPositions.keyAt(0)]
 
@@ -101,14 +93,14 @@ class RabbitActivity : AppCompatActivity(), EntriesRecyclerAdapter.OnItemClickLi
             firstMergeEntry!!.update()
 
             //reset and refresh the grid at the end
-            mergeButton!!.visibility = View.GONE
+            merge.visibility = View.GONE
             chosenEntriesCounter = 0
             firstMergeEntry = null
             secondMergeEntry = null
 
             entriesList = fillData.getEntries(this@RabbitActivity, rabbitEntryView!!, this)
         }
-        splitButton!!.setOnClickListener {
+        split.setOnClickListener {
             secondMergeEntry = entriesList!![chosenPositions.keyAt(1)]
             firstMergeEntry = entriesList!![chosenPositions.keyAt(0)]
 
@@ -121,7 +113,7 @@ class RabbitActivity : AppCompatActivity(), EntriesRecyclerAdapter.OnItemClickLi
             secondMerge.update()
 
             //reset and refresh the grid at the end
-            splitButton!!.visibility = View.GONE
+            split!!.visibility = View.GONE
             chosenEntriesCounter = 0
             firstMergeEntry = null
             secondMergeEntry = null
@@ -199,8 +191,7 @@ class RabbitActivity : AppCompatActivity(), EntriesRecyclerAdapter.OnItemClickLi
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == ADD_ENTRY_START && resultCode == Activity.RESULT_OK) {
             entriesList = fillData.getEntries(this, rabbitEntryView!!, this)
-            val upcomingEvents = findViewById<RecyclerView>(R.id.upcomingAdapter)
-            UpcomingEventsFragment.refreshFragment(upcomingEvents, this)
+            UpcomingEventsFragment.refreshFragment(upcomingAdapter, this)
             UpcomingEventsFragment.updateNotesToDisplay()
         } else if (requestCode == START_VIEW_ENTRY) {
             entriesList = fillData.getEntries(this, rabbitEntryView!!, this)
@@ -221,15 +212,15 @@ class RabbitActivity : AppCompatActivity(), EntriesRecyclerAdapter.OnItemClickLi
 
             chosenPositions.append(position, position)
             if (chosenPositions.size() == 2) {
-                mergeButton!!.visibility = View.VISIBLE
+                merge.visibility = View.VISIBLE
             } else {
-                mergeButton!!.visibility = View.GONE
+                merge.visibility = View.GONE
             }
 
             if (entriesList!![chosenPositions.get(position)].isMerged && chosenPositions.size() == 1) {
-                splitButton!!.visibility = View.VISIBLE
+                split.visibility = View.VISIBLE
             } else {
-                splitButton!!.visibility = View.GONE
+                split.visibility = View.GONE
             }
 
 
@@ -240,7 +231,7 @@ class RabbitActivity : AppCompatActivity(), EntriesRecyclerAdapter.OnItemClickLi
 
 
             if (chosenPositions.size() == 1 && entriesList!![chosenPositions.get(position)].isMerged) {
-                splitButton!!.visibility = View.GONE
+                split.visibility = View.GONE
             }
 
             //If we're deselecting the entry, the second entry became the first, since
@@ -248,9 +239,9 @@ class RabbitActivity : AppCompatActivity(), EntriesRecyclerAdapter.OnItemClickLi
             chosenPositions.delete(position)
 
             if (chosenPositions.size() == 2) {
-                mergeButton!!.visibility = View.VISIBLE
+                merge.visibility = View.VISIBLE
             } else {
-                mergeButton!!.visibility = View.GONE
+                merge.visibility = View.GONE
             }
 
 

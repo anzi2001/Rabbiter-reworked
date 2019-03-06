@@ -4,10 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.addEntryActivity"
-    >
+    tools:context=".activities.AddEntryActivity">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -126,6 +125,7 @@
             android:layout_marginEnd="8dp"
             android:hint="@string/editTextName"
             android:inputType="text"
+            android:importantForAutofill="no"
             app:layout_constraintBaseline_toBaselineOf="@+id/name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -151,6 +151,7 @@
             android:enabled="false"
             android:hint="@string/editTextBirthDate"
             android:inputType="date"
+            android:importantForAutofill="no"
             app:layout_constraintBaseline_toBaselineOf="@+id/birthDate"
             app:layout_constraintEnd_toStartOf="@+id/addBirthDateCal"
             app:layout_constraintStart_toEndOf="@+id/birthDate" />
@@ -179,6 +180,7 @@
             android:enabled="false"
             android:hint="@string/editTextMatingDate"
             android:inputType="date"
+            android:importantForAutofill="no"
             app:layout_constraintBaseline_toBaselineOf="@+id/matingDate"
             app:layout_constraintEnd_toStartOf="@+id/addMatingDateCal"
             app:layout_constraintStart_toEndOf="@+id/matingDate" />
@@ -255,7 +257,7 @@
             app:layout_constraintTop_toTopOf="@+id/matedWithSpinner"
             app:layout_constraintVertical_bias="0.0" />
 
-        <android.support.constraint.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -285,6 +287,7 @@
             android:layout_marginEnd="8dp"
             android:inputType="text"
             android:visibility="invisible"
+            android:importantForAutofill="no"
             app:layout_constraintBaseline_toBaselineOf="@+id/rabbitsNumText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/rabbitsNumText" />
@@ -312,10 +315,11 @@
             android:layout_marginEnd="8dp"
             android:inputType="text"
             android:visibility="invisible"
+            android:importantForAutofill="no"
             app:layout_constraintBaseline_toBaselineOf="@+id/deadNumTextTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/deadNumTextTitle" />
 
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

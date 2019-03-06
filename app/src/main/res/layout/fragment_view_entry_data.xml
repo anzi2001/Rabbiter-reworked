@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="wrap_content">
@@ -25,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:text="/"
+        android:text="@string/slash"
         app:layout_constraintBaseline_toBaselineOf="@+id/Name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/Name" />
@@ -49,7 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:text="/"
+        android:text="@string/slash"
         app:layout_constraintBaseline_toBaselineOf="@+id/Gender"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/Gender" />
@@ -73,7 +72,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:text="/"
+        android:text="@string/slash"
         app:layout_constraintBaseline_toBaselineOf="@+id/birthDate"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/birthDate" />
@@ -97,7 +96,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:text="/"
+        android:text="@string/slash"
         app:layout_constraintBottom_toBottomOf="@+id/MatedDateOrParents"
         app:layout_constraintEnd_toStartOf="@+id/AddMatingEvent"
         app:layout_constraintStart_toEndOf="@+id/MatedDateOrParents"
@@ -122,7 +121,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:text="/"
+        android:text="@string/slash"
         app:layout_constraintBaseline_toBaselineOf="@+id/matedWith"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/matedWith" />
@@ -146,7 +145,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:text="/"
+        android:text="@string/slash"
         app:layout_constraintBaseline_toBaselineOf="@+id/rabbitAgeText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/rabbitAgeText" />
@@ -182,14 +181,27 @@
         android:id="@+id/AddMatingEvent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="132dp"
         android:layout_marginEnd="8dp"
-        android:text="New Mating"
+        android:text="@string/newMating"
         app:layout_constraintBottom_toBottomOf="@+id/MatedDateOrParents"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/viewAllMatings"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/MatedDateOrParents" />
 
+    <Button
+        android:id="@+id/viewAllMatings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="View All"
+        app:layout_constraintBottom_toBottomOf="@+id/MatedDateOrParents"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.962"
+        app:layout_constraintStart_toEndOf="@+id/MatedDateOrParents"
+        app:layout_constraintTop_toTopOf="@+id/MatedDateOrParents" />
 
-</android.support.constraint.ConstraintLayout>
+
+</androidx.constraintlayout.ConstraintLayout>

@@ -2,16 +2,13 @@ package com.example.kocja.rabbiter_reworked.activities
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.ActivityOptionsCompat
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.RecyclerView
+import androidx.core.app.ActivityOptionsCompat
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 
 import com.bumptech.glide.Glide
 import com.example.kocja.rabbiter_reworked.R
@@ -22,6 +19,8 @@ import com.example.kocja.rabbiter_reworked.databases.Events_Table
 import com.example.kocja.rabbiter_reworked.fragments.HistoryFragment
 import com.example.kocja.rabbiter_reworked.fragments.viewEntryData
 import com.raizlabs.android.dbflow.sql.language.SQLite
+import kotlinx.android.synthetic.main.activity_view_entry.*
+import kotlinx.android.synthetic.main.upcoming_history_fragment_layout.*
 
 import java.util.UUID
 
@@ -34,24 +33,16 @@ class viewEntry : AppCompatActivity() {
     private var mainEntryFragment: viewEntryData? = null
     private var mainEntryUUID: UUID? = null
     private var dataChanged = false
-    private var mainEntryView: ImageView? = null
-    private var isLollipop = false
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_entry)
-        isLollipop = Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP
         val currentIntent = intent
         mainEntryUUID = currentIntent.getSerializableExtra("entryID") as UUID
-        mainEntryView = findViewById(R.id.mainEntryView)
         val viewLargerImage = Intent(this, largerMainImage::class.java)
         mainEntryView!!.setOnClickListener {
-            if (isLollipop) {
-                mainEntryView!!.transitionName = "closerLook"
-                val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, mainEntryView!!, "closerLook")
-                startActivity(viewLargerImage, options.toBundle())
-            } else {
-                startActivity(viewLargerImage)
-            }
+            mainEntryView!!.transitionName = "closerLook"
+            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, mainEntryView!!, "closerLook")
+            startActivity(viewLargerImage, options.toBundle())
 
         }
         SQLite.select()
@@ -64,12 +55,11 @@ class viewEntry : AppCompatActivity() {
                     mainEntry = entry
                     mainEntryFragment = supportFragmentManager.findFragmentById(R.id.mainEntryFragment) as viewEntryData?
 
-                    val historyView = findViewById<RecyclerView>(R.id.upcomingAdapter)
 
                     if (entry!!.chooseGender == getString(R.string.genderMale)) {
-                        HistoryFragment.maleParentOf(this, entry.entryName, historyView, this@viewEntry)
+                        HistoryFragment.maleParentOf(this, entry.entryName, upcomingAdapter, this@viewEntry)
                     } else {
-                        HistoryFragment.setPastEvents(this, entry.entryName, historyView)
+                        HistoryFragment.setPastEvents(this, entry.entryName, upcomingAdapter)
                     }
 
                     mainEntryFragment!!.setData(entry)
@@ -77,7 +67,6 @@ class viewEntry : AppCompatActivity() {
                     Glide.with(this@viewEntry).load(entry.entryPhLoc).into(mainEntryView!!)
 
                     if (entry.isMerged) {
-                        val mergedView = findViewById<ImageView>(R.id.mergedView)
                         mergedView.setOnClickListener {
                             val startMergedMain = Intent(this, viewEntry::class.java)
                             startMergedMain.putExtra("entryID", entry.mergedEntry!!.entryID)

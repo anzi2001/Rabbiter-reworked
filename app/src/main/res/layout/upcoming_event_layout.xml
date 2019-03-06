@@ -8,15 +8,8 @@
         android:id="@+id/UpcomingText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:text="@string/slash"
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:padding="4dp"/>
-
-    <!--<View
-        android:id="@+id/asdasd"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/black"
-        android:layout_gravity="bottom"/>-->
 
 </FrameLayout>

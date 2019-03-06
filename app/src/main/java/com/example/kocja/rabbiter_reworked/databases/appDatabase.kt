@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.annotation.Database
 class appDatabase {
 
     companion object {
-        internal const val VERSION = 3
+        internal const val VERSION = 5
     }
 }
 

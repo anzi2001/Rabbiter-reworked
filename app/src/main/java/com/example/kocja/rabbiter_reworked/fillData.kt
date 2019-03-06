@@ -2,7 +2,7 @@ package com.example.kocja.rabbiter_reworked
 
 
 import android.app.Activity
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 
 import com.example.kocja.rabbiter_reworked.adapters.EntriesRecyclerAdapter
 import com.example.kocja.rabbiter_reworked.databases.Entry
@@ -17,7 +17,7 @@ import java.util.ArrayList
 
 internal object fillData {
     fun getEntries(context: Activity, view: RecyclerView, listener: EntriesRecyclerAdapter.OnItemClickListener): List<Entry> {
-        val temporaryList = ArrayList<Entry>(0)
+        val temporaryList = ArrayList<Entry>(5)
         SQLite.select()
                 .from(Entry::class.java)
                 .where(Entry_Table.isChildMerged.eq(false))

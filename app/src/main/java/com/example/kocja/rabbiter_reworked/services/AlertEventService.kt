@@ -7,7 +7,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.support.v4.app.NotificationCompat
+import androidx.core.app.NotificationCompat
 
 import com.example.kocja.rabbiter_reworked.R
 import com.example.kocja.rabbiter_reworked.activities.AddEntryActivity
@@ -53,8 +53,8 @@ class AlertEventService : IntentService("This is a AlertEventService") {
                         alertEvent.setContentTitle("Event!")
                         alertEvent.setContentText(events.eventString)
 
-                        when {
-                            events.typeOfEvent == Events.NOT_YET_ALERTED -> {
+                        when(events.typeOfEvent) {
+                            Events.BIRTH_EVENT -> {
                                 val yesIntent = Intent(this, AddEntryActivity::class.java)
                                 yesIntent.putExtra("eventUUID", eventID)
                                 yesIntent.putExtra("getMode", ADD_BIRTH_FROM_SERVICE)
@@ -68,7 +68,7 @@ class AlertEventService : IntentService("This is a AlertEventService") {
                                 alertEvent.addAction(0, "No", noAction)
 
                             }
-                            events.typeOfEvent == Events.EVENT_SUCCESSFUL -> {
+                            Events.READY_MATING_EVENT -> {
                                 val processEvents = Intent(this, com.example.kocja.rabbiter_reworked.services.processEvents::class.java)
                                 processEvents.putExtra("happened", true)
                                 processEvents.putExtra("processEventUUID", eventID)
@@ -76,7 +76,6 @@ class AlertEventService : IntentService("This is a AlertEventService") {
 
                                 alertEvent.setDeleteIntent(processEventsOnDelete)
                                 alertEvent.priority = NotificationCompat.PRIORITY_DEFAULT
-
 
                             }
                             else -> {
