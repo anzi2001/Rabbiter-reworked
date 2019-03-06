@@ -9,8 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.PowerManager;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
+
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import com.example.kocja.rabbiter_online.R;
 import com.example.kocja.rabbiter_online.broadcastrecievers.AlarmReciever;
@@ -50,8 +51,8 @@ public class NotifyUser extends IntentService {
 
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this,"eventChannel");
-        HttpManager.postRequest("findNotAlertedEvent", eventUUID, (response, bytes) -> {
-            Events event = GsonManager.getGson().fromJson(response,Events[].class)[0];
+        HttpManager.INSTANCE.postRequest("findNotAlertedEvent", eventUUID, (response, bytes) -> {
+            Events event = GsonManager.INSTANCE.getGson().fromJson(response,Events[].class)[0];
 
             Random randomGen = new Random();
             int notificationCode = randomGen.nextInt();

@@ -7,8 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.PowerManager;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
+
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import com.example.kocja.rabbiter_online.R;
 import com.example.kocja.rabbiter_online.databases.Events;
@@ -45,8 +46,8 @@ public class ProcessService extends IntentService {
         boolean eventHappened = intent.getBooleanExtra("eventHappened",false);
         String eventUUID = intent.getStringExtra("eventUUID");
 
-        HttpManager.postRequest("seekSingleEntry", eventUUID, (response, bytes) -> {
-            Events event = GsonManager.getGson().fromJson(response,Events.class);
+        HttpManager.INSTANCE.postRequest("seekSingleEntry", eventUUID, (response, bytes) -> {
+            Events event = GsonManager.INSTANCE.getGson().fromJson(response,Events.class);
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.UK);
 
@@ -65,7 +66,7 @@ public class ProcessService extends IntentService {
                 NotifyUser.schedule(getApplicationContext(),event.getDateOfEventMilis(),event.getEventUUID().toString());
             }
 
-            HttpManager.postRequest("updateEvent", GsonManager.getGson().toJson(event), (response1, bytes1) -> {
+            HttpManager.INSTANCE.postRequest("updateEvent", GsonManager.INSTANCE.getGson().toJson(event), (response1, bytes1) -> {
                 wakeLock.release();
             });
         });

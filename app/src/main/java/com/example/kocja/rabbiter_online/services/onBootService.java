@@ -6,8 +6,9 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
+
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import com.example.kocja.rabbiter_online.managers.GsonManager;
 import com.example.kocja.rabbiter_online.managers.HttpManager;
@@ -42,10 +43,10 @@ public class onBootService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
 
-        HttpManager.getRequest("seekEventsNotAlerted", response -> {
+        HttpManager.INSTANCE.getRequest("seekEventsNotAlerted", response -> {
             if(response != null){
                 //Random randomGen = new Random();
-                Events[] events = GsonManager.getGson().fromJson(response,Events[].class);
+                Events[] events = GsonManager.INSTANCE.getGson().fromJson(response,Events[].class);
                 for(Events event : events){
                     NotifyUser.schedule(this,event.getDateOfEventMilis(),event.getEventUUID().toString());
 
