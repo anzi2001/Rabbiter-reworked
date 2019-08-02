@@ -12,7 +12,7 @@
 
 
     <application
-        android:name=".mainApplication"
+        android:name=".RabbiterApplication"
         android:allowBackup="true"
         android:icon="@mipmap/dokoncana_ikona_zajec_round"
         android:label="@string/app_name"
@@ -34,9 +34,9 @@
         </provider>
 
         <activity
-            android:name=".rabbitActivity"
+            android:name=".RabbitActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -44,18 +44,18 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.addEntryActivity"/>
-        <activity android:name=".activities.viewEntry" />
-        <activity android:name=".activities.viewEntryStats"/>
-        <activity android:name=".activities.largerMainImage"
+        <activity android:name=".activities.AddEntryActivity"/>
+        <activity android:name=".activities.ViewEntry" />
+        <activity android:name=".activities.ViewEntryStats"/>
+        <activity android:name=".activities.LargerMainImage"
             android:theme="@style/Theme.Transparent"/>
 
-        <service android:name=".services.onBootService"/>
-        <service android:name=".services.alertIfNotAlertedService"/>
+        <service android:name=".services.OnBootService"/>
+        <service android:name=".services.AlertIfNotAlertedService"/>
         <service android:name=".services.NotifyUser"/>
         <service android:name=".services.ProcessService"/>
 
-        <receiver android:name=".broadcastrecievers.onBootReceiver">
+        <receiver android:name=".broadcastrecievers.OnBootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>

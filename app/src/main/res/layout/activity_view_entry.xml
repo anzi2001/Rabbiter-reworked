@@ -5,9 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".activities.viewEntry">-->
+    tools:context=".activities.ViewEntry">-->
+<layout>
+    <data>
+        <variable
+            name="viewEntryViewModel"
+            type="com.example.kocja.rabbiter_online.viewmodels.ViewEntryViewModel" />
+    </data>
 
-    <androidx.constraintlayout.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -16,14 +22,14 @@
         android:minHeight="500dp">
 
 
-        <androidx.constraintlayout.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.3" />
 
-        <androidx.constraintlayout.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -31,7 +37,7 @@
             app:layout_constraintGuide_percent="0.73" />
 
         <fragment
-            android:id="@+id/historyEvents"
+            android:id="@+id/historyFragment"
             android:name="com.example.kocja.rabbiter_online.fragments.HistoryFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -39,7 +45,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/guideline3"
-            tools:layout="@layout/upcoming_history_fragment_layout" />
+            tools:layout="@layout/fragment_upcoming_history_layout" />
 
         <ImageView
             android:id="@+id/mainEntryView"
@@ -72,14 +78,15 @@
 
         <fragment
             android:id="@+id/mainEntryFragment"
-            android:name="com.example.kocja.rabbiter_online.fragments.viewEntryData"
+            android:name="com.example.kocja.rabbiter_online.fragments.ViewEntryFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/historyEvents"
+            app:layout_constraintBottom_toTopOf="@+id/historyFragment"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/mainEntryView"
             tools:layout="@layout/fragment_view_entry_data" />
 
-    </androidx.constraintlayout.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
 <!--</ScrollView>-->

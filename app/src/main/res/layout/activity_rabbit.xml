@@ -1,36 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<layout>
+    <data>
+        <variable
+            name="rabbitViewModel"
+            type="com.example.kocja.rabbiter_online.viewmodels.RabbitViewModel" />
+    </data>
+</layout>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.kocja.rabbiter_online.rabbitActivity">
+    tools:context="com.example.kocja.rabbiter_online.RabbitActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:background="@color/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    </android.support.design.widget.AppBarLayout>
-
-    <include
-        layout="@layout/content_rabbit"
-        android:layout_width="358dp"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rabbitEntryView"
+        android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         app:layout_constraintBottom_toTopOf="@+id/fragment"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addFab"
         android:layout_width="43dp"
         android:layout_height="43dp"
@@ -48,7 +45,7 @@
         app:layout_constraintVertical_bias="0.984"
         app:srcCompat="@drawable/ic_add_black_24dp" />
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/mergeFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -63,7 +60,7 @@
     app:layout_constraintVertical_bias="1.0"
     app:srcCompat="@drawable/call_merge" />
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/splitFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -81,11 +78,14 @@
     <fragment
         android:id="@+id/fragment"
         android:name="com.example.kocja.rabbiter_online.fragments.UpcomingEventsFragment"
-        android:layout_width="357dp"
-        android:layout_height="138dp"
+        android:layout_width="0dp"
+        android:layout_height="250dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.666"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        tools:layout="@layout/fragment_upcoming_history_layout" />
 
-</androidx.constraintlayout.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

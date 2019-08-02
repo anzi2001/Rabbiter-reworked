@@ -3,28 +3,21 @@ package com.example.kocja.rabbiter_online.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 
 import com.example.kocja.rabbiter_online.R
 
-import java.util.ArrayList
+
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.upcoming_event_layout.view.*
 
 
-class UpcomingEventsAdapter(events: List<String>, private val clickable: Boolean) : RecyclerView.Adapter<UpcomingEventsAdapter.viewHolder>() {
-    private var eventList: List<String>? = null
-    private var listener: onClickListen? = null
+class UpcomingEventsAdapter(private val eventList: List<String>, private val clickable: Boolean) : RecyclerView.Adapter<UpcomingEventsAdapter.ViewHolder>() {
+    private var listener: OnClickListen? = null
 
-    init {
-        eventList = ArrayList(events.size)
-        eventList = events
-    }
 
-    inner class viewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
-        val eventString: TextView = itemView.findViewById(R.id.UpcomingText)
-
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         init {
-            eventString.setOnClickListener(this)
+            itemView.setOnClickListener(this)
         }
 
         override fun onClick(view: View) {
@@ -34,25 +27,25 @@ class UpcomingEventsAdapter(events: List<String>, private val clickable: Boolean
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): viewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.upcoming_event_layout, parent, false)
-        return viewHolder(view)
+        return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: viewHolder, position: Int) {
-        holder.eventString.text = eventList!![position]
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.itemView.UpcomingText.text = eventList[position]
 
     }
 
     override fun getItemCount(): Int {
-        return eventList!!.size
+        return eventList.size
     }
 
-    fun setLongClickListener(listen: onClickListen) {
+    fun setLongClickListener(listen: OnClickListen) {
         listener = listen
     }
 
-    interface onClickListen {
+    interface OnClickListen {
         fun onItemClick(view: View, position: Int)
     }
 
