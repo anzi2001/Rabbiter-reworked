@@ -1,25 +1,21 @@
 package com.example.kocja.rabbiter_online.adapters
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.app.Activity
 import android.graphics.Color
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 
 import com.bumptech.glide.Glide
-import com.example.kocja.rabbiter_online.managers.GsonManager
-import com.example.kocja.rabbiter_online.managers.HttpManager
 import com.example.kocja.rabbiter_online.R
 import com.example.kocja.rabbiter_online.models.Entry
-import androidx.recyclerview.widget.RecyclerView
-import de.hdodenhof.circleimageview.CircleImageView
-import kotlinx.android.synthetic.main.entries_adapter_entry.view.*
+import kotlinx.android.synthetic.main.activity_add_entry.view.*
+import kotlinx.android.synthetic.main.content_rabbit_linear_female.view.*
 
-class EntriesRecyclerAdapter(private val c: Context, private val allEntries: List<Entry>) : RecyclerView.Adapter<EntriesRecyclerAdapter.ViewHolder>() {
-    private lateinit var listener: OnItemClickListener
+
+class EntriesRecyclerAdapter(private val c: Activity, private val allEntries: List<Entry>) : RecyclerView.Adapter<EntriesRecyclerAdapter.ViewHolder>() {
+    private var listener: OnItemClickListener? = null
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener, View.OnLongClickListener {
         init {
@@ -29,68 +25,64 @@ class EntriesRecyclerAdapter(private val c: Context, private val allEntries: Lis
 
         override fun onClick(view: View) {
             view.tag = allEntries[adapterPosition].entryID
-            listener.onItemClick(view, adapterPosition)
+            listener!!.onItemClick(view, adapterPosition)
 
         }
 
         override fun onLongClick(view: View): Boolean {
             view.tag = allEntries[adapterPosition].entryID
-            listener.onLongItemClick(view, adapterPosition)
+            listener!!.onLongItemClick(view, adapterPosition)
             return true
         }
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return when(allEntries[position].chooseGender){
+            "Female"->  0
+            else-> 1
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val mainView = LayoutInflater.from(parent.context).inflate(R.layout.entries_adapter_entry, parent, false)
+        val mainView = LayoutInflater.from(parent.context).inflate( if(viewType == 0) {
+            R.layout.content_rabbit_linear_female
+        }
+        else{
+            R.layout.content_rabbit_linear_male_group
+        }, parent, false)
 
         return ViewHolder(mainView)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val entry = allEntries[position]
-        if (entry.entryBitmap == null) {
-            HttpManager.postRequest("searchForImage", GsonManager.gson.toJson(entry.entryPhLoc)) { _, bytes ->
-                entry.entryBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes!!.size)
-                loadDefaultIfNull(entry.entryBitmap, c, holder.itemView.entryImage)
+        Glide.with(c)
+                .load(allEntries[position].entryBitmap)
+                .into(holder.itemView.rabbitView)
+        holder.itemView.Gender.text = allEntries[position].chooseGender
 
-            }
-        } else {
+        allEntries[position].birthDate?.let{
+            holder.itemView.birthDate.text = it
+        }
+        allEntries[position].matedDate?.let{
+            holder.itemView.matingDate?.text = it
+        }
+
+
+        holder.itemView.rabbitView.clipToOutline = true
+        holder.itemView.Gender.setTextColor(when (allEntries[position].chooseGender) {
+            "Female" -> Color.parseColor("#EC407A")
+            "Male" -> Color.BLUE
+            else -> Color.DKGRAY
+        })
+
+        holder.itemView.Title.text = if (allEntries[position].isMerged) {
+            holder.itemView.mergedView.visibility = View.VISIBLE
             Glide.with(c)
-                    .load(entry.entryBitmap)
-                    .into(holder.itemView.entryImage)
-        }
-
-        if (entry.isMerged) {
-            if (entry.mergedEntryBitmap == null) {
-                HttpManager.postRequest("searchForImage", GsonManager.gson.toJson(entry.mergedEntryPhLoc)) { _, bytes1 ->
-                    entry.mergedEntryBitmap = BitmapFactory.decodeByteArray(bytes1, 0, bytes1!!.size)
-                    loadDefaultIfNull(entry.mergedEntryBitmap, c, holder.itemView.mergedImage)
-
-                }
-            } else {
-                Glide.with(c)
-                        .load(entry.mergedEntryBitmap)
-                        .into(holder.itemView.mergedImage)
-            }
-        }
-
-        holder.itemView.entryImage.borderWidth = 6
-        when {
-            entry.chooseGender == "Female" -> holder.itemView.entryImage.borderColor = Color.parseColor("#EC407A")
-            entry.chooseGender == "Male" -> holder.itemView.entryImage.borderColor = Color.BLUE
-            else -> holder.itemView.entryImage.borderColor = Color.WHITE
-        }
-
-        holder.itemView.textName.text = if (entry.isMerged) {
-            with(holder.itemView.mergedImage){
-                visibility = View.VISIBLE
-                borderWidth = 4
-                borderColor = Color.WHITE
-            }
-
-            c.getString(R.string.mergedStrings, entry.entryName, entry.mergedEntryName)
+                    .load(allEntries[position].mergedEntryBitmap)
+                    .into(holder.itemView.mergedView)
+            c.getString(R.string.mergedStrings, allEntries[position].entryName, allEntries[position].mergedEntryName)
         } else {
-            entry.entryName
+            allEntries[position].entryName
         }
 
     }
@@ -106,20 +98,5 @@ class EntriesRecyclerAdapter(private val c: Context, private val allEntries: Lis
     interface OnItemClickListener {
         fun onLongItemClick(view: View, position: Int)
         fun onItemClick(view: View, position: Int)
-    }
-
-    private fun loadDefaultIfNull(bitmap: Bitmap?, c: Context, imageView: CircleImageView) {
-        Handler(c.mainLooper).post{
-            if (bitmap == null) {
-                Glide.with(c)
-                        .load(R.mipmap.dokoncana_ikona_zajec_round)
-                        .into(imageView)
-            } else {
-                Glide.with(c)
-                        .load(bitmap)
-                        .into(imageView)
-            }
-        }
-
     }
 }

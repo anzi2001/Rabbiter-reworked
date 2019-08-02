@@ -84,4 +84,10 @@
     <!--HISTORY FRAGMENT-->
     <string name="parentOf">Parent of: %1$s</string>
 
+    <string name="slash" translatable="false">/</string>
+
+    <string name="entryGenderColon">Gender: </string>
+    <string name="entryBirthDateColon">Birth date: </string>
+    <string name="entryMatedDateColon">Mated date: </string>
+
 </resources>

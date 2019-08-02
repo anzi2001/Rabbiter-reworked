@@ -24,7 +24,7 @@ import com.example.kocja.rabbiter_online.services.AlertIfNotAlertedService
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.UUID
 
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kocja.rabbiter_online.viewmodels.RabbitViewModel
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_rabbit.*
@@ -46,20 +46,17 @@ class RabbitActivity : AppCompatActivity(), EntriesRecyclerAdapter.OnItemClickLi
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), START_PERMISSION_REQUEST)
-
         }
 
         val checkAlarms = Intent(this, AlertIfNotAlertedService::class.java)
         startService(checkAlarms)
 
-        val addFab = findViewById<FloatingActionButton>(R.id.addFab)
         addFab.setOnClickListener {
             val addEntryIntent = Intent(this, AddEntryActivity::class.java)
             startActivityForResult(addEntryIntent, ADD_ENTRY_START)
         }
         rabbitEntryView.setHasFixedSize(true)
-        val rabbitEntryManager = GridLayoutManager(this, 3)
-        rabbitEntryView.layoutManager = rabbitEntryManager
+        rabbitEntryView.layoutManager = LinearLayoutManager(this)
         FillData.getEntries(this, rabbitEntryView, this)
 
         mergeFab.setOnClickListener {
@@ -72,8 +69,10 @@ class RabbitActivity : AppCompatActivity(), EntriesRecyclerAdapter.OnItemClickLi
             secondMergeEntry!!.mergedEntryName = firstMergeEntry!!.entryName
             secondMergeEntry!!.mergedEntry = firstMergeEntry!!.entryID.toString()
             secondMergeEntry!!.mergedEntryPhLoc = firstMergeEntry!!.entryPhLoc
+            rabbitViewModel.updateEntry(1)
             HttpManager.postRequest("updateEntry", GsonManager.gson.toJson(secondMergeEntry)) { _, _ -> }
             firstMergeEntry!!.isChildMerged = true
+            rabbitViewModel.updateEntry(0)
             HttpManager.postRequest("updateEntry", GsonManager.gson.toJson(firstMergeEntry)) { _, _ -> }
 
             //reset and refresh the grid at the end

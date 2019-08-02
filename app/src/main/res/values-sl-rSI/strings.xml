@@ -88,5 +88,8 @@
 
     <!--HISTORY FRAGMENT-->
     <string name="parentOf">Potomci: %1$s</string>
+    <string name="entryBirthDateColon">"Rojstni dan: "</string>
+    <string name="entryGenderColon">"Spol: "</string>
+    <string name="entryMatedDateColon">"Datum parjenja: "</string>
 
 </resources>

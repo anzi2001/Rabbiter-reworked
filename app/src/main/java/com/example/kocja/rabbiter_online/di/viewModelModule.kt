@@ -3,6 +3,7 @@ package com.example.kocja.rabbiter_online.di
 import com.example.kocja.rabbiter_online.managers.DataFetcher
 import com.example.kocja.rabbiter_online.managers.WebService
 import com.example.kocja.rabbiter_online.viewmodels.AddEntryViewModel
+import com.example.kocja.rabbiter_online.viewmodels.RabbitViewModel
 import com.example.kocja.rabbiter_online.viewmodels.ViewEntryViewModel
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -16,6 +17,7 @@ val viewModelModule = module{
 
     viewModel { AddEntryViewModel(get()) }
     viewModel { ViewEntryViewModel(get()) }
+    viewModel { RabbitViewModel(get()) }
 }
 
 fun getRetrofit() : Retrofit {

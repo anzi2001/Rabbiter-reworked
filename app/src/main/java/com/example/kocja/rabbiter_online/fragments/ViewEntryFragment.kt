@@ -7,14 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-import com.example.kocja.rabbiter_online.R
 import com.example.kocja.rabbiter_online.databinding.FragmentViewEntryDataBinding
 import com.example.kocja.rabbiter_online.models.Entry
-import com.example.kocja.rabbiter_online.viewmodels.ViewEntryFragmentViewModel
 import com.example.kocja.rabbiter_online.viewmodels.ViewEntryViewModel
-import kotlinx.android.synthetic.main.fragment_view_entry_data.*
 import org.koin.android.viewmodel.ext.android.sharedViewModel
-import org.koin.android.viewmodel.ext.android.viewModel
 
 
 /**
