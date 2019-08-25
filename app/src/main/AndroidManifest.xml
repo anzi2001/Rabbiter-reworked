@@ -3,9 +3,10 @@
     package="com.example.kocja.rabbiter_online">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <uses-feature android:name="android.hardware.camera"
         android:required="false"/>
@@ -20,23 +21,21 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-
-
-
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.android.photoprovider12"
+            android:authorities="com.example.kocja.rabbiter_online.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
+                android:resource="@xml/file_paths"></meta-data>
         </provider>
+
 
         <activity
             android:name=".RabbitActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -52,7 +51,6 @@
 
         <service android:name=".services.OnBootService"/>
         <service android:name=".services.AlertIfNotAlertedService"/>
-        <service android:name=".services.NotifyUser"/>
         <service android:name=".services.ProcessService"/>
 
         <receiver android:name=".broadcastrecievers.OnBootReceiver">
@@ -60,8 +58,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-        <receiver android:name=".broadcastrecievers.AlarmReciever"/>
-        <receiver android:name=".broadcastrecievers.ProcessReciever"/>
 
     </application>
 

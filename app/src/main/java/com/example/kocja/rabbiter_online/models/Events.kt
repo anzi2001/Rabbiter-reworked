@@ -1,23 +1,25 @@
 package com.example.kocja.rabbiter_online.models
 
-import java.util.UUID
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
 /**
  * Created by kocja on 28/01/2018.
  */
-class Events {
-    var eventUUID: UUID? = null
-    var name: String? = null
-    var secondParent: String? = null
-    lateinit var eventString: String
-    var dateOfEvent: String? = null
-    var dateOfEventMilis: Long = 0
-    var rabbitsNum: Int = 0
-    var numDead: Int = 0
-    var id: Int = 0
-    var typeOfEvent: Int = 0
-    var timesNotified: Int = 0
-    var notificationState: Int = 0
+@Parcelize
+class Events(val eventUUID: String,
+             var name: String? = null,
+             var secondParent: String? = null,
+             var eventString: String? = null,
+             var dateOfEvent: String? = null,
+             var dateOfEventMilis: Long = 0,
+             var rabbitsNum: Int = 0,
+             var numDead: Int = 0,
+             var id: Int = 0,
+             var typeOfEvent: Int = 0,
+             var timesNotified: Int = 0,
+             var notificationState: Int = 0) : Parcelable {
+
 
     companion object {
         const val EVENT_FAILED = -1

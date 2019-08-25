@@ -14,10 +14,8 @@ import androidx.lifecycle.Observer
 import com.example.kocja.rabbiter_online.R
 import com.example.kocja.rabbiter_online.adapters.UpcomingEventsAdapter
 import com.example.kocja.rabbiter_online.extensions.observeOnce
-import com.example.kocja.rabbiter_online.models.Entry
 import com.example.kocja.rabbiter_online.viewmodels.ViewEntryViewModel
 import org.koin.android.viewmodel.ext.android.sharedViewModel
-import java.util.*
 
 
 /**
@@ -33,7 +31,7 @@ class HistoryFragment : Fragment() {
 
     fun setPastEvents(context: Context, entryName: String, view: RecyclerView) {
         viewEntryViewModel.findPastEvents(entryName).observeOnce(this, Observer {events->
-            val eventStrings = events.map{it.eventString}
+            val eventStrings = events.filter{it.eventString != null}.map{it.eventString!!}
             setFragmentAdapter(eventStrings, context, view)
         })
     }
@@ -47,6 +45,6 @@ class HistoryFragment : Fragment() {
     private fun setFragmentAdapter(stringList: List<String>, c: Context, view: RecyclerView) {
             view.layoutManager = LinearLayoutManager(c)
             view.setHasFixedSize(true)
-            view.adapter = UpcomingEventsAdapter(stringList, false)
+            view.adapter = UpcomingEventsAdapter(stringList)
     }
 }

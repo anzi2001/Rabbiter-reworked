@@ -1,6 +1,5 @@
 package com.example.kocja.rabbiter_online.viewmodels
 
-import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,16 +9,10 @@ import com.example.kocja.rabbiter_online.models.Events
 import java.util.*
 
 class ViewEntryViewModel(private val fetcher: DataFetcher) : ViewModel(){
-    val entry : MutableLiveData<Entry> = MutableLiveData<Entry>().apply { Entry(UUID.randomUUID()) }
+    val entry : MutableLiveData<Entry> = MutableLiveData<Entry>().apply { Entry(UUID.randomUUID().toString()) }
 
     fun findEntryByUUID(uuid : String) : LiveData<Entry> {
         return fetcher.findEntryByUUID(uuid)
-    }
-    fun findEntryByUUID() : LiveData<Entry> {
-        return fetcher.findEntryByUUID(entry.value?.entryID.toString())
-    }
-    fun findImage(imageName : String) : LiveData<Bitmap>{
-        return fetcher.findImage(imageName)
     }
     fun findEventsName() : LiveData<List<Events>>{
         return fetcher.getEventsName(entry.value?.entryName!!)
@@ -28,7 +21,7 @@ class ViewEntryViewModel(private val fetcher: DataFetcher) : ViewModel(){
         fetcher.deleteEvent(uuid)
     }
     fun deleteEntry() : LiveData<String>{
-        return fetcher.deleteEntry(entry.value?.entryID.toString())
+        return fetcher.deleteEntry(entry.value?.entryUUID.toString())
     }
     fun findPastEvents(name : String) : LiveData<List<Events>>{
         return fetcher.findPastEvents(name)

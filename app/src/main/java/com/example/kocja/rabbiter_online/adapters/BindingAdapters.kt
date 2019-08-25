@@ -13,12 +13,12 @@ import androidx.databinding.InverseMethod
 object BindingAdapters{
 
     @InverseMethod("fromString")
-    fun toString(integer:Int?): String?{
+    fun toString(integer:Int): String{
         return integer.toString()
     }
 
-    fun fromString(str:String?):Int?{
-        return Integer.parseInt(str!!)
+    fun fromString(str:String):Int{
+        return str.toIntOrNull() ?: 0
     }
 
     @BindingAdapter("spinnerData")

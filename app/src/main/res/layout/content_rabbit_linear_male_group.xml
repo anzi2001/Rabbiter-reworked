@@ -36,6 +36,10 @@
         android:gravity="center"
         android:text="@string/slash"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        app:autoSizeMaxTextSize="30sp"
+        app:autoSizeMinTextSize="15sp"
+        app:autoSizeStepGranularity="2sp"
+        app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toTopOf="@+id/Gender"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -56,7 +60,7 @@
         app:layout_constraintTop_toTopOf="@+id/textView" />
 
     <TextView
-        android:id="@+id/BirthDate"
+        android:id="@+id/birthDate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"

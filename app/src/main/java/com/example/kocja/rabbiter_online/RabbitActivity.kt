@@ -4,42 +4,36 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.view.View
-import android.widget.Toast
+import androidx.core.view.get
+import androidx.lifecycle.Observer
 
-import com.bumptech.glide.Glide
 import com.example.kocja.rabbiter_online.activities.AddEntryActivity
 import com.example.kocja.rabbiter_online.activities.ViewEntry
 import com.example.kocja.rabbiter_online.adapters.EntriesRecyclerAdapter
-import com.example.kocja.rabbiter_online.models.Entry
 import com.example.kocja.rabbiter_online.fragments.UpcomingEventsFragment
-import com.example.kocja.rabbiter_online.managers.GsonManager
-import com.example.kocja.rabbiter_online.managers.HttpManager
-import com.example.kocja.rabbiter_online.services.AlertIfNotAlertedService
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.util.UUID
 
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.kocja.rabbiter_online.extensions.notifyObserver
+import com.example.kocja.rabbiter_online.models.Entry
 import com.example.kocja.rabbiter_online.viewmodels.RabbitViewModel
-import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_rabbit.*
 import kotlinx.android.synthetic.main.fragment_upcoming_history_layout.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
-class RabbitActivity : AppCompatActivity(), EntriesRecyclerAdapter.OnItemClickListener, FillData.OnPost {
-    private var chosenEntriesCounter = 0
-    private var entriesList: List<Entry>? = null
-    private var firstMergeEntry: Entry? = null
-    private var secondMergeEntry: Entry? = null
-    private var wasMergedBefore = false
-    private var secondMerge: Entry? = null
-    private val rabbitViewModel by viewModel<RabbitViewModel>()
+class RabbitActivity : AppCompatActivity(), View.OnClickListener,View.OnLongClickListener {
 
+    private val rabbitViewModel by viewModel<RabbitViewModel>()
+    private val longClickedColor = Color.parseColor("#33171717")
+    private val entriesRecyclerAdapter : EntriesRecyclerAdapter by lazy{
+        EntriesRecyclerAdapter(this,rabbitViewModel.entriesList.value!!)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rabbit)
@@ -48,63 +42,37 @@ class RabbitActivity : AppCompatActivity(), EntriesRecyclerAdapter.OnItemClickLi
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), START_PERMISSION_REQUEST)
         }
 
-        val checkAlarms = Intent(this, AlertIfNotAlertedService::class.java)
-        startService(checkAlarms)
+        //startService(Intent(this, AlertIfNotAlertedService::class.java))
 
         addFab.setOnClickListener {
             val addEntryIntent = Intent(this, AddEntryActivity::class.java)
             startActivityForResult(addEntryIntent, ADD_ENTRY_START)
         }
+        rabbitViewModel.getEntries()
         rabbitEntryView.setHasFixedSize(true)
         rabbitEntryView.layoutManager = LinearLayoutManager(this)
-        FillData.getEntries(this, rabbitEntryView, this)
+        entriesRecyclerAdapter.setClickListeners(this,this)
+        rabbitEntryView.adapter = entriesRecyclerAdapter
 
-        mergeFab.setOnClickListener {
-            if (chosenEntriesCounter > 2) {
-                chosenEntriesCounter--
-                Toast.makeText(this@RabbitActivity, R.string.alertMoreThan2Chosen, Toast.LENGTH_LONG).show()
-                return@setOnClickListener
+        rabbitViewModel.entriesList.observe(this, Observer {
+            entriesRecyclerAdapter.notifyDataSetChanged()
+        })
+
+        merge.setOnClickListener {
+            rabbitViewModel.onMergeClick {
+                rabbitEntryView[rabbitViewModel.chosenPositions.keyAt(0)].setBackgroundColor(Color.TRANSPARENT)
+                rabbitEntryView[rabbitViewModel.chosenPositions.keyAt(1)].setBackgroundColor(Color.TRANSPARENT)
+                it.visibility = View.GONE
+                rabbitViewModel.chosenPositions.clear()
             }
-            secondMergeEntry!!.isMerged = true
-            secondMergeEntry!!.mergedEntryName = firstMergeEntry!!.entryName
-            secondMergeEntry!!.mergedEntry = firstMergeEntry!!.entryID.toString()
-            secondMergeEntry!!.mergedEntryPhLoc = firstMergeEntry!!.entryPhLoc
-            rabbitViewModel.updateEntry(1)
-            HttpManager.postRequest("updateEntry", GsonManager.gson.toJson(secondMergeEntry)) { _, _ -> }
-            firstMergeEntry!!.isChildMerged = true
-            rabbitViewModel.updateEntry(0)
-            HttpManager.postRequest("updateEntry", GsonManager.gson.toJson(firstMergeEntry)) { _, _ -> }
 
-            //reset and refresh the grid at the end
-            animateDown(mergeFab)
-            chosenEntriesCounter = 0
-            firstMergeEntry = null
-            secondMergeEntry = null
-
-            FillData.getEntries(this@RabbitActivity, rabbitEntryView, this)
         }
-        splitFab.setOnClickListener {
-            firstMergeEntry!!.isMerged = false
-
-            HttpManager.postRequest("updateEntry", GsonManager.gson.toJson(firstMergeEntry)) { _, _ ->  }
-
-            HttpManager.postRequest("seekSingleEntry", GsonManager.gson.toJson(firstMergeEntry!!.mergedEntry)) { response, _ ->
-                secondMerge = GsonManager.gson.fromJson(response, Entry::class.java)
-                secondMerge!!.isChildMerged = false
-                HttpManager.postRequest("updateEntry", GsonManager.gson.toJson(secondMerge)) { _,_->
-                    chosenEntriesCounter = 0
-                    firstMergeEntry = null
-                    secondMergeEntry = null
-                    this.runOnUiThread {
-                        animateDown(splitFab)
-                        FillData.getEntries(this@RabbitActivity, rabbitEntryView, this)
-                    }
-
-                }
+        split.setOnClickListener {
+            rabbitViewModel.onSplitClick {
+                rabbitEntryView[rabbitViewModel.chosenPositions.keyAt(0)].setBackgroundColor(Color.TRANSPARENT)
+                it.visibility = View.GONE
+                rabbitViewModel.chosenPositions.clear()
             }
-
-            //reset and refresh the grid at the end
-
         }
 
     }
@@ -114,81 +82,88 @@ class RabbitActivity : AppCompatActivity(), EntriesRecyclerAdapter.OnItemClickLi
 
         val upcomingEvents = supportFragmentManager.findFragmentById(R.id.fragment) as UpcomingEventsFragment
         if (requestCode == ADD_ENTRY_START && resultcode == Activity.RESULT_OK) {
-            FillData.getEntries(this, rabbitEntryView, this)
-            upcomingEvents.refreshFragment(upcomingAdapter,this)
+            val newEntry = data!!.getParcelableExtra<Entry>("addNewEntry")
+            rabbitViewModel.entriesList.value?.add(newEntry)
+            rabbitViewModel.entriesList.notifyObserver()
+            upcomingEvents.refreshFragment(upcomingAdapter, this)
             upcomingEvents.updateNotesToDisplay { }
-        } else if (requestCode == START_VIEW_ENTRY) {
-            FillData.getEntries(this, rabbitEntryView, this)
-            upcomingEvents.updateNotesToDisplay { }
+        } else if (requestCode == START_VIEW_ENTRY && resultcode == Activity.RESULT_OK) {
+            if(data != null && data.hasExtra("deletedEntryUUID")){
+                val deletedEventUUID : String = data.getStringExtra("deletedEntryUUID")
+                val position = rabbitViewModel.entriesList.value!!.map{it.entryUUID}.indexOf(deletedEventUUID)
+                rabbitViewModel.entriesList.value!!.removeAt(position)
+                rabbitViewModel.entriesList.notifyObserver()
+            }
+
+            val updatedEntry : Entry? = data?.getParcelableExtra("updatedEntry")
+
+            updatedEntry?.let{
+                val index = rabbitViewModel.entriesList.value!!.map{it.entryUUID}.indexOf(updatedEntry.entryUUID)
+                if(index != -1){
+                    rabbitViewModel.entriesList.value!![index] = updatedEntry
+                    rabbitViewModel.entriesList.notifyObserver()
+                    upcomingEvents.updateNotesToDisplay { }
+                }
+            }
+
         }
     }
 
-    override fun onItemClick(view: View, position: Int) {
+    override fun onClick(view: View) {
         val startViewEntry = Intent(this, ViewEntry::class.java)
-        startViewEntry.putExtra("entryID", view.tag as UUID)
+        startViewEntry.putExtra("entry", rabbitViewModel.entriesList.value!![rabbitEntryView.getChildAdapterPosition(view)])
         startActivityForResult(startViewEntry, START_VIEW_ENTRY)
     }
 
-    override fun onLongItemClick(view: View, position: Int) {
-        val markedOrNot = view.findViewById<CircleImageView>(R.id.MarkedOrNot)
-        if (markedOrNot.drawable == null) {
-            Glide.with(this).load(R.drawable.ic_markedornot).into(markedOrNot)
-        }
-        if (markedOrNot.visibility == View.GONE) {
-            chosenEntriesCounter++
+    override fun onLongClick(view: View): Boolean {
+        val position = rabbitEntryView.getChildAdapterPosition(view)
+        if (view.background.alpha.toFloat() == 0.0f) {
+            view.setBackgroundColor(longClickedColor)
+            with(rabbitViewModel) {
+                chosenPositions.append(position, position)
 
-            //Since we're adding a new entry we're passing the old one to the second one,
-            //since it became a second one now
-
-            secondMergeEntry = firstMergeEntry
-            firstMergeEntry = entriesList!![position]
-
-            if (firstMergeEntry!!.isMerged && chosenEntriesCounter < 2) {
-                animateUp(splitFab)
-            }
-
-            markedOrNot.visibility = View.VISIBLE
-            // if both are not null we can safely merge the 2 chosen
-            if (secondMergeEntry != null /*&& firstMergeEntry != null*/) {
-                animateUp(mergeFab!!)
-                wasMergedBefore = true
+                if (chosenPositions.size() == 2) {
+                    val neitherMerged = chosenPositions.run {
+                        !entriesList.value!![keyAt(0)].isMerged && !entriesList.value!![keyAt(1)].isMerged
+                    }
+                    merge.visibility = if (neitherMerged) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
+                }
+                else{
+                    merge.visibility = View.GONE
+                }
+                split.visibility = if (chosenPositions.size() == 1 && entriesList.value!![position].isMerged) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
             }
         } else {
-            chosenEntriesCounter--
-            markedOrNot.visibility = View.GONE
-            if (firstMergeEntry!!.isMerged) {
-                animateDown(splitFab)
+            view.setBackgroundColor(Color.TRANSPARENT)
+            with(rabbitViewModel){
+                if (chosenPositions.size() == 1 && entriesList.value!![position].isMerged) {
+                    split.visibility = View.GONE
+                }
+                //If we're deselecting the entry, the second entry became the first, since
+                //we now have only 1 entry
+                chosenPositions.delete(position)
+
+                merge.visibility = if (chosenPositions.size() == 2) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
             }
-
-            //If we're deselecting the entry, the second entry became the first, since
-            //we now have only 1 entry
-            firstMergeEntry = secondMergeEntry
-            secondMergeEntry = null
-
-            if (chosenEntriesCounter < 2 && wasMergedBefore) {
-                animateDown(mergeFab!!)
-                wasMergedBefore = false
-            }
-
         }
-
-    }
-
-    override fun onPostProcess(temporaryList: List<Entry>) {
-        entriesList = temporaryList
+        return true
     }
 
     companion object {
         private const val ADD_ENTRY_START = 0
         private const val START_VIEW_ENTRY = 1
         private const val START_PERMISSION_REQUEST = 2
-
-        private fun animateDown(toMove: FloatingActionButton) {
-            toMove.animate().translationY(200f)
-        }
-
-        private fun animateUp(toMove: FloatingActionButton) {
-            toMove.animate().translationY(-100f)
-        }
     }
 }

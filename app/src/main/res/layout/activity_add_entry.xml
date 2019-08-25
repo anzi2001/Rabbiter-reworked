@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <variable
@@ -11,12 +13,11 @@
             type="com.example.kocja.rabbiter_online.adapters.BindingAdapters" />
     </data>
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".activities.AddEntryActivity">
+        tools:context=".activities.AddEntryActivity"
+        android:fillViewport="false">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -132,12 +133,12 @@
 
             <Spinner
                 android:id="@+id/addGender"
+                spinnerData="@={AddEntryViewModel.entry.chooseGender}"
                 android:layout_width="0dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="8dp"
-                spinnerData="@={AddEntryViewModel.entry.chooseGender}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/gender"
                 app:layout_constraintTop_toBottomOf="@+id/addName" />
@@ -213,28 +214,14 @@
                 app:layout_constraintVertical_bias="0.069"
                 app:srcCompat="@drawable/ic_photo_camera_black_24dp" />
 
-            <ImageButton
-                android:id="@+id/addEntry"
-                android:layout_width="44dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="8dp"
-                android:contentDescription="@string/addEntryDesc"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/deadNumTextTitle"
-                app:srcCompat="@drawable/ic_check_black_24dp" />
-
             <Spinner
                 android:id="@+id/matedWithSpinner"
+                spinnerData="@={AddEntryViewModel.entry.matedWithOrParents}"
                 android:layout_width="0dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="4dp"
-                spinnerData="@={AddEntryViewModel.entry.matedWithOrParents}"
                 app:layout_constraintBottom_toBottomOf="@+id/matedWith"
                 app:layout_constraintEnd_toStartOf="@+id/guideline4"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -244,12 +231,12 @@
 
             <Spinner
                 android:id="@+id/parentSpinner"
+                spinnerData="@={AddEntryViewModel.entry.secondParent}"
                 android:layout_width="0dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="4dp"
                 android:layout_marginEnd="8dp"
                 android:visibility="gone"
-                spinnerData="@={AddEntryViewModel.entry.secondParent}"
                 app:layout_constraintBottom_toBottomOf="@+id/matedWithSpinner"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.272"
@@ -286,8 +273,8 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:inputType="text"
-                android:visibility="invisible"
                 android:text="@={bindingAdapters.toString(AddEntryViewModel.entry.rabbitNumber)}"
+                android:visibility="invisible"
                 app:layout_constraintBaseline_toBaselineOf="@+id/rabbitsNumText"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/rabbitsNumText" />
@@ -314,12 +301,30 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:inputType="text"
-                android:visibility="invisible"
                 android:text="@={bindingAdapters.toString(AddEntryViewModel.entry.rabbitDeadNumber)}"
+                android:visibility="invisible"
                 app:layout_constraintBaseline_toBaselineOf="@+id/deadNumTextTitle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/deadNumTextTitle" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/addEntry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginEnd="10dp"
+                android:backgroundTint="@color/design_default_color_primary"
+                android:clickable="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.982"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/deadNumTextTitle"
+                app:layout_constraintVertical_bias="1.0"
+                app:maxImageSize="36dp"
+                app:srcCompat="@drawable/ic_check_white_24dp" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

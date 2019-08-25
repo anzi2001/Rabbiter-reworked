@@ -13,13 +13,13 @@ import android.view.MenuItem
 import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import coil.api.load
 
-import com.bumptech.glide.Glide
 import com.example.kocja.rabbiter_online.R
 import com.example.kocja.rabbiter_online.databinding.ActivityViewEntryBinding
 import com.example.kocja.rabbiter_online.extensions.observeOnce
 import com.example.kocja.rabbiter_online.fragments.HistoryFragment
-import com.example.kocja.rabbiter_online.fragments.ViewEntryFragment
+import com.example.kocja.rabbiter_online.models.Entry
 import com.example.kocja.rabbiter_online.viewmodels.ViewEntryViewModel
 import kotlinx.android.synthetic.main.activity_view_entry.*
 import kotlinx.android.synthetic.main.fragment_upcoming_history_layout.*
@@ -33,9 +33,9 @@ import java.util.UUID
  */
 
 class ViewEntry : AppCompatActivity() {
-    private lateinit var mainEntryFragmentFragment: ViewEntryFragment
     private var dataChanged = false
     private val viewEntryViewModel: ViewEntryViewModel by viewModel()
+    private val viewLargerImage by lazy{ Intent(this, LargerMainImage::class.java)}
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,8 +45,13 @@ class ViewEntry : AppCompatActivity() {
 
         //setContentView(R.layout.activity_view_entry)
 
-        val mainEntryUUID = intent.getSerializableExtra("entryID") as UUID
-        val viewLargerImage = Intent(this, LargerMainImage::class.java)
+        val mergedEntryUUID = if(intent.hasExtra("mergedEntryUUID")){
+            intent.getStringExtra("mergedEntryUUID")
+        }else{
+            null
+        }
+
+
         mainEntryView.setOnClickListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 mainEntryView.transitionName = "closerLook"
@@ -55,60 +60,52 @@ class ViewEntry : AppCompatActivity() {
             } else {
                 startActivity(viewLargerImage)
             }
-
         }
-        viewEntryViewModel.findEntryByUUID(mainEntryUUID.toString()).observeOnce(this, Observer { entry ->
-            viewEntryViewModel.entry.value = entry
-            viewLargerImage.putExtra("imageURI", entry.entryPhLoc)
-            mainEntryFragmentFragment = supportFragmentManager.findFragmentById(R.id.mainEntryFragment) as ViewEntryFragment
+        if(mergedEntryUUID != null){
+            viewEntryViewModel.findEntryByUUID(mergedEntryUUID).observeOnce(this, Observer { initViewEntry(it)} )
+        }
+        else{
+            initViewEntry(intent.getParcelableExtra("entry") as Entry)
+        }
+    }
 
-            val historyFragment = supportFragmentManager.findFragmentById(R.id.historyFragment) as HistoryFragment
-            if (entry.chooseGender == getString(R.string.genderMale)) {
-                historyFragment.maleParentOf(this, entry.entryName!!, upcomingAdapter)
-            } else {
-                historyFragment.setPastEvents(this, entry.entryName!!, upcomingAdapter)
+    private fun initViewEntry(entry : Entry){
+        viewEntryViewModel.entry.value = entry
+        viewLargerImage.putExtra("imageURL", entry.entryPhotoURL)
+
+        val historyFragment = supportFragmentManager.findFragmentById(R.id.historyFragment) as HistoryFragment
+        if (entry.chooseGender == getString(R.string.genderMale)) {
+            historyFragment.maleParentOf(this, entry.entryName!!, upcomingAdapter)
+        } else {
+            historyFragment.setPastEvents(this, entry.entryName!!, upcomingAdapter)
+        }
+        mainEntryView.load(viewEntryViewModel.entry.value!!.entryPhotoURL)
+
+
+        if (entry.isMerged) {
+            mergedView.setOnClickListener {
+                val startMergedMain = Intent(this, ViewEntry::class.java)
+                startMergedMain.putExtra("entryUUID", entry.mergedEntryID)
+                val compat = ActivityOptionsCompat.makeSceneTransitionAnimation(this@ViewEntry, mainEntryView, "mergedName")
+                startActivity(startMergedMain, compat.toBundle())
             }
-
-            mainEntryFragmentFragment.setData(entry)
-
-            viewEntryViewModel.findImage(entry.entryPhLoc!!).observeOnce(this, Observer {
-                viewEntryViewModel.entry.value?.entryBitmap = it
-                Glide.with(this@ViewEntry).load(it).into(mainEntryView)
-            })
-
-
-            if (entry.isMerged) {
-                mergedView.setOnClickListener {
-                    val startMergedMain = Intent(this, ViewEntry::class.java)
-                    startMergedMain.putExtra("entryID", entry.mergedEntry)
-                    val compat = ActivityOptionsCompat.makeSceneTransitionAnimation(this@ViewEntry, mainEntryView, "mergedName")
-                    startActivity(startMergedMain, compat.toBundle())
-                }
-                mergedView.visibility = View.VISIBLE
-                viewEntryViewModel.findImage(entry.mergedEntryPhLoc!!).observeOnce(this, Observer {
-                    viewEntryViewModel.entry.value?.mergedEntryBitmap = it
-                    Glide.with(this@ViewEntry).load(it).into(mergedView)
-                })
-            }
-        })
+            mergedView.visibility = View.VISIBLE
+            mergedView.load(viewEntryViewModel.entry.value?.mergedEntryPhotoURL)
+        }
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == AddEntryActivity.EDIT_EXISTING_ENTRY && resultCode == Activity.RESULT_OK) {
-            viewEntryViewModel.findEntryByUUID().observeOnce(this, Observer {
-                viewEntryViewModel.entry.value = it
-                mainEntryFragmentFragment.setData(it)
-                Glide.with(this@ViewEntry)
-                        .load(it.entryPhLoc)
-                        .into(mainEntryView)
-            })
+            viewEntryViewModel.entry.value = data?.getParcelableExtra("updatedEntry")
+
+            mainEntryView.load(viewEntryViewModel.entry.value!!.entryPhotoURL)
             dataChanged = true
         }
     }
 
     override fun onBackPressed() {
         if (dataChanged) {
-            setResult(Activity.RESULT_OK)
+            setResult(Activity.RESULT_OK,Intent().putExtra("updatedEntry",viewEntryViewModel.entry.value!!))
             supportFinishAfterTransition()
             //finish();
         } else {
@@ -123,21 +120,22 @@ class ViewEntry : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.editEntry) {
-            val startEditProc = Intent(this@ViewEntry, AddEntryActivity::class.java)
-            startEditProc.putExtra("getMode", AddEntryActivity.EDIT_EXISTING_ENTRY)
-            startEditProc.putExtra("entryEdit", viewEntryViewModel.entry.value?.entryID)
-            startActivityForResult(startEditProc, AddEntryActivity.EDIT_EXISTING_ENTRY)
+            val startEdit = Intent(this@ViewEntry, AddEntryActivity::class.java)
+            startEdit.putExtra("getMode", AddEntryActivity.EDIT_EXISTING_ENTRY)
+            startEdit.putExtra("entry", viewEntryViewModel.entry.value!!)
+            startActivityForResult(startEdit, AddEntryActivity.EDIT_EXISTING_ENTRY)
 
         } else if (item.itemId == R.id.deleteEntry) {
+            val entryUUID = viewEntryViewModel.entry.value!!.entryUUID
             val areYouSure = AlertDialog.Builder(this@ViewEntry)
                     .setTitle(R.string.confirmDeletion)
                     .setPositiveButton(R.string.confirm) { _, _ ->
                         viewEntryViewModel.findEventsName().observeOnce(this, Observer {
                             for (event in it) {
-                                viewEntryViewModel.deleteEvent(event.eventUUID.toString())
+                                viewEntryViewModel.deleteEvent(event.eventUUID)
                             }
-                            viewEntryViewModel.deleteEntry().observeOnce(this,Observer{
-                                setResult(Activity.RESULT_OK)
+                            viewEntryViewModel.deleteEntry().observeOnce(this, Observer {
+                                setResult(Activity.RESULT_OK,Intent().putExtra("deletedEntryUUID",entryUUID))
                                 finish()
                             })
                         })
@@ -147,13 +145,13 @@ class ViewEntry : AppCompatActivity() {
 
         } else if (item.itemId == R.id.entryStats) {
             val startStatActivity = Intent(applicationContext, ViewEntryStats::class.java)
-            startStatActivity.putExtra("entryUUID", viewEntryViewModel.entry.value?.entryID)
+            startStatActivity.putExtra("entry", viewEntryViewModel.entry.value)
             startActivity(startStatActivity)
 
         } else if (item.itemId == R.id.showMerged) {
             if (viewEntryViewModel.entry.value!!.isMerged) {
                 val showMerged = Intent(applicationContext, ViewEntry::class.java)
-                showMerged.putExtra("entryID", UUID.fromString(viewEntryViewModel.entry.value?.mergedEntry))
+                showMerged.putExtra("mergedEntryUUID", viewEntryViewModel.entry.value?.mergedEntryID)
                 startActivity(showMerged)
             } else {
                 val alertNotMerged = AlertDialog.Builder(this)

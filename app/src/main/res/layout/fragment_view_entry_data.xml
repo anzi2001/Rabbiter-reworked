@@ -3,6 +3,9 @@
 <layout>
 
     <data>
+        <variable
+            name="bindingAdapter"
+            type="com.example.kocja.rabbiter_online.adapters.BindingAdapters" />
 
         <variable
             name="viewEntryViewModel"
@@ -33,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="@={viewEntryViewModel.entry.entryName}"
+            android:text="@{viewEntryViewModel.entry.entryName}"
             app:layout_constraintBaseline_toBaselineOf="@+id/Name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/Name" />
@@ -57,7 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="@={viewEntryViewModel.entry.chooseGender}"
+            android:text="@{viewEntryViewModel.entry.chooseGender}"
             app:layout_constraintBaseline_toBaselineOf="@+id/Gender"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/Gender" />
@@ -107,7 +110,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="@{viewEntryViewModel.entry.chooseGender ==`Group` ? @string/parents(viewEntryViewModel.entry.matedWithOrParents,viewEntryViewModel.entry.secondParent) : viewEntryViewModel.entry.matedDate}"
+            android:text="@{viewEntryViewModel.entry.chooseGender ==`Group` ? @string/Parents(viewEntryViewModel.entry.matedWithOrParents,viewEntryViewModel.entry.secondParent) : viewEntryViewModel.entry.matedDate}"
             app:layout_constraintBaseline_toBaselineOf="@+id/MatedDateOrParents"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/MatedDateOrParents" />
@@ -132,7 +135,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="@={viewEntryViewModel.entry.chooseGender == `Group` ? viewEntryViewModel.entry.rabbitNumber.toString() : viewEntryViewModel.entry.matedWithOrParents}"
+            android:text="@{viewEntryViewModel.entry.chooseGender == `Group` ? bindingAdapter.toString(viewEntryViewModel.entry.rabbitNumber) : viewEntryViewModel.entry.matedWithOrParents}"
             app:layout_constraintBaseline_toBaselineOf="@+id/matedWith"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/matedWith" />

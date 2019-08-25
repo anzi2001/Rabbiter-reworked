@@ -12,15 +12,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-import com.example.kocja.rabbiter_online.managers.GsonManager
-import com.example.kocja.rabbiter_online.managers.HttpManager
 import com.example.kocja.rabbiter_online.R
 import com.example.kocja.rabbiter_online.activities.AddEntryActivity
 import com.example.kocja.rabbiter_online.adapters.UpcomingEventsAdapter
 import com.example.kocja.rabbiter_online.models.Events
-import com.example.kocja.rabbiter_online.services.NotifyUser
+import com.example.kocja.rabbiter_online.services.EventTriggered
 import com.example.kocja.rabbiter_online.services.ProcessService
+import com.example.kocja.rabbiter_online.viewmodels.RabbitViewModel
 import kotlinx.android.synthetic.main.fragment_upcoming_history_layout.*
+import org.koin.android.viewmodel.ext.android.sharedViewModel
 
 
 /**
@@ -28,11 +28,12 @@ import kotlinx.android.synthetic.main.fragment_upcoming_history_layout.*
  */
 
 private const val ADD_ENTRY_EVENT = 5
-class UpcomingEventsFragment : Fragment(), UpcomingEventsAdapter.OnClickListen {
+class UpcomingEventsFragment : Fragment(), View.OnClickListener {
     private var noteToDisplay: List<String> = emptyList()
     private var eventList: List<Events> = emptyList()
-    private val adapter: UpcomingEventsAdapter by lazy{ UpcomingEventsAdapter(noteToDisplay.toList(),true)}
+    private val adapter: UpcomingEventsAdapter by lazy{ UpcomingEventsAdapter(noteToDisplay.toList())}
     private var lastItemClicked: Int = 0
+    private val rabbitViewModel : RabbitViewModel by sharedViewModel()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val upcomingList = inflater.inflate(R.layout.fragment_upcoming_history_layout, container, false)
@@ -45,7 +46,8 @@ class UpcomingEventsFragment : Fragment(), UpcomingEventsAdapter.OnClickListen {
         return upcomingList
     }
 
-    override fun onItemClick(view: View, position: Int) {
+    override fun onClick(view: View) {
+        val position = upcomingAdapter.getChildAdapterPosition(view)
         lastItemClicked = position
         val builder = AlertDialog.Builder(context)
                 .setTitle("Event")
@@ -54,7 +56,7 @@ class UpcomingEventsFragment : Fragment(), UpcomingEventsAdapter.OnClickListen {
                     if (eventList[position].typeOfEvent == Events.BIRTH_EVENT) {
                         val yesIntent = Intent(context, AddEntryActivity::class.java)
                         yesIntent.putExtra("eventUUID", eventList[position].eventUUID)
-                        yesIntent.putExtra("getMode", NotifyUser.ADD_ENTRY_FROM_BIRTH)
+                        yesIntent.putExtra("getMode", EventTriggered.ADD_ENTRY_FROM_BIRTH)
                         yesIntent.putExtra("happened", true)
                         startActivityForResult(yesIntent, ADD_ENTRY_EVENT)
 
@@ -89,7 +91,7 @@ class UpcomingEventsFragment : Fragment(), UpcomingEventsAdapter.OnClickListen {
             updateNotesToDisplay {
                 val processEvent = Intent(context, ProcessService::class.java)
                 processEvent.putExtra("processEventUUID", eventList[lastItemClicked].eventUUID)
-                processEvent.putExtra("getMode", NotifyUser.ADD_ENTRY_FROM_BIRTH)
+                processEvent.putExtra("getMode", EventTriggered.ADD_ENTRY_FROM_BIRTH)
                 processEvent.putExtra("happened", true)
                 requireContext().startService(processEvent)
                 refreshFragment(upcomingAdapter, context)
@@ -100,9 +102,10 @@ class UpcomingEventsFragment : Fragment(), UpcomingEventsAdapter.OnClickListen {
     }
 
     fun refreshFragment(upcomingEvents: RecyclerView, context: Context?) {
+        //this needs an update, should notifyDataSetChanged
         updateNotesToDisplay {
             upcomingEvents.invalidate()
-            val adapter = UpcomingEventsAdapter(noteToDisplay, true)
+            val adapter = UpcomingEventsAdapter(noteToDisplay)
             adapter.setLongClickListener(this)
             val manager = LinearLayoutManager(context)
             upcomingEvents.layoutManager = manager
@@ -112,11 +115,10 @@ class UpcomingEventsFragment : Fragment(), UpcomingEventsAdapter.OnClickListen {
     }
 
     fun updateNotesToDisplay(onUpdate : ()->Unit) {
-        HttpManager.getRequest("seekEventsNotAlerted") { response ->
-            eventList = GsonManager.gson.fromJson(response, Array<Events>::class.java).toList()
-            noteToDisplay = eventList.map { it.eventString }
-            HttpManager.handler.post { onUpdate() }
-
+        rabbitViewModel.findNotAlertedEvents {events->
+            eventList = events
+            noteToDisplay = events.filter{it.eventString != null}.map{it.eventString!!}
+            onUpdate()
         }
     }
 

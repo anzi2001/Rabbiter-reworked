@@ -36,27 +36,26 @@ interface WebService{
     @POST("/event/new")
     fun newEvent(@Body event: Events) : Call<String>
 
-    @GET("/event/birth/{uuid}")
-    fun getBirthEvent(@Path("uuid") uuid : String) : Call<Events>
+    @POST("/event/update")
+    fun updateEvent(@Body event: Events) : Call<String>
+
 
     @DELETE("/event/delete/{uuid}")
     fun deleteEvent(@Path("uuid") uuid: String) : Call<String>
 
-    @GET("/event/{name}")
+    @GET("/event/name/{name}")
     fun getEventByName(@Path("name") name:String) : Call<List<Events>>
 
     @GET("/events/past/{entryName}")
     fun getPastEvents(@Path("entryName") entryName : String) : Call<List<Events>>
 
     @GET("/events/alerted/not")
-    fun findNotAlertedeEvents() : Call<List<Events>>
+    fun findNotAlertedEvents() : Call<List<Events>>
 
-    @GET("/event/alerted/not/{uuid}")
-    fun findNotAlertedEvent(@Path("uuid") uuid : String) : Call<Events>
-
-
-    @GET("/image/{uri}")
-    fun searchImage(@Path("uri") uri : String) : Call<ResponseBody>
+    @GET
+    fun searchImage(@Url uri : String) : Call<ResponseBody>
+    @POST("/image/upload/{name}")
+    fun uploadImage(@Path("name") name : String, @Body base64EncodedImage : String) : Call<String>
 
 
 

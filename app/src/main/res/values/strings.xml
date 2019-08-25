@@ -9,6 +9,7 @@
     <string name="genderMale">Male</string>
     <string name="genderFemale">Female</string>
     <string name="genderGroup">Group</string>
+    <string name="appImage">Main image of the app</string>
 
     <string-array name="decideOnGender">
         <item>@string/genderMale</item>
@@ -89,5 +90,7 @@
     <string name="entryGenderColon">Gender: </string>
     <string name="entryBirthDateColon">Birth date: </string>
     <string name="entryMatedDateColon">Mated date: </string>
+    <string name="splitEntry">Splits the merged entries</string>
+    <string name="mergeEntry">Merges two entries together</string>
 
 </resources>

@@ -17,10 +17,6 @@
         <item>@string/genderGroup</item>
     </string-array>
 
-    <string-array name="chooseLanguage">
-        <item>English</item>
-        <item>Slovenščina</item>
-    </string-array>
     <!--ADD ENTRY ACTIVITY-->
     <string name="title">Dodaj vnos</string>
     <!--IMAGE DESCRIPTIONS-->
@@ -91,5 +87,8 @@
     <string name="entryBirthDateColon">"Rojstni dan: "</string>
     <string name="entryGenderColon">"Spol: "</string>
     <string name="entryMatedDateColon">"Datum parjenja: "</string>
+    <string name="appImage">Glavna slika aplikacije</string>
+    <string name="splitEntry">Razdeli združena vnosa</string>
+    <string name="mergeEntry">Združi 2 vnosa skupaj</string>
 
 </resources>

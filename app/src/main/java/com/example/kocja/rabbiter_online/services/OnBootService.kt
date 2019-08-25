@@ -8,17 +8,19 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 
-import com.example.kocja.rabbiter_online.managers.GsonManager
-import com.example.kocja.rabbiter_online.managers.HttpManager
 import com.example.kocja.rabbiter_online.R
-import com.example.kocja.rabbiter_online.models.Events
+import com.example.kocja.rabbiter_online.managers.DataFetcher
+import org.koin.android.ext.android.inject
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Created by kocja on 27/02/2018.
  */
 
 class OnBootService : IntentService("This is OnBootService") {
-
+    private val fetcher: DataFetcher by inject()
+    private val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     override fun onCreate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val chanel = NotificationChannel("checkBoot", "Boot", NotificationManager.IMPORTANCE_DEFAULT)
@@ -36,24 +38,12 @@ class OnBootService : IntentService("This is OnBootService") {
     }
 
     override fun onHandleIntent(intent: Intent?) {
-
-        HttpManager.getRequest("seekEventsNotAlerted") { response ->
-            val events = GsonManager.gson.fromJson(response, Array<Events>::class.java)
-            for (event in events) {
-                NotifyUser.schedule(this, event.dateOfEventMilis, event.eventUUID!!.toString())
-
+        fetcher.findNotAlertedEvents { list ->
+            list.forEach {
+                EventTriggered.scheduleWorkManager(this,it.dateOfEventMilis,it.eventUUID)
+                //NotifyUser.schedule(this, it.dateOfEventMilis, it)
             }
+
         }
-        /*
-        SQLite.select()
-                .from(Events.class)
-                .where(Events_Table.notificationState.eq(Events.NOT_YET_ALERTED))
-                .async()
-                .queryListResultCallback((transaction, tResult) -> {
-
-                }).execute();
-
-         */
-
     }
 }
