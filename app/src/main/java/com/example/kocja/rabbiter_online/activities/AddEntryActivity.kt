@@ -6,6 +6,7 @@ import android.app.DatePickerDialog
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -27,6 +28,7 @@ import coil.api.load
 
 import com.example.kocja.rabbiter_online.R
 import com.example.kocja.rabbiter_online.databinding.ActivityAddEntryBinding
+import com.example.kocja.rabbiter_online.extensions.getDownscaledBitmap
 import com.example.kocja.rabbiter_online.extensions.observeOnce
 import com.example.kocja.rabbiter_online.models.Entry
 import com.example.kocja.rabbiter_online.models.Events
@@ -208,48 +210,22 @@ class AddEntryActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == SELECT_PHOTO && resultCode == Activity.RESULT_OK && data != null) {
-
-            var stream = contentResolver.openInputStream(data.data!!)
-            val options = BitmapFactory.Options()
-            options.inJustDecodeBounds = true
-            BitmapFactory.decodeStream(stream,null,options)
-
-            stream = contentResolver.openInputStream(data.data!!)
-            options.inJustDecodeBounds = false
-            options.inSampleSize = calculateInSampleSize(options,512,512)
-            addEntryViewModel.entryBitmap = BitmapFactory.decodeStream(stream,null,options)
-            addEntryViewModel.photoUri.value = data.data
-            mainImage.load(data.data)
-        }
-        else if(requestCode == REQUEST_TAKE_PHOTO && resultCode == Activity.RESULT_OK){
-            mainImage.load(addEntryViewModel.photoUri.value)
-        }
-
-
-    }
-
-    private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
-        // Raw height and width of image
-        val (height: Int, width: Int) = options.run { outHeight to outWidth }
-        var inSampleSize = 1
-
-        if (height > reqHeight || width > reqWidth) {
-
-            val halfHeight: Int = height / 2
-            val halfWidth: Int = width / 2
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
-                inSampleSize *= 2
+            data.data?.getDownscaledBitmap(this)?.let{
+                addEntryViewModel.entryBitmap = it
+                addEntryViewModel.photoUri.value = data.data
+                mainImage.load(data.data)
             }
         }
+        else if(requestCode == REQUEST_TAKE_PHOTO && resultCode == Activity.RESULT_OK){
+            addEntryViewModel.photoUri.value?.getDownscaledBitmap(this)?.let{
+                addEntryViewModel.entryBitmap = it
+                mainImage.load(addEntryViewModel.photoUri.value)
+            }
 
-        return inSampleSize
+        }
+
+
     }
-
-
-
     private fun dispatchTakePictureIntent() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also {
             it.resolveActivity(this.packageManager)?.also { _ ->
