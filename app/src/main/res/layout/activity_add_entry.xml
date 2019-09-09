@@ -20,8 +20,123 @@
         android:fillViewport="false">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:minHeight="700dp">
+
+            <EditText
+                android:id="@+id/addName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:hint="@string/editTextName"
+                android:inputType="text"
+                android:text="@={AddEntryViewModel.entry.entryName}"
+                app:layout_constraintBaseline_toBaselineOf="@+id/name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/name" />
+
+            <EditText
+                android:id="@+id/addBirthDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:hint="@string/editTextBirthDate"
+                android:inputType="date"
+                android:text="@={AddEntryViewModel.entry.birthDate}"
+                app:layout_constraintBaseline_toBaselineOf="@+id/birthDate"
+                app:layout_constraintEnd_toStartOf="@+id/addBirthDateCal"
+                app:layout_constraintStart_toEndOf="@+id/birthDate" />
+
+            <EditText
+                android:id="@+id/addMatingDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:hint="@string/editTextMatingDate"
+                android:inputType="date"
+                android:text="@={AddEntryViewModel.entry.matedDate}"
+                app:layout_constraintBaseline_toBaselineOf="@+id/matingDate"
+                app:layout_constraintEnd_toStartOf="@+id/addMatingDateCal"
+                app:layout_constraintStart_toEndOf="@+id/matingDate" />
+
+            <EditText
+                android:id="@+id/NumRabbits"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:inputType="text"
+                android:text="@={bindingAdapters.toString(AddEntryViewModel.entry.rabbitNumber)}"
+                android:visibility="invisible"
+                app:layout_constraintBaseline_toBaselineOf="@+id/rabbitsNumText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/rabbitsNumText" />
+
+            <EditText
+                android:id="@+id/deadRabbits"
+                android:layout_width="0dp"
+                android:layout_height="49dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:inputType="text"
+                android:text="@={bindingAdapters.toString(AddEntryViewModel.entry.rabbitDeadNumber)}"
+                android:visibility="invisible"
+                app:layout_constraintBaseline_toBaselineOf="@+id/deadNumTextTitle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/deadNumTextTitle" />
+
+            <ImageButton
+                android:id="@+id/addBirthDateCal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="8dp"
+                android:contentDescription="@string/addBirthDateDesc"
+                app:layout_constraintBottom_toBottomOf="@+id/addBirthDate"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.973"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/addBirthDate"
+                app:layout_constraintVertical_bias="0.0"
+                app:srcCompat="@drawable/ic_event_note_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/addMatingDateCal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="8dp"
+                android:contentDescription="@string/addMatingDateDesc"
+                app:layout_constraintBottom_toBottomOf="@+id/addMatingDate"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.972"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/addMatingDate"
+                app:layout_constraintVertical_bias="0.0"
+                app:srcCompat="@drawable/ic_event_note_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/takePhoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="8dp"
+                android:contentDescription="@string/takePhotoDesc"
+                app:layout_constraintBottom_toTopOf="@+id/guideline"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.973"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.069"
+                app:srcCompat="@drawable/ic_photo_camera_black_24dp" />
 
             <ImageView
                 android:id="@+id/mainImage"
@@ -36,12 +151,47 @@
                 app:layout_constraintVertical_bias="1.0"
                 app:srcCompat="@drawable/frame_imageview" />
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.3" />
+            <Spinner
+                android:id="@+id/addGender"
+                spinnerData="@={AddEntryViewModel.entry.chooseGender}"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/gender"
+                app:layout_constraintTop_toBottomOf="@+id/addName" />
+
+            <Spinner
+                android:id="@+id/matedWithSpinner"
+                spinnerData="@={AddEntryViewModel.entry.matedWithOrParents}"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="4dp"
+                app:layout_constraintBottom_toBottomOf="@+id/matedWith"
+                app:layout_constraintEnd_toStartOf="@+id/guideline4"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/matedWith"
+                app:layout_constraintTop_toTopOf="@+id/matedWith"
+                app:layout_constraintVertical_bias="0.703" />
+
+            <Spinner
+                android:id="@+id/parentSpinner"
+                spinnerData="@={AddEntryViewModel.entry.secondParent}"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="8dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/matedWithSpinner"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.272"
+                app:layout_constraintStart_toStartOf="@+id/guideline4"
+                app:layout_constraintTop_toTopOf="@+id/matedWithSpinner"
+                app:layout_constraintVertical_bias="0.0" />
 
             <TextView
                 android:id="@+id/name"
@@ -117,140 +267,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/addMatingDate"
                 app:layout_constraintVertical_bias="0.06999999" />
 
-            <EditText
-                android:id="@+id/addName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:hint="@string/editTextName"
-                android:inputType="text"
-                android:text="@={AddEntryViewModel.entry.entryName}"
-                app:layout_constraintBaseline_toBaselineOf="@+id/name"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/name" />
-
-            <Spinner
-                android:id="@+id/addGender"
-                spinnerData="@={AddEntryViewModel.entry.chooseGender}"
-                android:layout_width="0dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/gender"
-                app:layout_constraintTop_toBottomOf="@+id/addName" />
-
-            <EditText
-                android:id="@+id/addBirthDate"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:hint="@string/editTextBirthDate"
-                android:inputType="date"
-                android:text="@={AddEntryViewModel.entry.birthDate}"
-                app:layout_constraintBaseline_toBaselineOf="@+id/birthDate"
-                app:layout_constraintEnd_toStartOf="@+id/addBirthDateCal"
-                app:layout_constraintStart_toEndOf="@+id/birthDate" />
-
-            <ImageButton
-                android:id="@+id/addBirthDateCal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="8dp"
-                android:contentDescription="@string/addBirthDateDesc"
-                app:layout_constraintBottom_toBottomOf="@+id/addBirthDate"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.973"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/addBirthDate"
-                app:layout_constraintVertical_bias="0.0"
-                app:srcCompat="@drawable/ic_event_note_black_24dp" />
-
-            <EditText
-                android:id="@+id/addMatingDate"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:hint="@string/editTextMatingDate"
-                android:inputType="date"
-                android:text="@={AddEntryViewModel.entry.matedDate}"
-                app:layout_constraintBaseline_toBaselineOf="@+id/matingDate"
-                app:layout_constraintEnd_toStartOf="@+id/addMatingDateCal"
-                app:layout_constraintStart_toEndOf="@+id/matingDate" />
-
-            <ImageButton
-                android:id="@+id/addMatingDateCal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="8dp"
-                android:contentDescription="@string/addMatingDateDesc"
-                app:layout_constraintBottom_toBottomOf="@+id/addMatingDate"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.972"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/addMatingDate"
-                app:layout_constraintVertical_bias="0.0"
-                app:srcCompat="@drawable/ic_event_note_black_24dp" />
-
-            <ImageButton
-                android:id="@+id/takePhoto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="8dp"
-                android:contentDescription="@string/takePhotoDesc"
-                app:layout_constraintBottom_toTopOf="@+id/guideline"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.973"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.069"
-                app:srcCompat="@drawable/ic_photo_camera_black_24dp" />
-
-            <Spinner
-                android:id="@+id/matedWithSpinner"
-                spinnerData="@={AddEntryViewModel.entry.matedWithOrParents}"
-                android:layout_width="0dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="4dp"
-                app:layout_constraintBottom_toBottomOf="@+id/matedWith"
-                app:layout_constraintEnd_toStartOf="@+id/guideline4"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/matedWith"
-                app:layout_constraintTop_toTopOf="@+id/matedWith"
-                app:layout_constraintVertical_bias="0.703" />
-
-            <Spinner
-                android:id="@+id/parentSpinner"
-                spinnerData="@={AddEntryViewModel.entry.secondParent}"
-                android:layout_width="0dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="8dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/matedWithSpinner"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.272"
-                app:layout_constraintStart_toStartOf="@+id/guideline4"
-                app:layout_constraintTop_toTopOf="@+id/matedWithSpinner"
-                app:layout_constraintVertical_bias="0.0" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.6" />
-
             <TextView
                 android:id="@+id/rabbitsNumText"
                 android:layout_width="wrap_content"
@@ -265,19 +281,6 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/matedWith" />
-
-            <EditText
-                android:id="@+id/NumRabbits"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:inputType="text"
-                android:text="@={bindingAdapters.toString(AddEntryViewModel.entry.rabbitNumber)}"
-                android:visibility="invisible"
-                app:layout_constraintBaseline_toBaselineOf="@+id/rabbitsNumText"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/rabbitsNumText" />
 
             <TextView
                 android:id="@+id/deadNumTextTitle"
@@ -294,19 +297,19 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rabbitsNumText" />
 
-            <EditText
-                android:id="@+id/deadRabbits"
-                android:layout_width="0dp"
-                android:layout_height="49dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:inputType="text"
-                android:text="@={bindingAdapters.toString(AddEntryViewModel.entry.rabbitDeadNumber)}"
-                android:visibility="invisible"
-                app:layout_constraintBaseline_toBaselineOf="@+id/deadNumTextTitle"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/deadNumTextTitle" />
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.3" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.6" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/addEntry"

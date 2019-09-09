@@ -4,10 +4,15 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.databinding.InverseMethod
+import com.example.kocja.rabbiter_online.R
+import com.example.kocja.rabbiter_online.activities.AddEntryActivity
+import kotlinx.android.synthetic.main.activity_add_entry.*
+import java.lang.IllegalArgumentException
 
 
 object BindingAdapters{
@@ -40,6 +45,8 @@ object BindingAdapters{
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val activity = view?.context as? AddEntryActivity ?: throw IllegalArgumentException("is not AddEntryActivity")
+                activity.setValues()
                 inverseBindingListener.onChange()
             }
         }

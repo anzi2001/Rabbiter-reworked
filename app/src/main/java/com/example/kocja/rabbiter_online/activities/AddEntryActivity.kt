@@ -6,8 +6,6 @@ import android.app.DatePickerDialog
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -19,11 +17,9 @@ import androidx.core.content.FileProvider
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.workDataOf
 import coil.api.load
 
 import com.example.kocja.rabbiter_online.R
@@ -46,7 +42,6 @@ import java.util.Date
 import java.util.GregorianCalendar
 import java.util.Locale
 import java.util.UUID
-import java.util.concurrent.TimeUnit
 
 /**
  * Created by kocja on 21/01/2018.
@@ -59,6 +54,41 @@ class AddEntryActivity : AppCompatActivity() {
     private lateinit var matedWithAdapter: ArrayAdapter<String>
     private lateinit var genderAdapter: ArrayAdapter<String>
     private val addEntryViewModel: AddEntryViewModel by viewModel()
+    fun setValues(){
+        when (addGender.selectedItem.toString()) {
+            getString(R.string.genderMale) ->{
+                setGenderSpecificVisibility(View.GONE, getString(R.string.entryMatedWith))
+
+                //Set these to gone, reConstraint views below these to gender
+                addMatingDate!!.visibility = View.GONE
+                addMatingDateCal.visibility = View.GONE
+                matingDate.visibility = View.GONE
+
+                val set = ConstraintSet()
+                set.clone(constraintLayout)
+                set.connect(R.id.matedWith, ConstraintSet.TOP, R.id.addBirthDate, ConstraintSet.BOTTOM)
+
+                set.applyTo(constraintLayout)
+            }
+
+            "Group" -> setGenderSpecificVisibility(View.VISIBLE, getString(R.string.setParents))
+            else -> {
+                setGenderSpecificVisibility(View.GONE, getString(R.string.entryMatedWith))
+
+                addMatingDateCal.visibility = View.VISIBLE
+                addMatingDate!!.visibility = View.VISIBLE
+                matingDate.visibility = View.VISIBLE
+
+                val set = ConstraintSet()
+                set.clone(constraintLayout)
+                set.connect(R.id.matedWith, ConstraintSet.TOP, R.id.addMatingDate, ConstraintSet.BOTTOM)
+
+                set.applyTo(constraintLayout)
+
+            }
+
+        }
+    }
     //NOTE: type 0: birth
     //NOTE: type 1: ready for mating
     //NOTE: type 2: move group
@@ -135,27 +165,6 @@ class AddEntryActivity : AppCompatActivity() {
 
         genderAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, resources.getStringArray(R.array.decideOnGender))
         addGender.adapter = genderAdapter
-        addGender.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(adapterView: AdapterView<*>, view: View, i: Int, l: Long) {
-                when (addGender.selectedItem.toString()) {
-                    getString(R.string.genderMale) -> setGenderSpecificVisibility(View.GONE, getString(R.string.entryMatedWith))
-
-                    //Temporary fix, would have to reconstraint views. will see.
-                    /*addMatingDate.setVisibility(View.INVISIBLE);
-                    addMatingDateCal.setVisibility(View.INVISIBLE);
-                    matingDateText.setVisibility(View.INVISIBLE);*/
-
-                    "Group" -> setGenderSpecificVisibility(View.VISIBLE, getString(R.string.setParents))
-                    else -> setGenderSpecificVisibility(View.GONE, getString(R.string.entryMatedWith))
-                    /*addMatingDateCal.setVisibility(View.VISIBLE);
-                    addMatingDate.setVisibility(View.VISIBLE);
-                    matingDateText.setVisibility(View.VISIBLE);*/
-                }
-            }
-
-            override fun onNothingSelected(adapterView: AdapterView<*>) {}
-        }
-
         addEntry.setOnClickListener {
             if (getMode == EDIT_EXISTING_ENTRY) {
                 if (addEntryViewModel.matedDateChanged) {
@@ -352,19 +361,23 @@ class AddEntryActivity : AppCompatActivity() {
         rabbitsNumText.visibility = visibility
     }
 
-    @Throws(IOException::class)
-    private fun createImageFile(mainC: Context): File {
-        // Create an image file name
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val imageFileName = "JPEG_" + timeStamp + '_'.toString()
-        val storageDir = mainC.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
-                imageFileName, /* prefix */
-                ".jpg", /* suffix */
-                storageDir)
-    }
+
 
     companion object {
+        @Throws(IOException::class)
+        private fun createImageFile(mainC: Context): File {
+            // Create an image file name
+            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+            val imageFileName = "JPEG_" + timeStamp + '_'.toString()
+            val storageDir = mainC.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            return File.createTempFile(
+                    imageFileName, /* prefix */
+                    ".jpg", /* suffix */
+                    storageDir)
+        }
+
+
+
         private const val REQUEST_TAKE_PHOTO = 0
         private const val SELECT_PHOTO = 1
         const val EDIT_EXISTING_ENTRY = 2
