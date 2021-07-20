@@ -1,20 +1,25 @@
 package com.example.kocja.rabbiter_online.viewmodels
 
 import android.util.SparseIntArray
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.kocja.rabbiter_online.extensions.notifyObserver
-import com.example.kocja.rabbiter_online.managers.DataFetcher
+import com.example.kocja.rabbiter_online.managers.WebService
 import com.example.kocja.rabbiter_online.models.Entry
 import com.example.kocja.rabbiter_online.models.Events
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class RabbitViewModel(private val fetcher : DataFetcher) : ViewModel(){
-    val entriesList : MutableLiveData<MutableList<Entry>> = MutableLiveData<MutableList<Entry>>().apply { value= mutableListOf() }
+class RabbitViewModel(private val fetcher : WebService) : ViewModel(){
+    var entriesList : MutableList<Entry> = mutableListOf()
     val chosenPositions : SparseIntArray = SparseIntArray()
 
-    fun onMergeClick(onDone : ()->Unit){
-        val firstMergeEntry = entriesList.value!![chosenPositions.keyAt(0)]
-        val secondMergeEntry = entriesList.value!![chosenPositions.keyAt(1)]
+    fun onMergeClick(){
+        val firstMergeEntry = entriesList[chosenPositions.keyAt(0)]
+        val secondMergeEntry = entriesList[chosenPositions.keyAt(1)]
 
         with(firstMergeEntry){
             isMerged = true
@@ -22,48 +27,50 @@ class RabbitViewModel(private val fetcher : DataFetcher) : ViewModel(){
             mergedEntryID = secondMergeEntry.entryUUID
             mergedEntryPhotoURL = secondMergeEntry.entryPhotoURL
         }
-        entriesList.value!![chosenPositions.keyAt(0)] = firstMergeEntry
-        fetcher.updateEntry(firstMergeEntry){
+        entriesList[chosenPositions.keyAt(0)] = firstMergeEntry
+        viewModelScope.launch {
+            fetcher.updateEntry(firstMergeEntry)
             secondMergeEntry.isChildMerged = true
-            entriesList.value!![chosenPositions.keyAt(1)] = secondMergeEntry
-            fetcher.updateEntry(secondMergeEntry){
-                entriesList.value!!.removeAt(entriesList.value!!.map{it.entryUUID}.indexOf(secondMergeEntry.entryUUID))
-
-                entriesList.notifyObserver()
-                onDone()
+            fetcher.updateEntry(secondMergeEntry)
+            withContext(Dispatchers.Main){
+                entriesList[chosenPositions.keyAt(1)] = secondMergeEntry
+                entriesList.removeAt(entriesList.indexOfFirst {it.entryUUID == secondMergeEntry.entryUUID })
             }
+
         }
-        //getEntries()
     }
-    fun onSplitClick(onDone: () -> Unit){
-        val firstMergeEntry = entriesList.value!![chosenPositions.keyAt(0)]
+    suspend fun onSplitClick(){
+        val firstMergeEntry = entriesList[chosenPositions.keyAt(0)]
         val secondMergeEntryUUID = firstMergeEntry.mergedEntryID
-        firstMergeEntry.isMerged = false
-        firstMergeEntry.mergedEntryName = null
-        firstMergeEntry.mergedEntryID = null
-        firstMergeEntry.mergedEntryPhotoURL = "https://kocjancic.ddns.net/image/"
+        with(firstMergeEntry){
+            isMerged = false
+            mergedEntryName = null
+            mergedEntryID = null
+            mergedEntryPhotoURL = "https://kocjancic.ddns.net/image/"
+        }
 
-        entriesList.value!![chosenPositions.keyAt(0)] = firstMergeEntry
+        entriesList[chosenPositions.keyAt(0)] = firstMergeEntry
         fetcher.updateEntry(firstMergeEntry)
-        fetcher.findEntryByUUID(secondMergeEntryUUID!!){secondMergeEntry->
-            secondMergeEntry?.isChildMerged = false
-            fetcher.updateEntry(secondMergeEntry!!){
-                entriesList.value!!.add(secondMergeEntry)
-                chosenPositions.clear()
-                entriesList.notifyObserver()
-                onDone()
-            }
-        }
-        //getEntries()
+
+        val secondMergeEntry = fetcher.seekEntry(secondMergeEntryUUID!!)
+        secondMergeEntry.isChildMerged = false
+        fetcher.updateEntry(secondMergeEntry)
+
+        entriesList.add(secondMergeEntry)
+        chosenPositions.clear()
+        //entriesList.notifyObserver()
     }
+
     fun getEntries() {
-        fetcher.findChildMergedEntries{
-            entriesList.value?.clear()
-            entriesList.value?.addAll(it)
-            entriesList.notifyObserver()
+        viewModelScope.launch{
+            val result = fetcher.childMergedEntries()
+            withContext(Dispatchers.Main){
+                entriesList.clear()
+                entriesList.addAll(result)
+                //entriesList.notifyObserver()
+            }
+
         }
     }
-    fun findNotAlertedEvents(onDone : (response : List<Events>)->Unit){
-        fetcher.findNotAlertedEvents(onDone)
-    }
+    suspend fun findNotAlertedEvents() : List<Events> = fetcher.findNotAlertedEvents()
 }

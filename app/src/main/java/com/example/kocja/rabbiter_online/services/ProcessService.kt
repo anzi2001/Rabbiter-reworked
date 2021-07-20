@@ -9,17 +9,21 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 
 import com.example.kocja.rabbiter_online.R
-import com.example.kocja.rabbiter_online.managers.DataFetcher
+import com.example.kocja.rabbiter_online.managers.WebService
 import com.example.kocja.rabbiter_online.models.Events
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ProcessService : IntentService("this is processEvents"),KoinComponent {
-    private val fetcher : DataFetcher by inject()
+class ProcessService : IntentService("this is processEvents"), KoinComponent {
+    private val fetcher : WebService by inject()
     override fun onCreate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel("processChannel", "Proccessing", NotificationManager.IMPORTANCE_DEFAULT)
@@ -36,7 +40,7 @@ class ProcessService : IntentService("this is processEvents"),KoinComponent {
 
     override fun onHandleIntent(intent: Intent?) {
         val eventHappened = intent!!.getBooleanExtra("eventHappened", false)
-        var event = intent.getParcelableExtra("event") as Events
+        var event = intent.getParcelableExtra<Events>("event")!!
 
         val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.UK)
 
@@ -52,7 +56,10 @@ class ProcessService : IntentService("this is processEvents"),KoinComponent {
             //NotifyUser.schedule(applicationContext, event.dateOfEventMilis, event)
         }
 
-        fetcher.updateEvent(event){}
+        CoroutineScope(Dispatchers.IO).launch{
+            fetcher.updateEvent(event)
+        }
+
     }
 
     private fun setEventString(eventHappened: Boolean, event: Events, formattedDate: String): Events {

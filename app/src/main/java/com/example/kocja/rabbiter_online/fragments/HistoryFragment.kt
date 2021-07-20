@@ -9,13 +9,16 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 
 import com.example.kocja.rabbiter_online.R
 import com.example.kocja.rabbiter_online.adapters.UpcomingEventsAdapter
-import com.example.kocja.rabbiter_online.extensions.observeOnce
+import com.example.kocja.rabbiter_online.databinding.FragmentUpcomingHistoryLayoutBinding
 import com.example.kocja.rabbiter_online.viewmodels.ViewEntryViewModel
-import org.koin.android.viewmodel.ext.android.sharedViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 
 /**
@@ -24,23 +27,38 @@ import org.koin.android.viewmodel.ext.android.sharedViewModel
 
 class HistoryFragment : Fragment() {
 
-    val viewEntryViewModel : ViewEntryViewModel by sharedViewModel()
+    private val viewEntryViewModel : ViewEntryViewModel by sharedViewModel()
+    var fragmentUpcomingHistoryLayoutBinding : FragmentUpcomingHistoryLayoutBinding? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_upcoming_history_layout, container, false)
+        fragmentUpcomingHistoryLayoutBinding = FragmentUpcomingHistoryLayoutBinding.inflate(layoutInflater,container,false)
+        return fragmentUpcomingHistoryLayoutBinding?.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        fragmentUpcomingHistoryLayoutBinding = null
     }
 
     fun setPastEvents(context: Context, entryName: String, view: RecyclerView) {
-        viewEntryViewModel.findPastEvents(entryName).observeOnce(this, Observer {events->
-            val eventStrings = events.filter{it.eventString != null}.map{it.eventString!!}
-            setFragmentAdapter(eventStrings, context, view)
-        })
+        lifecycleScope.launch{
+            val result = viewEntryViewModel.findPastEvents(entryName)
+            val eventStrings = result.filter{it.eventString != null}.map{it.eventString!!}
+            withContext(Dispatchers.Main){
+                setFragmentAdapter(eventStrings, context, view)
+            }
+        }
     }
 
     fun maleParentOf(context: Context, parent: String, view: RecyclerView) {
-        viewEntryViewModel.findParentOf(parent).observeOnce(this, Observer {entries->
+        lifecycleScope.launch {
+            val entries = viewEntryViewModel.findParentOf(parent)
             val parentOfList = entries.map{getString(R.string.parentOf,it.entryName)}
-            setFragmentAdapter(parentOfList, context, view)
-        })
+            withContext(Dispatchers.Main){
+                setFragmentAdapter(parentOfList, context, view)
+            }
+
+        }
+
     }
     private fun setFragmentAdapter(stringList: List<String>, c: Context, view: RecyclerView) {
             view.layoutManager = LinearLayoutManager(c)

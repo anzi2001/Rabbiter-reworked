@@ -6,13 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:context=".activities.ViewEntry">-->
-<layout>
-    <data>
-        <variable
-            name="viewEntryViewModel"
-            type="com.example.kocja.rabbiter_online.viewmodels.ViewEntryViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -35,7 +28,7 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.73" />
 
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/historyFragment"
             android:name="com.example.kocja.rabbiter_online.fragments.HistoryFragment"
             android:layout_width="0dp"
@@ -75,7 +68,7 @@
             app:layout_constraintVertical_bias="1.0"
             app:srcCompat="@drawable/frame_imageview" />
 
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/mainEntryFragment"
             android:name="com.example.kocja.rabbiter_online.fragments.ViewEntryFragment"
             android:layout_width="0dp"
@@ -87,5 +80,4 @@
             tools:layout="@layout/fragment_view_entry_data" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
 <!--</ScrollView>-->

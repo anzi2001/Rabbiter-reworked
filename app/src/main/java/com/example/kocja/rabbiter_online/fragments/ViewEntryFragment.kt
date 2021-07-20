@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import com.example.kocja.rabbiter_online.databinding.FragmentViewEntryDataBinding
 import com.example.kocja.rabbiter_online.viewmodels.ViewEntryViewModel
 import org.koin.android.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 
 /**

@@ -1,18 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<layout>
-
-    <data>
-        <variable
-            name="bindingAdapter"
-            type="com.example.kocja.rabbiter_online.adapters.BindingAdapters" />
-
-        <variable
-            name="viewEntryViewModel"
-            type="com.example.kocja.rabbiter_online.viewmodels.ViewEntryViewModel" />
-    </data>
-
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -191,5 +178,4 @@
             app:layout_constraintStart_toEndOf="@+id/groupRabbitNum" />
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+</androidx.constraintlayout.widget.ConstraintLayout>

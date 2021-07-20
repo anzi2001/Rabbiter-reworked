@@ -9,18 +9,19 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 
 import com.example.kocja.rabbiter_online.R
-import com.example.kocja.rabbiter_online.managers.DataFetcher
+import com.example.kocja.rabbiter_online.managers.WebService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
-import java.text.SimpleDateFormat
-import java.util.*
 
 /**
  * Created by kocja on 27/02/2018.
  */
 
 class OnBootService : IntentService("This is OnBootService") {
-    private val fetcher: DataFetcher by inject()
-    private val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    private val fetcher: WebService by inject()
     override fun onCreate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val chanel = NotificationChannel("checkBoot", "Boot", NotificationManager.IMPORTANCE_DEFAULT)
@@ -38,12 +39,14 @@ class OnBootService : IntentService("This is OnBootService") {
     }
 
     override fun onHandleIntent(intent: Intent?) {
-        fetcher.findNotAlertedEvents { list ->
-            list.forEach {
-                EventTriggered.scheduleWorkManager(this,it.dateOfEventMilis,it.eventUUID)
-                //NotifyUser.schedule(this, it.dateOfEventMilis, it)
+        CoroutineScope(Dispatchers.IO).launch{
+            val list = fetcher.findNotAlertedEvents()
+            withContext(Dispatchers.Default){
+                list.forEach {
+                    EventTriggered.scheduleWorkManager(this@OnBootService,it.dateOfEventMilis,it.eventUUID)
+                }
             }
-
         }
+
     }
 }

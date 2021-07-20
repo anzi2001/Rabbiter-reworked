@@ -1,7 +1,7 @@
 package com.example.kocja.rabbiter_online.models
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 
 /**
@@ -9,7 +9,7 @@ import kotlinx.android.parcel.Parcelize
  */
 @Parcelize
 data class Entry(val entryUUID: String,
-                 var entryName: String? = null,
+                 var entryName: String = "",
                  var entryPhotoUri: String? = null,
                  var entryPhotoURL: String = "https://kocjancic.ddns.net/image/",
                  var matedWithOrParents: String? = null,

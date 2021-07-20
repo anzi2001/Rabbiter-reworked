@@ -1,89 +1,81 @@
 package com.example.kocja.rabbiter_online.viewmodels
 
-import android.annotation.SuppressLint
 import android.graphics.Color
-import android.os.AsyncTask
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.kocja.rabbiter_online.managers.DataFetcher
+import androidx.lifecycle.viewModelScope
+import com.example.kocja.rabbiter_online.managers.WebService
 import com.example.kocja.rabbiter_online.models.Entry
 import com.example.kocja.rabbiter_online.models.Events
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 
-@SuppressLint("StaticFieldLeak")
-class ViewEntryStatsViewModel(private val fetcher : DataFetcher) : ViewModel(){
+class ViewEntryStatsViewModel(private val fetcher : WebService) : ViewModel(){
     val entry : MutableLiveData<Entry> = MutableLiveData()
 
 
-    val numBirthsSeries = LineGraphSeries<DataPoint>()
-    val averageBirthSeries = LineGraphSeries<DataPoint>()
-    val numDeathSeries = LineGraphSeries<DataPoint>()
-    val avgDeadRabbits = LineGraphSeries<DataPoint>()
+    private val numBirthsSeries = LineGraphSeries<DataPoint>()
+    private val averageBirthSeries = LineGraphSeries<DataPoint>()
+    private val numDeathSeries = LineGraphSeries<DataPoint>()
+    private val avgDeadRabbits = LineGraphSeries<DataPoint>()
+    private val formatter : SimpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
-    val formatter : SimpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    fun populateGraphs(onPostExecute : (series : HashMap<String,LineGraphSeries<DataPoint>>,births : List<Float>)->Unit) {
+        viewModelScope.launch(Dispatchers.Default) {
+            val events = fetcher.getEventByName(entry.value!!.entryName)
 
-    fun populateGraphs(onPostExecute : (series : HashMap<String,LineGraphSeries<DataPoint>>,births : List<Float>)->Unit){
-        fetcher.findEventsByNameType(entry.value!!.entryName!!){
+            var avgRabbitsNum = 0f
+            var deadRabbitsNum = 0f
+            var failedBirths = 0f
+            var successBirthsNum = 0f
 
-            object : AsyncTask<Void, Void, List<Float>>() {
-                override fun doInBackground(vararg voids: Void): List<Float>? {
-                    var avgRabbitsNum = 0f
-                    var deadRabbitsNum = 0f
-                    var failedBirths = 0f
-                    var successBirthsNum = 0f
+            events.forEach{
+                if (it.notificationState == Events.EVENT_SUCCESSFUL) successBirthsNum++
+                else failedBirths++
 
-                    for (singleEvent in it) {
-                        if (singleEvent.notificationState == Events.EVENT_SUCCESSFUL) {
-                            successBirthsNum++
-                        } else {
-                            failedBirths++
-                        }
-                        avgRabbitsNum += singleEvent.rabbitsNum
-                        deadRabbitsNum += singleEvent.numDead
+                avgRabbitsNum += it.rabbitsNum
+                deadRabbitsNum += it.numDead
 
-                        numBirthsSeries.appendData(DataPoint(formatter.parse(singleEvent.dateOfEvent).time.toDouble(), singleEvent.rabbitsNum.toDouble()), true, 50)
+                numBirthsSeries.appendData(DataPoint(formatter.parse(it.dateOfEvent).time.toDouble(), it.rabbitsNum.toDouble()), true, 50)
 
-                    }
-                    avgRabbitsNum /= it.size
-                    deadRabbitsNum /= it.size
+            }
+            avgRabbitsNum /= events.size
+            deadRabbitsNum /= events.size
 
-                    for (singleEvent in it) {
-                        val time = formatter.parse(singleEvent.dateOfEvent).time.toDouble()
-                        averageBirthSeries.appendData(DataPoint(time, avgRabbitsNum.toDouble()), true, 50)
-                    }
+            events.forEach{
+                val time = formatter.parse(it.dateOfEvent).time.toDouble()
+                averageBirthSeries.appendData(DataPoint(time, avgRabbitsNum.toDouble()), true, 50)
+            }
 
-                    for (deadNumEvent in it) {
-                        val deadNumEventDate = formatter.parse(deadNumEvent.dateOfEvent).time.toDouble()
-                        numDeathSeries.appendData(DataPoint(deadNumEventDate, deadNumEvent.numDead.toDouble()), true, 50)
-                        avgDeadRabbits.appendData(DataPoint(deadNumEventDate, deadRabbitsNum.toDouble()), true, 50)
-                    }
+            events.forEach{
+                val deadNumEventDate = formatter.parse(it.dateOfEvent).time.toDouble()
+                numDeathSeries.appendData(DataPoint(deadNumEventDate, it.numDead.toDouble()), true, 50)
+                avgDeadRabbits.appendData(DataPoint(deadNumEventDate, deadRabbitsNum.toDouble()), true, 50)
+            }
 
-                    numBirthsSeries.color = Color.BLUE
-                    averageBirthSeries.color = Color.YELLOW
+            numBirthsSeries.color = Color.BLUE
+            averageBirthSeries.color = Color.YELLOW
 
-                    numDeathSeries.color = Color.BLUE
-                    avgDeadRabbits.color = Color.YELLOW
+            numDeathSeries.color = Color.BLUE
+            avgDeadRabbits.color = Color.YELLOW
 
-                    return listOf(failedBirths,successBirthsNum)
-                }
+            val hashMap = hashMapOf(
+                    "numBirthSeries" to numBirthsSeries,
+                    "numDeathSeries" to numDeathSeries,
+                    "averageBirthSeries" to averageBirthSeries,
+                    "avgDeadRabbits" to avgDeadRabbits
+            )
 
-                override fun onPostExecute(births: List<Float>) {
-                    val hashMap = hashMapOf(
-                            "numBirthSeries" to numBirthsSeries,
-                            "numDeathSeries" to numDeathSeries,
-                            "averageBirthSeries" to averageBirthSeries,
-                            "avgDeadRabbits" to avgDeadRabbits
-                    )
-                    onPostExecute(hashMap, births)
-                    super.onPostExecute(births)
-                }
-            }.execute()
+            withContext(Dispatchers.Main){
+                onPostExecute(hashMap, listOf(failedBirths, successBirthsNum))
+            }
+
         }
-
     }
-
 }

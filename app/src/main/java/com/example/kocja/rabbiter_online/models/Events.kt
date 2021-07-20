@@ -1,7 +1,7 @@
 package com.example.kocja.rabbiter_online.models
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 /**
  * Created by kocja on 28/01/2018.
